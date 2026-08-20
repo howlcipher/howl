@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Howl is a unified open-source ecosystem designed to bring mathematical rigor, capability boundaries, adversarial verification, and human authority to AI-assisted software engineering.">
+    <link rel="canonical" href="https://howlcipher.github.io/howl/">
+
+    <!-- Open Graph Metadata -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Howl Ecosystem">
+    <meta property="og:title" content="Howl Ecosystem | Autonomous AI Engineering &amp; Deterministic Authority">
+    <meta property="og:description" content="Intent is not authority. A unified suite of compilers, control planes, authority gates, and knowledge notebooks for safe AI engineering.">
+    <meta property="og:url" content="https://howlcipher.github.io/howl/">
+    <meta property="og:image" content="https://howlcipher.github.io/howl/social-preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Howl Ecosystem Architecture and Interoperability Topology">
+
+    <!-- Twitter Card Metadata -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Howl Ecosystem | Autonomous AI Engineering &amp; Deterministic Authority">
+    <meta name="twitter:description" content="Intent is not authority. A unified suite of compilers, control planes, authority gates, and knowledge notebooks for safe AI engineering.">
+    <meta name="twitter:image" content="https://howlcipher.github.io/howl/social-preview.png">
+    <meta name="twitter:image:alt" content="Howl Ecosystem Architecture and Interoperability Topology">
+
+    <title>Howl Ecosystem | Autonomous AI Engineering &amp; Deterministic Authority</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" type="image/png" href="favicon.png">
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <!-- Ecosystem Slide-out Drawer Overlay -->
+    <div id="eco-drawer-overlay" class="eco-drawer-overlay" aria-hidden="true"></div>
+
+    <!-- Ecosystem Slide-out Drawer Panel -->
+    <aside id="eco-drawer" class="eco-drawer" aria-label="Howl Ecosystem Directory" aria-hidden="true">
+        <div class="drawer-header">
+            <div class="drawer-title">HOWL // ECOSYSTEM DIRECTORY</div>
+            <button id="eco-drawer-close" class="btn-drawer-close" type="button" aria-label="Close ecosystem directory">[✕ CLOSE]</button>
+        </div>
+        <div class="drawer-body">
+            <a href="https://howlcipher.github.io/howl/" class="drawer-node-card active-hub">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWL // HUB</span>
+                    <span class="node-card-role">[PORTAL]</span>
+                </div>
+                <div class="node-card-desc">Central ecosystem portal, architectural blueprint, and cross-project governance map.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlframe/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLFRAME</span>
+                    <span class="node-card-role" style="color: var(--color-magenta);">[VM &amp; COMPILER]</span>
+                </div>
+                <div class="node-card-desc">AI-native reasoning language, typed intermediate representation, and sandboxed bytecode VM.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlplane/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLPLANE</span>
+                    <span class="node-card-role" style="color: var(--color-blue);">[CONTROL PLANE]</span>
+                </div>
+                <div class="node-card-desc">Engineering control plane with deterministic routing, adversarial falsification, and human gates.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlnotes/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLNOTES</span>
+                    <span class="node-card-role" style="color: var(--color-cyan);">[KNOWLEDGE NOTEBOOK]</span>
+                </div>
+                <div class="node-card-desc">Engineering knowledge notebook &amp; full-stack dogfood consumer proving native persistent storage.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/changeops/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">CHANGEOPS</span>
+                    <span class="node-card-role" style="color: var(--color-red);">[AUTHORITY GATE]</span>
+                </div>
+                <div class="node-card-desc">Governed release controller enforcing cryptographic human approvals and bounded Git mutations.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlboard/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLBOARD</span>
+                    <span class="node-card-role" style="color: var(--color-amber);">[EVALUATION SURFACE]</span>
+                </div>
+                <div class="node-card-desc">Observation console and full-stack deterministic task state machine application.</div>
+            </a>
+        </div>
+        <div class="drawer-footer">
+            <span>● 5 PRODUCTION NODES</span>
+            <span>AUTH // HOWL 2026</span>
+        </div>
+    </aside>
+
+    <div class="layout-container">
+        <!-- Site Header -->
+        <header class="site-header">
+            <div class="header-top">
+                <div class="header-brand">
+                    <a href="https://howlcipher.github.io/howl/" class="brand-sig">HOWL <span>//</span> ECOSYSTEM</a>
+                    <span class="subsystem-tag">SYS_ID: HOWL-ECO-00</span>
+                </div>
+                <div class="header-actions">
+                    <button id="eco-menu-toggle" class="btn-eco-toggle" type="button" aria-expanded="false" aria-controls="eco-drawer" aria-label="Toggle Howl Ecosystem Directory">
+                        <span aria-hidden="true">☰</span> [ECOSYSTEM]
+                    </button>
+                    <button id="theme-toggle" class="btn-theme-toggle" type="button" aria-pressed="false">
+                        <span aria-hidden="true">☾</span> [DARK_MODE]
+                    </button>
+                    <a href="https://github.com/howlcipher" class="btn-tech btn-tech-primary" target="_blank" rel="noreferrer">
+                        [ GITHUB ORG ]
+                    </a>
+                </div>
+            </div>
+
+            <!-- In-Page Section Navigation -->
+            <nav class="section-nav" aria-label="Page sections">
+                <span class="section-nav-label">READ_PATH:</span>
+                <a href="#overview">01_Overview</a>
+                <a href="#topology">02_Topology</a>
+                <a href="#directory">03_Directory</a>
+                <a href="#principles">04_Philosophy</a>
+                <a href="#design-system">05_DesignSystem</a>
+                <a href="#getting-started">06_QuickStart</a>
+            </nav>
+        </header>
+
+        <!-- Main Content Surface -->
+        <main id="main-content">
+            <!-- Hero Panel -->
+            <section class="hero-panel" aria-labelledby="main-title">
+                <div class="hero-banner">
+                    <span>SPEC_VER // 2026.1 (RETRO-FUTURIST INDUSTRIAL SPEC)</span>
+                    <span>ARCHITECTURE: DETERMINISTIC CONTROL &amp; BOUNDED AUTHORITY</span>
+                </div>
+                <div class="hero-body">
+                    <div class="hero-header-block">
+                        <p class="hero-kicker">// unified autonomous engineering ecosystem / deterministic authority</p>
+                        <h1 id="main-title" class="hero-title">Howl Ecosystem <span class="jp-sub">ホウル // 2026</span></h1>
+                        <p class="hero-lead">
+                            Howl is an integrated open-source software ecosystem engineered to bring mathematical rigor, capability boundaries, adversarial verification, and cryptographic human authority to AI-assisted software engineering.
+                        </p>
+                    </div>
+
+                    <div class="axiom-card" role="region" aria-label="Governing Principle">
+                        <strong>AXIOM // INTENT IS NOT AUTHORITY.</strong> Probabilistic intelligence proposes changes; deterministic machinery strictly verifies constraints; human operators retain sovereign authority over consequential risk.
+                    </div>
+
+                    <div class="hero-actions">
+                        <a href="#directory" class="btn-tech btn-tech-primary">
+                            [ EXPLORE REPOSITORIES ]
+                        </a>
+                        <a href="#topology" class="btn-tech">
+                            [ INTEROPERABILITY TOPOLOGY ]
+                        </a>
+                        <a href="https://github.com/howlcipher" class="btn-tech" target="_blank" rel="noreferrer">
+                            [ VIEW ON GITHUB ]
+                        </a>
+                    </div>
+
+                    <!-- Hero Interoperability Diagram -->
+                    <div class="hero-diagram-wrap" aria-label="Howl Ecosystem Interoperability Architecture">
+                        <div class="diagram-header">
+                            <span>TOPOLOGY // COMPILER ↔ CONTROL PLANE ↔ AUTHORITY GATE ↔ DOGFOOD APPS</span>
+                            <span>STATUS: 100% GREEN</span>
+                        </div>
+                        <div class="ecosystem-grid">
+                            <div class="eco-node-card node-frame">
+                                <div class="enc-header">01 // HOWLFRAME</div>
+                                <div class="enc-body">
+                                    <div class="enc-title">Reasoning &amp; VM</div>
+                                    <div class="enc-desc">AI DSL compiler, typed HFIR verification gate, and capability-bounded VM.</div>
+                                    <div class="enc-tag">[TIER 0 // COMPILER]</div>
+                                </div>
+                            </div>
+                            <div class="eco-node-card node-plane">
+                                <div class="enc-header">02 // HOWLPLANE</div>
+                                <div class="enc-body">
+                                    <div class="enc-title">Control Plane</div>
+                                    <div class="enc-desc">Multi-agent orchestrator, deterministic task router, and evidence ledger.</div>
+                                    <div class="enc-tag">[TIER 1 // ORCHESTRATION]</div>
+                                </div>
+                            </div>
+                            <div class="eco-node-card node-change">
+                                <div class="enc-header">03 // CHANGEOPS</div>
+                                <div class="enc-body">
+                                    <div class="enc-title">Release Authority</div>
+                                    <div class="enc-desc">Cryptographic HMAC human gates, TOCTOU defense, and bounded Git actions.</div>
+                                    <div class="enc-tag">[TIER 1 // GOVERNANCE]</div>
+                                </div>
+                            </div>
+                            <div class="eco-node-card node-notes">
+                                <div class="enc-header">04 // HOWLNOTES</div>
+                                <div class="enc-body">
+                                    <div class="enc-title">Field Notebook</div>
+                                    <div class="enc-desc">Knowledge repository and external consumer proving native file persistence.</div>
+                                    <div class="enc-tag">[TIER 2 // KNOWLEDGE]</div>
+                                </div>
+                            </div>
+                            <div class="eco-node-card node-board">
+                                <div class="enc-header">05 // HOWLBOARD</div>
+                                <div class="enc-body">
+                                    <div class="enc-title">Evaluation Surface</div>
+                                    <div class="enc-desc">Live telemetry console and full-stack deterministic state machine board.</div>
+                                    <div class="enc-tag">[TIER 2 // TELEMETRY]</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 01 Overview -->
+            <section id="overview" class="tech-panel">
+                <div class="tech-header">
+                    <h2><span class="sec-id">SECTION // 01</span> Overview &amp; Architectural Thesis</h2>
+                    <span class="subsystem-tag">ECO-MOD-OVERVIEW</span>
+                </div>
+                <div class="tech-body">
+                    <p>
+                        Modern AI coding assistants excel at pattern matching, generating diffs, and synthesizing code. However, when granted unconstrained access to tools, file systems, and production environments, they introduce severe risks: hallucinated dependencies, prompt injection vulnerabilities, breaking architectural drift, and unauthorized mutations.
+                    </p>
+                    <p>
+                        The <strong>Howl Ecosystem</strong> solves this structural flaw through architectural separation. In Howl, AI models operate inside bounded reasoning tiers that generate verifiable intermediate representations. Execution authority belongs strictly to deterministic compilers, sandboxed runtimes, and cryptographically signed human approval gates.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 02 Interoperability Topology -->
+            <section id="topology" class="tech-panel">
+                <div class="tech-header">
+                    <h2><span class="sec-id">SECTION // 02</span> Ecosystem Interoperability Topology</h2>
+                    <span class="subsystem-tag">ECO-MOD-TOPOLOGY</span>
+                </div>
+                <div class="tech-body">
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-title">[SCHEMATIC // INTEROPERABILITY_GRAPH]</span>
+                            <span class="subsystem-tag">HOWL_TOPOLOGY</span>
+                        </div>
+                        <pre><code>                              ┌────────────────────────┐
+                              │  HUMAN OPERATOR / LEAD │
+                              └───────────┬────────────┘
+                                          │
+                                   Cryptographic HMAC
+                                  Approval Signature
+                                          │
+                                          ▼
+┌─────────────────────────┐   ┌────────────────────────┐   ┌─────────────────────────┐
+│     HOWLFRAME (VM)      │◄──┤    CHANGEOPS (GATE)    ├──►│    HOWLPLANE (CONTROL)  │
+│ Language, HFIR &amp; Parser │   │ Bounded Release Action │   │ Task Routing &amp; Evidence │
+└────────────┬────────────┘   └────────────────────────┘   └────────────┬────────────┘
+             │                                                          │
+             │ Compiles DSLs &amp; Serves VM                                │ Orchestrates &amp; Audits
+             ▼                                                          ▼
+┌─────────────────────────┐                                ┌─────────────────────────┐
+│  HOWLNOTES (KNOWLEDGE)  │                                │  HOWLBOARD (TELEMETRY)  │
+│ Field Notebook &amp; Store  │                                │ Full-Stack Task Console │
+└─────────────────────────┘                                └─────────────────────────┘</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 03 Project Directory -->
+            <section id="directory" class="tech-panel">
+                <div class="tech-header">
+                    <h2><span class="sec-id">SECTION // 03</span> Ecosystem Project Directory</h2>
+                    <span class="subsystem-tag">ECO-MOD-DIRECTORY</span>
+                </div>
+                <div class="tech-body">
+                    <p>Each repository in the Howl ecosystem fulfills a dedicated, non-overlapping role:</p>
+                    
+                    <div class="node-directory-grid">
+                        <!-- HowlFrame -->
+                        <div class="dir-card" style="border-top: 3px solid var(--color-magenta);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlFrame</span>
+                                <span class="chip chip-magenta">TIER 0 // VM</span>
+                            </div>
+                            <p class="dir-card-desc">The core intelligence and reasoning framework. Features an AI-native Lisp-like DSL, typed HFIR intermediate representation, capability-checked execution boundaries, and standalone bytecode VM.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howlframe/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howlframe" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+                        <!-- HowlPlane -->
+                        <div class="dir-card" style="border-top: 3px solid var(--color-blue);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlPlane</span>
+                                <span class="chip chip-blue">TIER 1 // CONTROL</span>
+                            </div>
+                            <p class="dir-card-desc">The autonomous AI engineering control plane. Houses deterministic multi-agent task routing, independent falsification reviewers, evidence ledgers, and human sign-off gates.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howlplane/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howlplane" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+                        <!-- ChangeOps -->
+                        <div class="dir-card" style="border-top: 3px solid var(--color-red);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">ChangeOps</span>
+                                <span class="chip chip-red">TIER 1 // AUTHORITY</span>
+                            </div>
+                            <p class="dir-card-desc">Policy-driven Git change and release controller. Binds AI intent to cryptographically signed human approval envelopes, defending against TOCTOU drift and unauthorized mutations.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/changeops/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/changeops" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+                        <!-- HowlNotes -->
+                        <div class="dir-card" style="border-top: 3px solid var(--color-cyan);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlNotes</span>
+                                <span class="chip chip-cyan">TIER 2 // KNOWLEDGE</span>
+                            </div>
+                            <p class="dir-card-desc">A complete notes application built as an external dogfood consumer of HowlFrame, proving browser compilation from <code>(web_app)</code> and durable native record store persistence.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howlnotes/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howlnotes" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+                        <!-- HowlBoard -->
+                        <div class="dir-card" style="border-top: 3px solid var(--color-amber);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlBoard</span>
+                                <span class="chip chip-amber">TIER 2 // TELEMETRY</span>
+                            </div>
+                            <p class="dir-card-desc">The flagship full-stack evaluation surface and deterministic task state machine. Continuously surfaces compiler friction and verifies state transition invariant policies.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howlboard/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howlboard" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 04 Core Principles -->
+            <section id="principles" class="tech-panel">
+                <div class="tech-header">
+                    <h2><span class="sec-id">SECTION // 04</span> Governing Principles &amp; Axioms</h2>
+                    <span class="subsystem-tag">ECO-MOD-PHILOSOPHY</span>
+                </div>
+                <div class="tech-body">
+                    <div class="grid-2col">
+                        <div>
+                            <h3>01 // Intent Is Not Authority</h3>
+                            <p>An AI model's output represents an unverified proposition. It can never grant itself permission or execute consequential state changes without cryptographic sign-off.</p>
+                        </div>
+                        <div>
+                            <h3>02 // Fail-Closed Capability Gates</h3>
+                            <p>Every runtime operation (network sockets, disk writes, subcommands) requires an explicit capability token. If omitted or corrupted, execution terminates immediately.</p>
+                        </div>
+                        <div>
+                            <h3>03 // Adversarial Verification</h3>
+                            <p>Code changes are never accepted on builder claims alone. Independent falsifiers continuously probe edge cases, invariant rules, and state drift.</p>
+                        </div>
+                        <div>
+                            <h3>04 // Epistemic Humility</h3>
+                            <p>When live environmental evidence conflicts with static assumptions or specifications, live evidence takes precedence, triggering audit reconciliation.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 05 Visual & Design System -->
+            <section id="design-system" class="tech-panel">
+                <div class="tech-header">
+                    <h2><span class="sec-id">SECTION // 05</span> Visual System &amp; Design Tokens</h2>
+                    <span class="subsystem-tag">ECO-MOD-DESIGN</span>
+                </div>
+                <div class="tech-body">
+                    <p>
+                        All Howl projects share a unified design system inspired by the retro-futurist industrial aesthetic of 2026 Science SARU / <em>Ghost in the Shell</em>:
+                    </p>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Token</th>
+                                    <th>Hex Value</th>
+                                    <th>Semantic Role in Howl</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>--howl-shell</code></td>
+                                    <td><code>#E7E1CE</code></td>
+                                    <td>Warm paper/field notebook surface (Default light background)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>--howl-near-black</code></td>
+                                    <td><code>#14191C</code></td>
+                                    <td>Terminal foundation (Default dark background)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>--howl-navy</code></td>
+                                    <td><code>#102A43</code></td>
+                                    <td>Structural header bands, frames, and infrastructure panels</td>
+                                </tr>
+                                <tr>
+                                    <td><code>--howl-cyan</code></td>
+                                    <td><code>#28B7D8</code></td>
+                                    <td>Information links, verified telemetry, and test evidence</td>
+                                </tr>
+                                <tr>
+                                    <td><code>--howl-blue</code></td>
+                                    <td><code>#087FAF</code></td>
+                                    <td>Primary interactive actions and orchestration routes</td>
+                                </tr>
+                                <tr>
+                                    <td><code>--howl-red</code></td>
+                                    <td><code>#D94732</code></td>
+                                    <td>Authority gates, fail-closed boundaries, and destructive mutations</td>
+                                </tr>
+                                <tr>
+                                    <td><code>--howl-magenta</code></td>
+                                    <td><code>#E21D68</code></td>
+                                    <td>Restrained AI reasoning and probabilistic intent markers</td>
+                                </tr>
+                                <tr>
+                                    <td><code>--howl-amber</code></td>
+                                    <td><code>#F2A91B</code></td>
+                                    <td>Pending review states, warning thresholds, and human authority</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 06 Getting Started -->
+            <section id="getting-started" class="tech-panel">
+                <div class="tech-header">
+                    <h2><span class="sec-id">SECTION // 06</span> Quick Start &amp; Local Setup</h2>
+                    <span class="subsystem-tag">ECO-MOD-SETUP</span>
+                </div>
+                <div class="tech-body">
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-title">[BASH // CLONE_ECOSYSTEM]</span>
+                            <button class="btn-copy" type="button">[COPY]</button>
+                        </div>
+                        <pre><code># Clone the complete Howl ecosystem repositories:
+git clone https://github.com/howlcipher/howl.git
+git clone https://github.com/howlcipher/howlframe.git
+git clone https://github.com/howlcipher/howlplane.git
+git clone https://github.com/howlcipher/howlnotes.git
+git clone https://github.com/howlcipher/changeops.git
+git clone https://github.com/howlcipher/howlboard.git
+
+# Verify all repositories locally
+cd howlframe &amp;&amp; go test ./...
+cd ../howlplane &amp;&amp; pytest
+cd ../howlnotes &amp;&amp; ./scripts/test.sh
+cd ../changeops &amp;&amp; bash tests/integration_test.sh</code></pre>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Site Footer -->
+        <footer class="site-footer">
+            <div class="footer-telemetry">
+                <div class="status-indicator">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    <span>SYS_STATUS: ACTIVE // HOWL-UNIFIED-ECOSYSTEM</span>
+                </div>
+                <div>AUTH // HOWL 2026</div>
+            </div>
+            <div class="footer-links">
+                <nav class="footer-nav" aria-label="Ecosystem Links">
+                    <a href="https://howlcipher.github.io/howl/">Howl Hub</a>
+                    <a href="https://howlcipher.github.io/howlframe/">HowlFrame</a>
+                    <a href="https://howlcipher.github.io/howlplane/">HowlPlane</a>
+                    <a href="https://howlcipher.github.io/howlnotes/">HowlNotes</a>
+                    <a href="https://howlcipher.github.io/changeops/">ChangeOps</a>
+                    <a href="https://howlcipher.github.io/howlboard/">HowlBoard</a>
+                </nav>
+                <a href="#main-content">[ BACK TO TOP ]</a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
