@@ -20,6 +20,7 @@
 | **[`howlnotes`](https://github.com/howlcipher/howlnotes)** | **Knowledge Notebook & Dogfood Consumer:** Full-stack notes application proving browser compilation and native store persistence. | [howlcipher.github.io/howlnotes](https://howlcipher.github.io/howlnotes/) | Active |
 | **[`howlchangeops`](https://github.com/howlcipher/howlchangeops)** | **Authority Boundary & Release Controller:** Enforces HMAC cryptographic human approvals and bounded Git mutations. | [howlcipher.github.io/howlchangeops](https://howlcipher.github.io/howlchangeops/) | Active |
 | **[`howlboard`](https://github.com/howlcipher/howlboard)** | **Evaluation Surface & Telemetry Console:** Deterministic task state machine proving compiler maturity through dogfooding. | [howlcipher.github.io/howlboard](https://howlcipher.github.io/howlboard/) | Active |
+| **[`howlwriter`](https://github.com/howlcipher/howlwriter)** | **Writing Control & Review System:** Voice preservation, deterministic style linting, humanization, and adversarial review. | [howlcipher.github.io/howlwriter](https://howlcipher.github.io/howlwriter/) | Active |
 
 ---
 
@@ -31,20 +32,20 @@
                               └───────────┬────────────┘
                                           │
                                    Cryptographic HMAC
-                                  Approval Signature
+                                   Approval Signature
                                           │
                                           ▼
 ┌─────────────────────────┐   ┌────────────────────────┐   ┌─────────────────────────┐
 │     HOWLFRAME (VM)      │◄──┤  HOWLCHANGEOPS (GATE)  ├──►│    HOWLPLANE (CONTROL)  │
 │ Language, HFIR & Parser │   │ Bounded Release Action │   │ Task Routing & Evidence │
-└────────────┬────────────┘   └────────────────────────┘   └────────────┬────────────┘
-             │                                                          │
-             │ Compiles DSLs & Serves VM                                │ Orchestrates & Audits
-             ▼                                                          ▼
-┌─────────────────────────┐                                ┌─────────────────────────┐
-│  HOWLNOTES (KNOWLEDGE)  │                                │  HOWLBOARD (TELEMETRY)  │
-│ Field Notebook & Store  │                                │ Full-Stack Task Console │
-└─────────────────────────┘                                └─────────────────────────┘
+└────────────┬────────────┘   └────────────────────────┘   └──────┬────────────┬─────┘
+             │                                                    │            │
+             │ Compiles DSLs & Serves VM            Orchestrates  │            │ Controls Model
+             ▼                                                    ▼            ▼ Execution
+┌─────────────────────────┐                          ┌────────────┴┐   ┌───────┴─────────────┐
+│  HOWLNOTES (KNOWLEDGE)  │                          │  HOWLBOARD  │   │  HOWLWRITER (PROSE) │
+│ Field Notebook & Store  │                          │  Telemetry  │   │ Voice, Lint & Review│
+└─────────────────────────┘                          └─────────────┘   └─────────────────────┘
 ```
 
 ---
@@ -59,6 +60,7 @@ git clone https://github.com/howlcipher/howlplane.git
 git clone https://github.com/howlcipher/howlnotes.git
 git clone https://github.com/howlcipher/howlchangeops.git
 git clone https://github.com/howlcipher/howlboard.git
+git clone https://github.com/howlcipher/howlwriter.git
 ```
 
 ## License

@@ -89,9 +89,17 @@
                 </div>
                 <div class="node-card-desc">Observation console and full-stack deterministic task state machine application.</div>
             </a>
+
+            <a href="https://howlcipher.github.io/howlwriter/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLWRITER</span>
+                    <span class="node-card-role" style="color: var(--color-magenta);">[WRITING CONTROL]</span>
+                </div>
+                <div class="node-card-desc">Writing control system for voice preservation, deterministic style linting, humanization, and review.</div>
+            </a>
         </div>
         <div class="drawer-footer">
-            <span>● 5 PRODUCTION NODES</span>
+            <span>● 6 PRODUCTION NODES</span>
             <span>AUTH // HOWL 2026</span>
         </div>
     </aside>
@@ -209,6 +217,14 @@
                                     <div class="enc-tag">[TIER 2 // TELEMETRY]</div>
                                 </div>
                             </div>
+                            <div class="eco-node-card node-writer">
+                                <div class="enc-header">06 // HOWLWRITER</div>
+                                <div class="enc-body">
+                                    <div class="enc-title">Writing &amp; Review</div>
+                                    <div class="enc-desc">Voice preservation, deterministic style linting, humanization, and review.</div>
+                                    <div class="enc-tag">[TIER 2 // PROSE]</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -247,20 +263,20 @@
                               └───────────┬────────────┘
                                           │
                                    Cryptographic HMAC
-                                  Approval Signature
+                                   Approval Signature
                                           │
                                           ▼
 ┌─────────────────────────┐   ┌────────────────────────┐   ┌─────────────────────────┐
-│     HOWLFRAME (VM)      │◄──┤    HOWLCHANGEOPS (GATE)    ├──►│    HOWLPLANE (CONTROL)  │
+│     HOWLFRAME (VM)      │◄──┤    HOWLCHANGEOPS (GATE)├──►│    HOWLPLANE (CONTROL)  │
 │ Language, HFIR &amp; Parser │   │ Bounded Release Action │   │ Task Routing &amp; Evidence │
-└────────────┬────────────┘   └────────────────────────┘   └────────────┬────────────┘
-             │                                                          │
-             │ Compiles DSLs &amp; Serves VM                                │ Orchestrates &amp; Audits
-             ▼                                                          ▼
-┌─────────────────────────┐                                ┌─────────────────────────┐
-│  HOWLNOTES (KNOWLEDGE)  │                                │  HOWLBOARD (TELEMETRY)  │
-│ Field Notebook &amp; Store  │                                │ Full-Stack Task Console │
-└─────────────────────────┘                                └─────────────────────────┘</code></pre>
+└────────────┬────────────┘   └────────────────────────┘   └──────┬────────────┬─────┘
+             │                                                    │            │
+             │ Compiles DSLs &amp; Serves VM            Orchestrates  │            │ Controls Model
+             ▼                                                    ▼            ▼ Execution
+┌─────────────────────────┐                          ┌────────────┴┐   ┌───────┴─────────────┐
+│  HOWLNOTES (KNOWLEDGE)  │                          │  HOWLBOARD  │   │  HOWLWRITER (PROSE) │
+│ Field Notebook &amp; Store  │                          │  Telemetry  │   │ Voice, Lint &amp; Review│
+└─────────────────────────┘                          └─────────────┘   └─────────────────────┘</code></pre>
                     </div>
                 </div>
             </section>
@@ -337,6 +353,19 @@
                             <div class="dir-card-links">
                                 <a href="https://howlcipher.github.io/howlboard/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
                                 <a href="https://github.com/howlcipher/howlboard" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+                        <!-- HowlWriter -->
+                        <div class="dir-card" style="border-top: 3px solid var(--color-magenta);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlWriter</span>
+                                <span class="chip chip-magenta">TIER 2 // PROSE</span>
+                            </div>
+                            <p class="dir-card-desc">Writing control system combining deterministic style linting, authentic author voice preservation, claim provenance, and HowlPlane-controlled independent model review.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howlwriter/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howlwriter" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
                             </div>
                         </div>
                     </div>
@@ -456,12 +485,14 @@ git clone https://github.com/howlcipher/howlplane.git
 git clone https://github.com/howlcipher/howlnotes.git
 git clone https://github.com/howlcipher/howlchangeops.git
 git clone https://github.com/howlcipher/howlboard.git
+git clone https://github.com/howlcipher/howlwriter.git
 
 # Verify all repositories locally
 cd howlframe &amp;&amp; go test ./...
 cd ../howlplane &amp;&amp; pytest
 cd ../howlnotes &amp;&amp; ./scripts/test.sh
-cd ../howlchangeops &amp;&amp; bash tests/integration_test.sh</code></pre>
+cd ../howlchangeops &amp;&amp; bash tests/integration_test.sh
+cd ../howlwriter &amp;&amp; pytest</code></pre>
                     </div>
                 </div>
             </section>
@@ -484,6 +515,7 @@ cd ../howlchangeops &amp;&amp; bash tests/integration_test.sh</code></pre>
                     <a href="https://howlcipher.github.io/howlnotes/">HowlNotes</a>
                     <a href="https://howlcipher.github.io/howlchangeops/">HowlChangeOps</a>
                     <a href="https://howlcipher.github.io/howlboard/">HowlBoard</a>
+                    <a href="https://howlcipher.github.io/howlwriter/">HowlWriter</a>
                 </nav>
                 <a href="#main-content">[ BACK TO TOP ]</a>
             </div>
