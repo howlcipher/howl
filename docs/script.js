@@ -58,6 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (drawer && drawerOverlay) {
       drawer.classList.add('active');
       drawerOverlay.classList.add('active');
+      drawer.setAttribute('aria-hidden', 'false');
+      drawerOverlay.setAttribute('aria-hidden', 'false');
       if (drawerToggle) drawerToggle.setAttribute('aria-expanded', 'true');
       document.body.style.overflow = 'hidden';
       if (drawerCloseBtn) drawerCloseBtn.focus();
@@ -68,6 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (drawer && drawerOverlay) {
       drawer.classList.remove('active');
       drawerOverlay.classList.remove('active');
+      drawer.setAttribute('aria-hidden', 'true');
+      drawerOverlay.setAttribute('aria-hidden', 'true');
       if (drawerToggle) {
         drawerToggle.setAttribute('aria-expanded', 'false');
         drawerToggle.focus();
@@ -93,6 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
     drawerOverlay.addEventListener('click', closeDrawer);
   }
 
+  if (drawer) {
+    drawer.querySelectorAll('.drawer-node-card').forEach((card) => {
+      card.addEventListener('click', () => {
+        closeDrawer();
+      });
+    });
+  }
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && drawer && drawer.classList.contains('active')) {
       closeDrawer();
@@ -107,17 +119,38 @@ document.addEventListener('DOMContentLoaded', () => {
     if (copyBtn && codeEl) {
       copyBtn.addEventListener('click', async () => {
         try {
-          const text = codeEl.innerText.trim();
-          await navigator.clipboard.writeText(text);
-          const originalText = copyBtn.textContent;
-          copyBtn.textContent = '[COPIED!]';
-          copyBtn.style.borderColor = 'var(--color-cyan)';
-          copyBtn.style.color = 'var(--color-cyan)';
-          setTimeout(() => {
-            copyBtn.textContent = originalText;
-            copyBtn.style.borderColor = '';
-            copyBtn.style.color = '';
-          }, 2000);
+          const text = (codeEl.textContent || '').trim();
+          let copied = false;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            try {
+              await navigator.clipboard.writeText(text);
+              copied = true;
+            } catch (_) {
+              // Permission or headless fallback
+            }
+          }
+          if (!copied) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            copied = true;
+          }
+          if (copied) {
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = '[COPIED!]';
+            copyBtn.style.borderColor = 'var(--color-cyan)';
+            copyBtn.style.color = 'var(--color-cyan)';
+            setTimeout(() => {
+              copyBtn.textContent = originalText;
+              copyBtn.style.borderColor = '';
+              copyBtn.style.color = '';
+            }, 2000);
+          }
         } catch (err) {
           console.error('Failed to copy code snippet:', err);
         }
