@@ -86,6 +86,17 @@ func TestSummaryCalculation(t *testing.T) {
 		t.Errorf("expected HEALTHY")
 	}
 
+	checksUnknown := []CheckResult{
+		{Status: StatusPass},
+		{Status: StatusUnknown},
+	}
+	if computeSummary(checksUnknown, false) != HealthHealthy {
+		t.Errorf("expected HEALTHY for unknown optional components in non-strict mode")
+	}
+	if computeSummary(checksUnknown, true) != HealthHealthyWithWarnings {
+		t.Errorf("expected HEALTHY WITH WARNINGS for unknown optional components in strict mode")
+	}
+
 	checksWarn := []CheckResult{
 		{Status: StatusPass},
 		{Status: StatusWarn},

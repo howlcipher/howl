@@ -36,14 +36,15 @@ func DefaultGraph() GraphData {
 		Nodes: []GraphNode{
 			{ID: "human", Label: "Human Operator", Role: "Sovereign Authority", Category: "authority"},
 			{ID: "howl", Label: "Howl CLI", Role: "Ecosystem Front Door & Entry Point", Category: "cli", Repository: "https://github.com/howlcipher/howl"},
-			{ID: "howlchangeops", Label: "HowlChangeOps", Role: "Authority Boundary & Release Controller", Category: "gate", Repository: "https://github.com/howlcipher/howlchangeops"},
 			{ID: "howlplane", Label: "HowlPlane", Role: "AI Engineering Control Plane", Category: "control", Repository: "https://github.com/howlcipher/howlplane"},
+			{ID: "howlchangeops", Label: "HowlChangeOps", Role: "Authority Boundary & Release Controller", Category: "gate", Repository: "https://github.com/howlcipher/howlchangeops"},
 			{ID: "howlframe", Label: "HowlFrame", Role: "Language, HFIR Gate & VM", Category: "runtime", Repository: "https://github.com/howlcipher/howlframe"},
 			{ID: "howlwriter", Label: "HowlWriter", Role: "Writing Control & Review System", Category: "domain", Repository: "https://github.com/howlcipher/howlwriter"},
 			{ID: "howlboard", Label: "HowlBoard", Role: "Telemetry Console & Evaluation", Category: "domain", Repository: "https://github.com/howlcipher/howlboard"},
 			{ID: "howlnotes", Label: "HowlNotes", Role: "Knowledge Notebook & Dogfood", Category: "application", Repository: "https://github.com/howlcipher/howlnotes"},
 		},
 		Edges: []GraphEdge{
+			{From: "human", To: "howl", Label: "CLI Command Invocations", Description: "Operator invokes unprivileged CLI commands, diagnostics, and routing"},
 			{From: "human", To: "howlchangeops", Label: "Cryptographic HMAC Approval", Description: "Human retains sovereign authority over consequential mutations"},
 			{From: "howl", To: "howlplane", Label: "Command Routing & Orchestration", Description: "High-level delegation to AI engineering control plane"},
 			{From: "howl", To: "howlframe", Label: "DSL / VM Tooling", Description: "Compiler and verification access"},
@@ -61,21 +62,29 @@ func DefaultGraph() GraphData {
 func RenderText(w io.Writer) {
 	fmt.Fprint(w, `HOWL ECOSYSTEM ARCHITECTURAL GRAPH
 
-Human Operator (Sovereign Authority)
+[CLI ROUTING ARCHITECTURE]
+Human Operator / Developer
   │
-  ▼ [Cryptographic HMAC Approval Signature]
-HowlChangeOps (Authority Boundary & Release Controller)
+  ▼
+Howl CLI (Ecosystem Front Door & Entry Point)
   │
-  ├─◄ Howl CLI (Ecosystem Front Door)
-  │     │
-  │     ├── HowlPlane (AI Engineering Control Plane)
-  │     │     ├── AI Providers & Resource Pool
-  │     │     ├── Multi-Agent Task Routing & Evidence Ledgers
-  │     │     ├── HowlWriter (Prose, Voice Preservation & Review)
-  │     │     └── HowlBoard (Telemetry Console & Evaluation)
-  │     │
-  │     └── HowlFrame (Language, HFIR Gate & Capability-Bounded VM)
-  │           └── HowlNotes (Knowledge Notebook & Dogfood Consumer)
+  ├── HowlPlane (AI Engineering Control Plane)
+  │     ├── AI Providers & Resource Pool
+  │     ├── Multi-Agent Task Routing & Evidence Ledgers
+  │     ├── HowlWriter (Prose, Voice Preservation & Review)
+  │     └── HowlBoard (Telemetry Console & Evaluation)
+  │
+  └── HowlFrame (Language, HFIR Gate & Capability-Bounded VM)
+        └── HowlNotes (Knowledge Notebook & Dogfood Consumer)
+
+[CONSEQUENTIAL AUTHORITY FLOW]
+HowlPlane / Autonomous Workflows ──► Proposed Consequential Action
+                                          │
+                                          ▼
+                                    HowlChangeOps (Release Controller)
+                                          ▲
+                                          │ [Cryptographic HMAC Signature]
+                                    Human Operator (Sovereign Authority)
 `)
 }
 

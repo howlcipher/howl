@@ -24,6 +24,9 @@ func (r *OSExecRunner) Run(ctx context.Context, executable string, args []string
 	if executable == "" {
 		return 1, fmt.Errorf("howlplane executable not found or not configured")
 	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
 
 	cmd := exec.CommandContext(ctx, executable, args...)
 	cmd.Stdin = stdin

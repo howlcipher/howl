@@ -33,8 +33,8 @@ func DefaultContracts() []Contract {
 			ID:          "HOWL-PLANE-CLI",
 			Caller:      "howl",
 			Callee:      "howlplane",
-			Name:        "CLI Command Composition & Delegation",
-			Description: "Direct Cobra package composition (github.com/howlcipher/howlplane/pkg/cli) and CLI delegation",
+			Name:        "CLI Command Delegation & Forwarding",
+			Description: "Canonical CLI subprocess delegation and project validation forwarding to howlplane binary",
 		},
 		{
 			ID:          "PLANE-CHANGEOPS-AUTH",
@@ -86,10 +86,10 @@ func EvaluateContracts(discovered []discovery.DiscoveredComponent) []Contract {
 
 	for _, c := range contracts {
 		callerFound := (c.Caller == "howl")
+		var callerComp discovery.DiscoveredComponent
 		if !callerFound {
-			if comp, ok := compMap[c.Caller]; ok && comp.Found {
-				callerFound = true
-			}
+			callerComp, callerFound = compMap[c.Caller]
+			callerFound = callerFound && callerComp.Found
 		}
 
 		calleeComp, calleeFound := compMap[c.Callee]
@@ -97,8 +97,23 @@ func EvaluateContracts(discovered []discovery.DiscoveredComponent) []Contract {
 
 		eval := c
 		if callerFound && calleeFound {
-			eval.Status = StatusUnversioned
-			eval.Details = "Integration endpoints available (unversioned contract)"
+			if c.Caller == "howl" {
+				if calleeComp.ExecutablePath != "" {
+					eval.Status = StatusKnown
+					eval.Details = "Subprocess delegation endpoint available (" + calleeComp.ExecutablePath + ")"
+				} else {
+					eval.Status = StatusUnversioned
+					eval.Details = "Source repository discovered; executable not built"
+				}
+			} else {
+				if callerComp.ExecutablePath != "" && calleeComp.ExecutablePath != "" {
+					eval.Status = StatusKnown
+					eval.Details = "Component executables discovered"
+				} else {
+					eval.Status = StatusUnversioned
+					eval.Details = "Integration endpoints available (unversioned contract)"
+				}
+			}
 		} else if !calleeFound {
 			eval.Status = StatusUnknown
 			eval.Details = "Callee component '" + c.Callee + "' not discovered"

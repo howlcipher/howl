@@ -1,6 +1,6 @@
 [ecosystem]
 name = "Howl"
-version = "0.1.0"
+version = "0.1.1"
 description = "Mathematical rigor, capability boundaries, adversarial verification, and cryptographic human authority for AI-assisted engineering."
 
 [[components]]
@@ -9,7 +9,7 @@ repository = "https://github.com/howlcipher/howlplane"
 role = "AI engineering control plane"
 binary = "howlplane"
 contract = "control-plane"
-optional = false
+optional = true
 
 [[components]]
 name = "howlframe"
@@ -17,7 +17,7 @@ repository = "https://github.com/howlcipher/howlframe"
 role = "Language and verification framework"
 binary = "howlframe"
 contract = "dsl-compiler-vm"
-optional = false
+optional = true
 
 [[components]]
 name = "howlchangeops"
@@ -25,7 +25,7 @@ repository = "https://github.com/howlcipher/howlchangeops"
 role = "Authority boundary and release controller"
 binary = "howlchangeops"
 contract = "authority-gate"
-optional = false
+optional = true
 
 [[components]]
 name = "howlwriter"
@@ -33,7 +33,7 @@ repository = "https://github.com/howlcipher/howlwriter"
 role = "Writing control and review system"
 binary = "howlwriter"
 contract = "prose-voice-review"
-optional = false
+optional = true
 
 [[components]]
 name = "howlboard"
@@ -41,7 +41,7 @@ repository = "https://github.com/howlcipher/howlboard"
 role = "Evaluation surface and telemetry console"
 binary = "howlboard"
 contract = "telemetry-presentation"
-optional = false
+optional = true
 
 [[components]]
 name = "howlnotes"
@@ -49,4 +49,4 @@ repository = "https://github.com/howlcipher/howlnotes"
 role = "Knowledge notebook and dogfood consumer"
 binary = "howlnotes"
 contract = "knowledge-app"
-optional = false
+optional = true

@@ -6,18 +6,20 @@ import (
 	"github.com/howlcipher/howl/internal/discovery"
 	"github.com/howlcipher/howl/internal/manifest"
 	"github.com/howlcipher/howl/internal/plane"
-	planeCli "github.com/howlcipher/howlplane/pkg/cli"
 	"github.com/spf13/cobra"
 )
 
 func newPlaneCommand() *cobra.Command {
-	cmd := planeCli.NewPlaneCommand()
-	cmd.Short = "Access HowlPlane AI engineering control plane"
-	cmd.Long = `Access HowlPlane commands directly from the Howl ecosystem CLI.
-Subcommands implemented in Go are executed in-process; other HowlPlane commands are forwarded
-to the canonical howlplane executable.`
+	cmd := &cobra.Command{
+		Use:   "plane",
+		Short: "Access HowlPlane AI engineering control plane",
+		Long: `Access HowlPlane commands directly from the Howl ecosystem CLI.
+Commands are forwarded to the canonical howlplane executable with stream and exit-code fidelity.`,
+	}
 	cmd.FParseErrWhitelist.UnknownFlags = true
 	cmd.DisableFlagParsing = false
+
+	cmd.AddCommand(newProjectCommand())
 
 	// Fallback runner for extended commands not yet part of the static Cobra tree
 	cmd.RunE = func(c *cobra.Command, args []string) error {
@@ -25,7 +27,9 @@ to the canonical howlplane executable.`
 			return c.Help()
 		}
 
-		disc := discovery.NewEngine(discovery.DiscoveryOptions{}).DiscoverComponent(manifest.Component{
+		disc := discovery.NewEngine(discovery.DiscoveryOptions{
+			ConfigPath: globalOpts.ConfigPath,
+		}).DiscoverComponent(manifest.Component{
 			Name:   "howlplane",
 			Binary: "howlplane",
 		})

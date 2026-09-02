@@ -31,20 +31,15 @@ The `howl` CLI is the canonical user-facing front door for the ecosystem.
 
 ## Architecture
 
+### 1. CLI Routing Architecture
+The `howl` CLI is the unprivileged, fast entry point and front door for ecosystem commands, inspection, and delegation.
+
 ```text
                                ┌────────────────────────┐
                                │  HUMAN OPERATOR / LEAD │
                                └───────────┬────────────┘
                                            │
-                                    Cryptographic HMAC
-                                    Approval Signature
-                                           │
-                                           ▼
-                               ┌────────────────────────┐
-                               │  HOWLCHANGEOPS (GATE)  │
-                               │ Bounded Release Action │
-                               └───────────┬────────────┘
-                                           │
+                                           │ Invokes Commands / Inspection
                                            ▼
                                ┌────────────────────────┐
                                │   HOWL CLI (ENTRY)     │
@@ -64,6 +59,26 @@ The `howl` CLI is the canonical user-facing front door for the ecosystem.
 │  HOWLNOTES (KNOWLEDGE)  │                          │  HOWLBOARD  │   │  HOWLWRITER (PROSE) │
 │ Field Notebook & Store  │                          │  Telemetry  │   │ Voice, Lint & Review│
 └─────────────────────────┘                          └─────────────┘   └─────────────────────┘
+```
+
+### 2. Consequential Authority Flow
+Consequential mutations (releases, merges, destructive mutations) require sovereign human approval through cryptographic HMAC envelopes managed by HowlChangeOps.
+
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         CONSEQUENTIAL AUTHORITY FLOW                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+       HowlPlane / Autonomous Workflows ──► Proposed Consequential Action
+                                                      │
+                                                      ▼
+                                        HowlChangeOps (Release Gate)
+                                                      ▲
+                                                      │ [Cryptographic HMAC Signature]
+                                        Human Operator (Sovereign Authority)
+                                                      │
+                                                      ▼
+                                        Bounded Mutation / Execution
 ```
 
 ---
@@ -158,13 +173,13 @@ Howl uses a deterministic, bounded discovery engine with documented strict prece
 
 | Feature / Command | Status | Description |
 | :--- | :--- | :--- |
-| `howl` | **Available (v0.1)** | Canonical root executable |
-| `howl version` | **Available (v0.1)** | Build and component version inspection |
-| `howl doctor` | **Available (v0.1)** | Ecosystem health diagnostics & legacy CLI check |
-| `howl status` | **Available (v0.1)** | Lightweight component status |
-| `howl graph` | **Available (v0.1)** | Architectural relationship rendering |
-| `howl project validate` | **Available (v0.1)** | Project manifest validation routing |
-| `howl plane ...` | **Available (v0.1)** | HowlPlane control plane composition & forwarding |
+| `howl` | **Available (v0.1.1)** | Canonical root executable |
+| `howl version` | **Available (v0.1.1)** | Build and component version inspection |
+| `howl doctor` | **Available (v0.1.1)** | Ecosystem health diagnostics & legacy CLI check |
+| `howl status` | **Available (v0.1.1)** | Lightweight component status |
+| `howl graph` | **Available (v0.1.1)** | Architectural relationship rendering |
+| `howl project validate` | **Available (v0.1.1)** | Project manifest validation routing |
+| `howl plane ...` | **Available (v0.1.1)** | HowlPlane control plane composition & forwarding |
 | `howl install` | Planned (v0.2) | Safe prerequisite setup & component cloning |
 | `howl bootstrap` | Planned (v0.2) | Workspace initialization & toolchain validation |
 | `howl audit` | Planned (v0.3) | Ecosystem-wide provenance and evidence verification |

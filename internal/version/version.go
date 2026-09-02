@@ -12,7 +12,7 @@ import (
 
 var (
 	// Version is the semver release string.
-	Version = "0.1.0"
+	Version = "0.1.1"
 	// GitCommit is the commit hash injected at build time.
 	GitCommit = "dev"
 	// BuildDate is the ISO timestamp injected at build time.

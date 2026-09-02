@@ -296,7 +296,7 @@ func evaluateContractHealth(contracts []contract.Contract) CheckResult {
 		return CheckResult{
 			Category: "Contracts",
 			Name:     "Component Contracts",
-			Status:   StatusWarn,
+			Status:   StatusUnknown,
 			Message:  fmt.Sprintf("%d unverified contract(s) due to missing components", unknownCount),
 		}
 	}
@@ -312,13 +312,16 @@ func evaluateContractHealth(contracts []contract.Contract) CheckResult {
 func computeSummary(checks []CheckResult, strict bool) SummaryStatus {
 	hasFail := false
 	hasWarn := false
+	hasUnknown := false
 
 	for _, c := range checks {
 		switch c.Status {
 		case StatusFail:
 			hasFail = true
-		case StatusWarn, StatusUnknown:
+		case StatusWarn:
 			hasWarn = true
+		case StatusUnknown:
+			hasUnknown = true
 		}
 	}
 
@@ -329,6 +332,9 @@ func computeSummary(checks []CheckResult, strict bool) SummaryStatus {
 		if strict {
 			return HealthDegraded
 		}
+		return HealthHealthyWithWarnings
+	}
+	if hasUnknown && strict {
 		return HealthHealthyWithWarnings
 	}
 	return HealthHealthy
