@@ -469,30 +469,30 @@
             <!-- 06 Getting Started -->
             <section id="getting-started" class="tech-panel">
                 <div class="tech-header">
-                    <h2><span class="sec-id">SECTION // 06</span> Quick Start &amp; Local Setup</h2>
+                    <h2><span class="sec-id">SECTION // 06</span> Quick Start &amp; Howl CLI</h2>
                     <span class="subsystem-tag">ECO-MOD-SETUP</span>
                 </div>
                 <div class="tech-body">
+                    <p>The <code>howl</code> CLI is the canonical entry point for inspecting, diagnosing, and coordinating the Howl ecosystem.</p>
                     <div class="code-container">
                         <div class="code-header">
-                            <span class="code-title">[BASH // CLONE_ECOSYSTEM]</span>
+                            <span class="code-title">[BASH // HOWL_CLI_SETUP]</span>
                             <button class="btn-copy" type="button">[COPY]</button>
                         </div>
-                        <pre><code># Clone the complete Howl ecosystem repositories:
+                        <pre><code># Clone and build the Howl ecosystem CLI:
 git clone https://github.com/howlcipher/howl.git
-git clone https://github.com/howlcipher/howlframe.git
-git clone https://github.com/howlcipher/howlplane.git
-git clone https://github.com/howlcipher/howlnotes.git
-git clone https://github.com/howlcipher/howlchangeops.git
-git clone https://github.com/howlcipher/howlboard.git
-git clone https://github.com/howlcipher/howlwriter.git
+cd howl &amp;&amp; go build -o bin/howl ./cmd/howl
 
-# Verify all repositories locally
-cd howlframe &amp;&amp; go test ./...
-cd ../howlplane &amp;&amp; pytest
-cd ../howlnotes &amp;&amp; ./scripts/test.sh
-cd ../howlchangeops &amp;&amp; bash tests/integration_test.sh
-cd ../howlwriter &amp;&amp; pytest</code></pre>
+# Run ecosystem diagnostics and inspect status:
+./bin/howl doctor
+./bin/howl status
+./bin/howl graph
+
+# Validate project integrations:
+./bin/howl project validate
+
+# Forward to HowlPlane control plane:
+./bin/howl plane --help</code></pre>
                     </div>
                 </div>
             </section>
