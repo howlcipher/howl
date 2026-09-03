@@ -14,18 +14,7 @@ import (
 func TestStatusCommand(t *testing.T) {
 	tempDir := t.TempDir()
 	manifestFile := filepath.Join(tempDir, "ecosystem.toml")
-	content := `
-[ecosystem]
-name = "Howl"
-version = "0.1.0"
-description = "Test"
-
-[[components]]
-name = "howlplane"
-repository = "https://github.com/howlcipher/howlplane"
-role = "Control plane"
-binary = "howlplane"
-`
+	content := testManifestTOML
 	if err := os.WriteFile(manifestFile, []byte(content), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -49,18 +38,7 @@ binary = "howlplane"
 func TestStatusJSONCommand(t *testing.T) {
 	tempDir := t.TempDir()
 	manifestFile := filepath.Join(tempDir, "ecosystem.toml")
-	content := `
-[ecosystem]
-name = "Howl"
-version = "0.1.0"
-description = "Test"
-
-[[components]]
-name = "howlplane"
-repository = "https://github.com/howlcipher/howlplane"
-role = "Control plane"
-binary = "howlplane"
-`
+	content := testManifestTOML
 	if err := os.WriteFile(manifestFile, []byte(content), 0644); err != nil {
 		t.Fatal(err)
 	}

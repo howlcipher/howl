@@ -12,16 +12,28 @@ func TestCollectStatus(t *testing.T) {
 	tempDir := t.TempDir()
 	manifestPath := filepath.Join(tempDir, "ecosystem.toml")
 	manifestContent := `
+schema_version = 1
 [ecosystem]
 name = "Howl"
 version = "0.1.0"
+channel = "stable"
 description = "Test"
 
 [[components]]
 name = "howlplane"
 repository = "https://github.com/howlcipher/howlplane"
 role = "AI engineering control plane"
-binary = "howlplane"
+version = "1.0.0"
+platforms = ["linux"]
+archs = ["amd64"]
+  [components.install]
+  method = "github_release"
+    [components.install.github_release]
+    repository = "howlcipher/howlplane"
+    artifact_pattern = "p"
+    checksum_file = "SHA256SUMS"
+  [components.health_check]
+  type = "binary_exists"
 `
 	if err := os.WriteFile(manifestPath, []byte(manifestContent), 0644); err != nil {
 		t.Fatal(err)

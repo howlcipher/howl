@@ -44,7 +44,6 @@ func TestDiscoveryPrecedence(t *testing.T) {
 		Name:       "howlplane",
 		Repository: "https://github.com/howlcipher/howlplane",
 		Role:       "Control Plane",
-		Binary:     "howlplane",
 	}
 
 	configFile := filepath.Join(tempRoot, "config.toml")
@@ -109,7 +108,6 @@ func TestCurrentRepoDiscovery(t *testing.T) {
 		Name:       "howlplane",
 		Repository: "https://github.com/howlcipher/howlplane",
 		Role:       "Control Plane",
-		Binary:     "howlplane",
 	}
 
 	engine := NewEngine(DiscoveryOptions{
@@ -139,7 +137,6 @@ func TestExecutableDiscoveryInRepo(t *testing.T) {
 		Name:       "howlplane",
 		Repository: "https://github.com/howlcipher/howlplane",
 		Role:       "Control Plane",
-		Binary:     "howlplane",
 	}
 
 	engine := NewEngine(DiscoveryOptions{
@@ -165,7 +162,6 @@ func TestMissingComponent(t *testing.T) {
 		Name:       "nonexistent",
 		Repository: "https://github.com/howlcipher/nonexistent",
 		Role:       "Unknown",
-		Binary:     "nonexistent-bin-xyz",
 	}
 
 	engine := NewEngine(DiscoveryOptions{

@@ -1,52 +1,181 @@
+# Howl ecosystem release manifest.
+#
+# This is a tested, compatible combination of ecosystem component versions
+# -- not "whatever is newest in each repository." See docs/MANIFEST.md for
+# the schema and docs/ARCHITECTURE.md for why the install order below
+# (howlframe -> howlchangeops -> howlplane -> howlwriter) is required.
+#
+# Component versions below reflect the real, evidenced state of each
+# repository at the time this manifest was authored:
+#   - howlframe:     latest tagged release (v0.1.1); has real GitHub
+#                     Releases with SHA256SUMS.
+#   - howlchangeops: no tags/releases exist yet upstream; version here is
+#                     Howl's own nominal tracking version for this
+#                     ecosystem release, installed via source_build.
+#   - howlplane:     latest tagged release (v2.0.0); no plain howlplane
+#                     release artifact exists yet (only its own ai_installer
+#                     bootstrap tool), so it is installed via source_build.
+#   - howlwriter:    pyproject.toml version (0.1.0); no tags/releases exist
+#                     yet upstream, installed via source_build.
+schema_version = 1
+
 [ecosystem]
 name = "Howl"
 version = "0.1.0"
+channel = "stable"
 description = "Mathematical rigor, capability boundaries, adversarial verification, and cryptographic human authority for AI-assisted engineering."
 
-[[components]]
-name = "howlplane"
-repository = "https://github.com/howlcipher/howlplane"
-role = "AI engineering control plane"
-binary = "howlplane"
-contract = "control-plane"
-optional = false
+[[optional_capabilities]]
+name = "ollama"
+required = false
+capability = "local-inference"
 
+# ---------------------------------------------------------------------------
 [[components]]
 name = "howlframe"
+display_name = "HowlFrame"
+role = "Language, HFIR verification gate, and capability-bounded VM"
 repository = "https://github.com/howlcipher/howlframe"
-role = "Language and verification framework"
-binary = "howlframe"
-contract = "dsl-compiler-vm"
+version = "0.1.1"
 optional = false
+platforms = ["linux", "darwin", "windows"]
+archs = ["amd64", "arm64"]
 
+  [components.install]
+  method = "github_release"
+
+    [components.install.github_release]
+    repository = "howlcipher/howlframe"
+    artifact_pattern = "howlframe_{version}_{os}_{arch}.{ext}"
+    checksum_file = "SHA256SUMS"
+
+  [components.health_check]
+  type = "exec_version"
+  args = ["--version"]
+
+# ---------------------------------------------------------------------------
 [[components]]
 name = "howlchangeops"
-repository = "https://github.com/howlcipher/howlchangeops"
+display_name = "HowlChangeOps"
 role = "Authority boundary and release controller"
-binary = "howlchangeops"
-contract = "authority-gate"
+repository = "https://github.com/howlcipher/howlchangeops"
+version = "0.1.0"
 optional = false
+platforms = ["linux", "darwin", "windows"]
+archs = ["amd64", "arm64"]
 
+  [components.install]
+  method = "source_build"
+
+    [components.install.source_build]
+    checkout_name = "howlchangeops"
+    language = "go"
+
+      [components.install.source_build.go]
+      package = "./adapter"
+      build_output = "howlchangeops"
+
+        [[components.install.source_build.go.extra_steps]]
+        run_component = "howlframe"
+        args = ["check", "src/howlchangeops.howl"]
+
+        [[components.install.source_build.go.extra_steps]]
+        run_component = "howlframe"
+        args = ["build", "src/howlchangeops.howl"]
+
+  [components.health_check]
+  type = "binary_exists"
+
+  [[components.depends_on]]
+  component = "howlframe"
+  min_version = "0.1.0"
+
+  [[components.external_dependencies]]
+  name = "go"
+  required = true
+  capability = "source-build"
+
+  [[components.external_dependencies]]
+  name = "git"
+  required = true
+  capability = "source-build"
+
+# ---------------------------------------------------------------------------
+[[components]]
+name = "howlplane"
+display_name = "HowlPlane"
+role = "AI engineering control plane"
+repository = "https://github.com/howlcipher/howlplane"
+version = "2.0.0"
+optional = false
+platforms = ["linux", "darwin", "windows"]
+archs = ["amd64", "arm64"]
+
+  [components.install]
+  method = "source_build"
+
+    [components.install.source_build]
+    checkout_name = "howlplane"
+    language = "go"
+
+      [components.install.source_build.go]
+      package = "./cmd/howlplane"
+      build_output = "howlplane"
+
+  [components.health_check]
+  type = "binary_exists"
+
+  [[components.depends_on]]
+  component = "howlchangeops"
+
+  [[components.external_dependencies]]
+  name = "go"
+  required = true
+  capability = "source-build"
+
+  [[components.external_dependencies]]
+  name = "python3"
+  required = true
+  capability = "source-build"
+  min_version = "3.9.0"
+
+  [[components.external_dependencies]]
+  name = "git"
+  required = true
+  capability = "source-build"
+
+# ---------------------------------------------------------------------------
 [[components]]
 name = "howlwriter"
-repository = "https://github.com/howlcipher/howlwriter"
+display_name = "HowlWriter"
 role = "Writing control and review system"
-binary = "howlwriter"
-contract = "prose-voice-review"
+repository = "https://github.com/howlcipher/howlwriter"
+version = "0.1.0"
 optional = false
+platforms = ["linux", "darwin", "windows"]
+archs = ["amd64", "arm64"]
 
-[[components]]
-name = "howlboard"
-repository = "https://github.com/howlcipher/howlboard"
-role = "Evaluation surface and telemetry console"
-binary = "howlboard"
-contract = "telemetry-presentation"
-optional = false
+  [components.install]
+  method = "source_build"
 
-[[components]]
-name = "howlnotes"
-repository = "https://github.com/howlcipher/howlnotes"
-role = "Knowledge notebook and dogfood consumer"
-binary = "howlnotes"
-contract = "knowledge-app"
-optional = false
+    [components.install.source_build]
+    checkout_name = "howlwriter"
+    language = "python"
+
+      [components.install.source_build.python]
+      package_dir = "."
+      extras = []
+      console_script = "howlwriter"
+      min_python = "3.11.0"
+
+  [components.health_check]
+  type = "binary_exists"
+
+  [[components.depends_on]]
+  component = "howlplane"
+
+  [[components.external_dependencies]]
+  name = "python3"
+  required = true
+  capability = "source-build"
+  min_version = "3.11.0"

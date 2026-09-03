@@ -93,8 +93,7 @@ func (e *Engine) DiscoverComponent(comp manifest.Component) DiscoveredComponent 
 		Name:            comp.Name,
 		Role:            comp.Role,
 		RepositoryURL:   comp.Repository,
-		BinaryName:      comp.Binary,
-		Contract:        comp.Contract,
+		BinaryName:      comp.Name,
 		Optional:        comp.Optional,
 		DiscoverySource: SourceNone,
 	}
@@ -145,19 +144,6 @@ func (e *Engine) DiscoverComponent(comp manifest.Component) DiscoveredComponent 
 		}
 	}
 
-	// 6. Manifest discovery hints
-	if !res.Found {
-		for _, hint := range comp.DiscoveryHints {
-			hintCandidate := filepath.Join(e.opts.BaseDir, hint)
-			if isDir(hintCandidate) {
-				res.RepoPath = cleanAbs(hintCandidate)
-				res.DiscoverySource = SourceHint
-				res.Found = true
-				break
-			}
-		}
-	}
-
 	// Locate binary executable
 	res.ExecutablePath = e.locateExecutable(comp, res.RepoPath)
 	if res.ExecutablePath != "" && !res.Found {
@@ -176,12 +162,14 @@ func (e *Engine) DiscoverComponent(comp manifest.Component) DiscoveredComponent 
 }
 
 func (e *Engine) locateExecutable(comp manifest.Component, repoPath string) string {
+	binary := comp.Name
+
 	// First check local repository build artifacts/binaries
-	if repoPath != "" && comp.Binary != "" {
+	if repoPath != "" {
 		candidates := []string{
-			filepath.Join(repoPath, "bin", comp.Binary),
-			filepath.Join(repoPath, comp.Binary),
-			filepath.Join(repoPath, "cmd", comp.Binary, comp.Binary),
+			filepath.Join(repoPath, "bin", binary),
+			filepath.Join(repoPath, binary),
+			filepath.Join(repoPath, "cmd", binary, binary),
 		}
 		for _, cand := range candidates {
 			if isExecutable(cand) {
@@ -191,10 +179,8 @@ func (e *Engine) locateExecutable(comp manifest.Component, repoPath string) stri
 	}
 
 	// Second check system PATH
-	if comp.Binary != "" {
-		if path, err := exec.LookPath(comp.Binary); err == nil {
-			return path
-		}
+	if path, err := exec.LookPath(binary); err == nil {
+		return path
 	}
 
 	return ""
