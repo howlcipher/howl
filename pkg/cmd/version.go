@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"text/tabwriter"
 
-	"github.com/howlcipher/howl/internal/discovery"
-	"github.com/howlcipher/howl/internal/manifest"
+	"github.com/howlcipher/howl/internal/platform"
+	"github.com/howlcipher/howl/internal/state"
 	"github.com/howlcipher/howl/internal/version"
 	"github.com/spf13/cobra"
 )
@@ -20,12 +20,14 @@ func newVersionCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var info version.Info
 			if showComponents {
-				m, _, err := manifest.LoadDefault("")
-				if err != nil {
-					m = &manifest.Manifest{}
+				paths, err := platform.DefaultPaths()
+				var components map[string]state.ComponentState
+				if err == nil {
+					if st, existed, loadErr := state.Load(paths.StateFile()); loadErr == nil && existed {
+						components = st.Components
+					}
 				}
-				disc := discovery.NewEngine(discovery.DiscoveryOptions{}).DiscoverAll(m)
-				info = version.GetFullInfo(disc)
+				info = version.GetFullInfo(components)
 			} else {
 				info = version.GetInfo()
 			}
@@ -38,7 +40,7 @@ func newVersionCommand() *cobra.Command {
 
 			fmt.Fprintf(cmd.OutOrStdout(), "howl version %s (%s, %s, %s)\n", info.Version, info.GitCommit, info.BuildDate, info.Platform)
 			if showComponents && len(info.Components) > 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "\nDiscovered Components:")
+				fmt.Fprintln(cmd.OutOrStdout(), "\nInstalled Components:")
 				tw := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
 				for comp, ver := range info.Components {
 					fmt.Fprintf(tw, "  %s:\t%s\n", comp, ver)

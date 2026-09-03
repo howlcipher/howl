@@ -3,11 +3,9 @@ package version
 
 import (
 	"fmt"
-	"os/exec"
 	"runtime"
-	"strings"
 
-	"github.com/howlcipher/howl/internal/discovery"
+	"github.com/howlcipher/howl/internal/state"
 )
 
 var (
@@ -40,37 +38,15 @@ func GetInfo() Info {
 	}
 }
 
-// GetFullInfo returns build information with component versions when available.
-func GetFullInfo(discovered []discovery.DiscoveredComponent) Info {
+// GetFullInfo returns build information with installed component versions
+// from Howl's own installer state (not live probing -- that's what
+// `howl status`/`howl doctor` are for).
+func GetFullInfo(components map[string]state.ComponentState) Info {
 	info := GetInfo()
-	compVersions := make(map[string]string)
-
-	for _, c := range discovered {
-		if c.ExecutablePath != "" {
-			if ver := probeComponentVersion(c.ExecutablePath); ver != "" {
-				compVersions[c.Name] = ver
-			} else {
-				compVersions[c.Name] = "available (unversioned)"
-			}
-		} else if c.Found {
-			compVersions[c.Name] = "source-only"
-		} else {
-			compVersions[c.Name] = "not-found"
-		}
+	compVersions := make(map[string]string, len(components))
+	for name, c := range components {
+		compVersions[name] = c.Version
 	}
-
 	info.Components = compVersions
 	return info
-}
-
-func probeComponentVersion(executablePath string) string {
-	cmd := exec.Command(executablePath, "--version")
-	out, err := cmd.Output()
-	if err == nil {
-		line := strings.TrimSpace(string(out))
-		if line != "" {
-			return strings.Split(line, "\n")[0]
-		}
-	}
-	return ""
 }

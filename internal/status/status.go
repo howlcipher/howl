@@ -1,4 +1,7 @@
-// Package status provides fast, lightweight inspection of ecosystem components.
+// Package status reports installer-level status: what's installed, at
+// what version, against what the current release manifest targets. It
+// intentionally does not run health checks (that's `howl doctor`'s job)
+// so `howl status` stays fast.
 package status
 
 import (
@@ -7,98 +10,102 @@ import (
 	"io"
 	"text/tabwriter"
 
-	"github.com/howlcipher/howl/internal/discovery"
 	"github.com/howlcipher/howl/internal/manifest"
+	"github.com/howlcipher/howl/internal/state"
 )
 
-// ComponentStatus represents high-level condition of a single ecosystem component.
+// ComponentStatus is the installed-vs-target condition of one component.
 type ComponentStatus struct {
-	Name            string `json:"name"`
-	Role            string `json:"role"`
-	Available       bool   `json:"available"`
-	Runnable        bool   `json:"runnable"`
-	RepoPath        string `json:"repo_path,omitempty"`
-	ExecutablePath  string `json:"executable_path,omitempty"`
-	DiscoverySource string `json:"discovery_source"`
-	GitBranch       string `json:"git_branch,omitempty"`
-	GitCommit       string `json:"git_commit,omitempty"`
+	Name             string `json:"name"`
+	DisplayName      string `json:"display_name"`
+	Installed        bool   `json:"installed"`
+	InstalledVersion string `json:"installed_version,omitempty"`
+	TargetVersion    string `json:"target_version"`
+	UpToDate         bool   `json:"up_to_date"`
 }
 
-// Report holds the ecosystem status summary.
+// Report is the full installer-level ecosystem status.
 type Report struct {
-	EcosystemName string            `json:"ecosystem_name"`
-	Components    []ComponentStatus `json:"components"`
+	EcosystemName          string            `json:"ecosystem_name"`
+	InstallerVersion       string            `json:"installer_version"`
+	Channel                string            `json:"channel"`
+	InstalledEcosystem     string            `json:"installed_ecosystem_version,omitempty"`
+	TargetEcosystemVersion string            `json:"target_ecosystem_version"`
+	Components             []ComponentStatus `json:"components"`
+	UpdatesAvailable       bool              `json:"updates_available"`
 }
 
-// Collect inspects the ecosystem quickly without heavy diagnostic execution.
-func Collect(baseDir, manifestPath, configPath string) (*Report, error) {
-	var m *manifest.Manifest
-	var err error
-	if manifestPath != "" {
-		m, err = manifest.Load(manifestPath)
-	} else {
-		m, _, err = manifest.LoadDefault(baseDir)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("failed to load ecosystem manifest: %w", err)
-	}
-
-	discEngine := discovery.NewEngine(discovery.DiscoveryOptions{
-		BaseDir:    baseDir,
-		ConfigPath: configPath,
-	})
-	discovered := discEngine.DiscoverAll(m)
-
-	compStatuses := make([]ComponentStatus, 0, len(discovered))
-	for _, d := range discovered {
-		compStatuses = append(compStatuses, ComponentStatus{
-			Name:            d.Name,
-			Role:            d.Role,
-			Available:       d.Found,
-			Runnable:        d.ExecutablePath != "",
-			RepoPath:        d.RepoPath,
-			ExecutablePath:  d.ExecutablePath,
-			DiscoverySource: string(d.DiscoverySource),
-			GitBranch:       d.GitBranch,
-			GitCommit:       d.GitCommit,
-		})
+// Collect builds a status report from a release manifest and the current
+// installer state. It never touches the filesystem beyond what the caller
+// already loaded.
+func Collect(m *manifest.Manifest, st *state.State, installerVersion string) *Report {
+	report := &Report{
+		EcosystemName:          m.Ecosystem.Name,
+		InstallerVersion:       installerVersion,
+		Channel:                m.Ecosystem.Channel,
+		InstalledEcosystem:     st.EcosystemVersion,
+		TargetEcosystemVersion: m.Ecosystem.Version,
 	}
 
-	return &Report{
-		EcosystemName: m.Ecosystem.Name,
-		Components:    compStatuses,
-	}, nil
+	for _, c := range m.Components {
+		cs := ComponentStatus{
+			Name:          c.Name,
+			DisplayName:   displayName(c),
+			TargetVersion: c.Version,
+		}
+		if installed, ok := st.Components[c.Name]; ok {
+			cs.Installed = true
+			cs.InstalledVersion = installed.Version
+			cs.UpToDate = installed.Version == c.Version
+		}
+		if !cs.UpToDate {
+			report.UpdatesAvailable = true
+		}
+		report.Components = append(report.Components, cs)
+	}
+
+	return report
+}
+
+func displayName(c manifest.Component) string {
+	if c.DisplayName != "" {
+		return c.DisplayName
+	}
+	return c.Name
 }
 
 // RenderHuman writes a formatted table of component statuses.
 func RenderHuman(w io.Writer, report *Report) {
-	fmt.Fprintf(w, "HOWL ECOSYSTEM STATUS (%s)\n\n", report.EcosystemName)
+	fmt.Fprintln(w, "Howl Ecosystem")
+	fmt.Fprintln(w)
+	fmt.Fprintf(w, "Installer\n  Howl            %s\n\n", report.InstallerVersion)
 
 	tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(tw, "COMPONENT\tCONDITION\tSOURCE\tPATH / BINARY")
-	fmt.Fprintln(tw, "---------\t---------\t------\t-------------")
-
+	fmt.Fprintln(tw, "COMPONENT\tINSTALLED\tTARGET\tSTATUS")
 	for _, c := range report.Components {
-		condition := "MISSING"
-		if c.Runnable {
-			condition = "RUNNABLE"
-		} else if c.Available {
-			condition = "SOURCE-ONLY"
+		installed := "-"
+		if c.Installed {
+			installed = c.InstalledVersion
 		}
-
-		loc := "-"
-		if c.ExecutablePath != "" {
-			loc = c.ExecutablePath
-		} else if c.RepoPath != "" {
-			loc = c.RepoPath
-			if c.GitBranch != "" {
-				loc += fmt.Sprintf(" (%s@%s)", c.GitBranch, c.GitCommit)
+		state := "not installed"
+		if c.Installed {
+			if c.UpToDate {
+				state = "up to date"
+			} else {
+				state = "update available"
 			}
 		}
-
-		fmt.Fprintf(tw, "%s\t%s\t%s\t%s\n", c.Name, condition, c.DiscoverySource, loc)
+		fmt.Fprintf(tw, "%s\t%s\t%s\t%s\n", c.DisplayName, installed, c.TargetVersion, state)
 	}
 	tw.Flush()
+
+	fmt.Fprintln(w)
+	fmt.Fprintf(w, "Ecosystem\n  Version         %s\n", report.TargetEcosystemVersion)
+	updates := "current"
+	if report.UpdatesAvailable {
+		updates = "available"
+	}
+	fmt.Fprintf(w, "  Updates         %s\n", updates)
 }
 
 // RenderJSON serializes the status report as JSON.

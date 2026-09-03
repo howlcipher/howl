@@ -12,6 +12,7 @@ import (
 )
 
 func TestDoctorCommand(t *testing.T) {
+	sandboxHowlPaths(t)
 	tempDir := t.TempDir()
 	manifestFile := filepath.Join(tempDir, "ecosystem.toml")
 	content := testManifestTOML
@@ -30,15 +31,16 @@ func TestDoctorCommand(t *testing.T) {
 	}
 
 	out := buf.String()
-	if !strings.Contains(out, "HOWL ECOSYSTEM DOCTOR") {
+	if !strings.Contains(out, "Howl Doctor") {
 		t.Errorf("expected doctor header, got:\n%s", out)
 	}
-	if !strings.Contains(out, "ECOSYSTEM STATUS:") {
+	if !strings.Contains(out, "Ecosystem Status:") {
 		t.Errorf("expected summary status line, got:\n%s", out)
 	}
 }
 
 func TestDoctorJSONCommand(t *testing.T) {
+	sandboxHowlPaths(t)
 	tempDir := t.TempDir()
 	manifestFile := filepath.Join(tempDir, "ecosystem.toml")
 	content := testManifestTOML

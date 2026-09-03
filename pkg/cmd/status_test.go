@@ -12,6 +12,7 @@ import (
 )
 
 func TestStatusCommand(t *testing.T) {
+	sandboxHowlPaths(t)
 	tempDir := t.TempDir()
 	manifestFile := filepath.Join(tempDir, "ecosystem.toml")
 	content := testManifestTOML
@@ -30,12 +31,13 @@ func TestStatusCommand(t *testing.T) {
 	}
 
 	out := buf.String()
-	if !strings.Contains(out, "HOWL ECOSYSTEM STATUS") {
+	if !strings.Contains(out, "Howl Ecosystem") {
 		t.Errorf("expected status header, got:\n%s", out)
 	}
 }
 
 func TestStatusJSONCommand(t *testing.T) {
+	sandboxHowlPaths(t)
 	tempDir := t.TempDir()
 	manifestFile := filepath.Join(tempDir, "ecosystem.toml")
 	content := testManifestTOML
