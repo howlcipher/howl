@@ -18,6 +18,10 @@ func sandboxHowlPaths(t *testing.T) {
 	t.Setenv("XDG_CONFIG_HOME", filepath.Join(root, "config"))
 	t.Setenv("XDG_CACHE_HOME", filepath.Join(root, "cache"))
 	t.Setenv("HOME", root)
+	// Point self-update's GitHub API check at a port nothing listens on,
+	// so it fails fast (connection refused) instead of making a real
+	// network call to api.github.com during tests.
+	t.Setenv("HOWL_SELFUPDATE_API_BASE_URL", "http://127.0.0.1:1")
 }
 
 // mustResolveTestPaths resolves Howl's paths from the sandboxed
