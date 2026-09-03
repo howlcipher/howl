@@ -23,9 +23,6 @@ func TestRootCommandHelp(t *testing.T) {
 		"version",
 		"doctor",
 		"status",
-		"graph",
-		"plane",
-		"project",
 	}
 
 	for _, sub := range expectedSubcommands {

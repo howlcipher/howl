@@ -23,10 +23,11 @@ var globalOpts GlobalOptions
 func NewRootCommand() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "howl",
-		Short: "Howl — Canonical entry point for the Howl ecosystem",
-		Long: `Howl is the unified command-line entry point for the Howl ecosystem.
-It provides ecosystem discovery, diagnostics, status inspection, architectural visualization,
-and integration routing to child components like HowlPlane, HowlFrame, and HowlChangeOps.`,
+		Short: "Howl — installer and lifecycle manager for the Howl ecosystem",
+		Long: `Howl installs and manages the lifecycle of the Howl ecosystem.
+It resolves compatible component versions, installs and updates them safely,
+verifies installation health, repairs installer-owned problems, rolls back
+failed upgrades, and uninstalls cleanly.`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
@@ -39,9 +40,6 @@ and integration routing to child components like HowlPlane, HowlFrame, and HowlC
 	rootCmd.AddCommand(newVersionCommand())
 	rootCmd.AddCommand(newDoctorCommand())
 	rootCmd.AddCommand(newStatusCommand())
-	rootCmd.AddCommand(newGraphCommand())
-	rootCmd.AddCommand(newPlaneCommand())
-	rootCmd.AddCommand(newProjectCommand())
 
 	return rootCmd
 }

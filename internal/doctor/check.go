@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/howlcipher/howl/internal/contract"
 	"github.com/howlcipher/howl/internal/discovery"
 	"github.com/howlcipher/howl/internal/manifest"
 	"github.com/howlcipher/howl/internal/version"
@@ -51,7 +50,6 @@ type DiagnosticReport struct {
 	Summary              SummaryStatus                   `json:"summary"`
 	Checks               []CheckResult                   `json:"checks"`
 	DiscoveredComponents []discovery.DiscoveredComponent `json:"discovered_components"`
-	Contracts            []contract.Contract             `json:"contracts"`
 }
 
 // Options configures doctor execution.
@@ -138,11 +136,6 @@ func RunDiagnostics(opts Options) (*DiagnosticReport, error) {
 
 	// 7. Legacy 'ai' CLI Detection & Deprecation Check
 	report.Checks = append(report.Checks, checkLegacyAICLI())
-
-	// 8. Cross-Component Contract Checks
-	contracts := contract.EvaluateContracts(discovered)
-	report.Contracts = contracts
-	report.Checks = append(report.Checks, evaluateContractHealth(contracts))
 
 	// Compute Overall Summary
 	report.Summary = computeSummary(report.Checks, opts.Strict)
@@ -268,44 +261,6 @@ func checkLegacyAICLI() CheckResult {
 		Status:   StatusWarn,
 		Message:  "Deprecated compatibility command detected on PATH",
 		Details:  fmt.Sprintf("Found at %s. Use 'howl' or direct 'howlplane' entry point.", path),
-	}
-}
-
-func evaluateContractHealth(contracts []contract.Contract) CheckResult {
-	unknownCount := 0
-	incompatibleCount := 0
-
-	for _, c := range contracts {
-		if c.Status == contract.StatusIncompatible {
-			incompatibleCount++
-		} else if c.Status == contract.StatusUnknown {
-			unknownCount++
-		}
-	}
-
-	if incompatibleCount > 0 {
-		return CheckResult{
-			Category: "Contracts",
-			Name:     "Component Contracts",
-			Status:   StatusFail,
-			Message:  fmt.Sprintf("%d incompatible contract(s) detected", incompatibleCount),
-		}
-	}
-
-	if unknownCount > 0 {
-		return CheckResult{
-			Category: "Contracts",
-			Name:     "Component Contracts",
-			Status:   StatusWarn,
-			Message:  fmt.Sprintf("%d unverified contract(s) due to missing components", unknownCount),
-		}
-	}
-
-	return CheckResult{
-		Category: "Contracts",
-		Name:     "Component Contracts",
-		Status:   StatusPass,
-		Message:  "All architectural contracts resolved",
 	}
 }
 
