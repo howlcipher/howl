@@ -1,0 +1,117 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            ext: tar.gz
+          - goos: linux
+            goarch: arm64
+            ext: tar.gz
+          - goos: darwin
+            goarch: amd64
+            ext: tar.gz
+          - goos: darwin
+            goarch: arm64
+            ext: tar.gz
+          - goos: windows
+            goarch: amd64
+            ext: zip
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+
+      - name: Build Binary
+        env:
+          CGO_ENABLED: 0
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          BINARY_NAME=howl
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            BINARY_NAME=howl.exe
+          fi
+
+          COMMIT=$(git rev-parse --short HEAD)
+          BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          LDFLAGS="-w -s"
+          LDFLAGS="$LDFLAGS -X github.com/howlcipher/howl/internal/version.Version=${VERSION#v}"
+          LDFLAGS="$LDFLAGS -X github.com/howlcipher/howl/internal/version.GitCommit=$COMMIT"
+          LDFLAGS="$LDFLAGS -X github.com/howlcipher/howl/internal/version.BuildDate=$BUILD_DATE"
+
+          go build -ldflags="$LDFLAGS" -o $BINARY_NAME ./cmd/howl
+
+          ARCHIVE_NAME=howl_${VERSION}_${{ matrix.goos }}_${{ matrix.goarch }}
+          if [ "${{ matrix.ext }}" = "zip" ]; then
+            zip ${ARCHIVE_NAME}.zip $BINARY_NAME
+          else
+            tar -czf ${ARCHIVE_NAME}.tar.gz $BINARY_NAME
+          fi
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: |
+            *.tar.gz
+            *.zip
+
+  publish:
+    name: Publish Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: build-artifact-*
+          merge-multiple: true
+
+      - name: Check Release Notes and Generate Checksums
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          NOTES_FILE="docs/releases/${VERSION}.md"
+
+          if [ ! -f "$NOTES_FILE" ]; then
+            echo "::error::Release notes not found at $NOTES_FILE. Aborting release."
+            exit 1
+          fi
+
+          cd artifacts
+          sha256sum * > SHA256SUMS
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          NOTES_FILE="docs/releases/${VERSION}.md"
+
+          gh release create $VERSION \
+            artifacts/* \
+            --title "Howl $VERSION" \
+            --notes-file $NOTES_FILE
