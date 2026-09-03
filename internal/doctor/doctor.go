@@ -112,6 +112,19 @@ func checkEnvironment(paths platform.Paths) []CheckResult {
 	}
 	checks = append(checks, osCheck)
 
+	if info.Container != "" {
+		envCheck := CheckResult{Category: "Environment", Name: "Execution environment", Status: StatusPass}
+		envCheck.Message = fmt.Sprintf("running inside %s", info.Container)
+		if info.HostDistro != nil {
+			hostLabel := info.HostDistro.PrettyName
+			if info.HostIsBazzite {
+				hostLabel = "Bazzite"
+			}
+			envCheck.Message += fmt.Sprintf(" (host: %s)", hostLabel)
+		}
+		checks = append(checks, envCheck)
+	}
+
 	writable := CheckResult{Category: "Environment", Name: "Installation directory writable"}
 	if err := paths.EnsureOwnedDirs(); err != nil {
 		writable.Status = StatusFail
