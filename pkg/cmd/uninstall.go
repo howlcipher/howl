@@ -28,21 +28,26 @@ without it, state history is kept.`,
 				return exitErr(ExitValidationFailure, err)
 			}
 
+			fullSweep := len(args) == 0
 			var targets []string
-			if len(args) > 0 {
+			if !fullSweep {
 				targets = args
 			} else {
 				for name := range app.State.Components {
 					targets = append(targets, name)
 				}
-				if len(targets) == 0 {
+				hasPurgeableHistory := purge && len(app.State.PreviousComponents) > 0
+				if len(targets) == 0 && !hasPurgeableHistory {
 					fmt.Fprintln(cmd.OutOrStdout(), "Nothing is installed.")
 					return nil
 				}
 			}
 
 			msg := fmt.Sprintf("Remove %d component(s): %v?", len(targets), targets)
-			if purge {
+			if fullSweep && len(targets) == 0 {
+				msg = "Purge cached downloads and leftover rollback history?"
+			}
+			if purge && len(targets) > 0 {
 				msg += " This also purges cached downloads and their state history."
 			}
 			if !yes && !confirm(cmd, msg) {
@@ -70,12 +75,27 @@ without it, state history is kept.`,
 					}
 				}
 				delete(app.State.Components, name)
+				if purge {
+					delete(app.State.PreviousComponents, name)
+				}
 				fmt.Fprintf(cmd.OutOrStdout(), "  %-16s removed\n", name)
 			}
 
 			if purge {
 				if app.Paths.Owns(app.Paths.DownloadCacheDir()) {
 					_ = os.RemoveAll(app.Paths.DownloadCacheDir())
+				}
+				if fullSweep {
+					// A full purge clears all rollback history, not just
+					// entries for components that happened to still be
+					// installed -- there's nothing left to roll back to.
+					app.State.PreviousComponents = nil
+				}
+				if len(app.State.PreviousComponents) == 0 {
+					app.State.PreviousEcosystem = ""
+				}
+				if len(app.State.Components) == 0 {
+					app.State.EcosystemVersion = ""
 				}
 			}
 

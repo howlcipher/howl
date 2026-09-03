@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/howlcipher/howl/internal/state"
 )
 
 func TestUninstallNothingInstalledIsNoop(t *testing.T) {
@@ -69,6 +71,108 @@ func TestUninstallComponentRemovesOnlyHowlOwnedPaths(t *testing.T) {
 	}
 	if bytes.Contains(data, []byte("howlframe")) {
 		t.Errorf("expected howlframe removed from state, got:\n%s", data)
+	}
+}
+
+func TestUninstallPurgeClearsRollbackHistory(t *testing.T) {
+	sandboxHowlPaths(t)
+	paths := mustResolveTestPaths(t)
+	seedInstalledState(t, paths, "howlframe", "0.2.0")
+
+	// Simulate a prior successful update leaving rollback history behind.
+	st, _, err := state.Load(paths.StateFile())
+	if err != nil {
+		t.Fatal(err)
+	}
+	st.EcosystemVersion = "0.2.0"
+	st.PreviousEcosystem = "0.1.0"
+	st.PreviousComponents = map[string]state.ComponentState{"howlframe": {Version: "0.1.0"}}
+	if err := st.Save(paths.StateFile()); err != nil {
+		t.Fatal(err)
+	}
+
+	rootCmd := NewRootCommand()
+	rootCmd.SetOut(&bytes.Buffer{})
+	rootCmd.SetArgs([]string{"uninstall", "howlframe", "--purge", "--yes"})
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	after, existed, err := state.Load(paths.StateFile())
+	if err != nil || !existed {
+		t.Fatalf("expected state to still load, err=%v existed=%v", err, existed)
+	}
+	if len(after.PreviousComponents) != 0 {
+		t.Errorf("expected --purge to clear rollback history, got %+v", after.PreviousComponents)
+	}
+	if after.EcosystemVersion != "" || after.PreviousEcosystem != "" {
+		t.Errorf("expected ecosystem version fields reset after purging the only component, got %+v", after)
+	}
+}
+
+func TestUninstallWithoutPurgeKeepsRollbackHistory(t *testing.T) {
+	sandboxHowlPaths(t)
+	paths := mustResolveTestPaths(t)
+	seedInstalledState(t, paths, "howlframe", "0.2.0")
+
+	st, _, err := state.Load(paths.StateFile())
+	if err != nil {
+		t.Fatal(err)
+	}
+	st.PreviousComponents = map[string]state.ComponentState{"howlframe": {Version: "0.1.0"}}
+	if err := st.Save(paths.StateFile()); err != nil {
+		t.Fatal(err)
+	}
+
+	rootCmd := NewRootCommand()
+	rootCmd.SetOut(&bytes.Buffer{})
+	rootCmd.SetArgs([]string{"uninstall", "howlframe", "--yes"})
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	after, _, err := state.Load(paths.StateFile())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(after.PreviousComponents) == 0 {
+		t.Errorf("expected rollback history to be kept without --purge")
+	}
+}
+
+func TestUninstallFullPurgeClearsLeftoverHistoryWithNoActiveComponents(t *testing.T) {
+	sandboxHowlPaths(t)
+	paths := mustResolveTestPaths(t)
+
+	st, _, err := state.Load(paths.StateFile())
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Nothing currently installed, but rollback history remains from an
+	// earlier uninstall -- exactly the state a prior bug left behind.
+	st.PreviousComponents = map[string]state.ComponentState{"howlframe": {Version: "0.1.0"}}
+	st.PreviousEcosystem = "0.1.0"
+	if err := st.Save(paths.StateFile()); err != nil {
+		t.Fatal(err)
+	}
+
+	rootCmd := NewRootCommand()
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetArgs([]string{"uninstall", "--purge", "--yes"})
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if strings.Contains(buf.String(), "Nothing is installed") {
+		t.Errorf("expected --purge to still act on leftover rollback history, got:\n%s", buf.String())
+	}
+
+	after, _, err := state.Load(paths.StateFile())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(after.PreviousComponents) != 0 || after.PreviousEcosystem != "" {
+		t.Errorf("expected leftover rollback history purged, got %+v", after)
 	}
 }
 

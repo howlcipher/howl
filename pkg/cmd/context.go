@@ -6,6 +6,7 @@ import (
 	"github.com/howlcipher/howl/internal/manifest"
 	"github.com/howlcipher/howl/internal/platform"
 	"github.com/howlcipher/howl/internal/state"
+	"github.com/howlcipher/howl/internal/version"
 )
 
 // appContext bundles the paths, release manifest, and installer state
@@ -46,6 +47,7 @@ func loadAppContext(manifestPathOverride string) (*appContext, error) {
 	if st.Channel == "" {
 		st.Channel = m.Ecosystem.Channel
 	}
+	st.InstallerVersion = version.GetInfo().Version
 
 	return &appContext{
 		Paths:          paths,
