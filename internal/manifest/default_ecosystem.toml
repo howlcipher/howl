@@ -7,8 +7,13 @@
 #
 # Component versions below reflect the real, evidenced state of each
 # repository at the time this manifest was authored:
-#   - howlframe:     latest tagged release (v0.1.1); has real GitHub
-#                     Releases with SHA256SUMS.
+#   - howlframe:     latest *published GitHub Release* (v0.1.0) with real
+#                     assets + SHA256SUMS. Note: a v0.1.1 git tag exists
+#                     upstream but has no corresponding GitHub Release or
+#                     artifacts (verified against the live GitHub API), so
+#                     it is not usable via github_release and is not used
+#                     here -- do not bump this to 0.1.1 until howlframe
+#                     actually publishes a release for that tag.
 #   - howlchangeops: no tags/releases exist yet upstream; version here is
 #                     Howl's own nominal tracking version for this
 #                     ecosystem release, installed via source_build.
@@ -36,7 +41,7 @@ name = "howlframe"
 display_name = "HowlFrame"
 role = "Language, HFIR verification gate, and capability-bounded VM"
 repository = "https://github.com/howlcipher/howlframe"
-version = "0.1.1"
+version = "0.1.0"
 optional = false
 platforms = ["linux", "darwin", "windows"]
 archs = ["amd64", "arm64"]
