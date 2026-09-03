@@ -40,6 +40,11 @@ failed upgrades, and uninstalls cleanly.`,
 	rootCmd.AddCommand(newVersionCommand())
 	rootCmd.AddCommand(newDoctorCommand())
 	rootCmd.AddCommand(newStatusCommand())
+	rootCmd.AddCommand(newInstallCommand())
+	rootCmd.AddCommand(newUpdateCommand())
+	rootCmd.AddCommand(newRollbackCommand())
+	rootCmd.AddCommand(newUninstallCommand())
+	rootCmd.AddCommand(newChannelCommand())
 
 	return rootCmd
 }
@@ -49,7 +54,10 @@ func Execute() int {
 	rootCmd := NewRootCommand()
 	if err := rootCmd.ExecuteContext(context.Background()); err != nil {
 		fmt.Fprintln(os.Stderr, "Error:", err)
-		return 1
+		if ec, ok := err.(ExitCoder); ok {
+			return ec.ExitCode()
+		}
+		return ExitGeneric
 	}
-	return 0
+	return ExitSuccess
 }

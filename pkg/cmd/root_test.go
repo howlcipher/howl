@@ -23,6 +23,11 @@ func TestRootCommandHelp(t *testing.T) {
 		"version",
 		"doctor",
 		"status",
+		"install",
+		"update",
+		"rollback",
+		"uninstall",
+		"channel",
 	}
 
 	for _, sub := range expectedSubcommands {
