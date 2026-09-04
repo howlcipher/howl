@@ -11,6 +11,10 @@ bin/
 *.test
 coverage.txt
 
+# Go workspace files
+go.work
+go.work.sum
+
 # OS artifacts
 .DS_Store
 Thumbs.db
