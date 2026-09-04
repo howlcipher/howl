@@ -46,8 +46,12 @@ for the manifest schema.
 ## Installation Profiles
 
 - **`standard`** (default) — the full ecosystem and the runtimes/
-  dependencies it requires. No Go toolchain, no Ollama, no local models
-  required by Howl itself.
+  dependencies it requires. No Ollama, no local models required by Howl
+  itself. **Known v1 limitation:** three of the four components don't yet
+  publish prebuilt release binaries (see below), so `standard` currently
+  also requires a system Go toolchain and Python 3 to build them from a
+  local source checkout — this is a documented gap against the target end
+  state, not intended long-term behavior.
 - **`local-ai`** — `standard`, plus detection of local-inference
   prerequisites (currently: Ollama). Missing optional capabilities are
   reported, not installed automatically, and never block the rest of the
@@ -91,21 +95,22 @@ environment a component will actually run in, not blindly at the host OS.
 ## Commands
 
 ```bash
-howl install [component] [--profile standard|local-ai|developer] [--yes] [--channel <name>]
+howl install [component] [--profile standard|local-ai|developer] [--yes]
 howl status [--json]
-howl update --check [--json]
-howl update [--yes]
+howl update [--check] [--yes]
 howl rollback [component] [--yes]
 howl doctor [-v] [--json] [--strict] [--fix]
 howl uninstall [component] [--purge] [--yes]
 howl channel [stable|beta|dev]
-howl version [--json]
+howl version [--json] [--components|-c]
 ```
 
 `howl install` and `howl update` always show a plan before touching your
 machine and require `--yes` to run non-interactively. Running `howl
 install` again after a successful install is a safe no-op for anything
-already at the target version.
+already at the target version. `howl update` also checks for and, on
+confirmation, applies an update to the `howl` binary itself, keeping the
+previous binary as `howl.prev`.
 
 ## Filesystem Layout
 
@@ -138,9 +143,17 @@ functionality — Howl's scope is intentionally narrow.
 
 ## Support Matrix
 
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#known-v1-limitations) and
-the implementation report in `docs/` for exactly what has been runtime
-verified versus compile-only per platform.
+| Platform | Status | Verified |
+| :--- | :--- | :--- |
+| Bazzite (host) | Supported | Runtime-verified: platform/Distrobox detection, full ecosystem install/update/rollback/doctor/uninstall dogfooded live on a Bazzite host |
+| Ubuntu (Distrobox container on Bazzite) | Supported | Same live dogfood run above ran *inside* this environment |
+| Debian/Ubuntu (native, no container) | Experimental | Detection logic covered by unit tests against real `/etc/os-release` fixtures; not run on a native (non-container) install |
+| Generic Linux | Experimental | Falls back to generic platform handling; not runtime-verified |
+| macOS (amd64/arm64) | Compile-only | Cross-compiles via the release workflow; no runtime verification performed |
+| Windows (amd64) | Compile-only | Cross-compiles via the release workflow; no runtime verification performed |
+
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#known-v1-limitations) for
+what's behind each status and why.
 
 ## License
 
