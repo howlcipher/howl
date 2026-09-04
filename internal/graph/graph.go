@@ -9,11 +9,11 @@ import (
 
 // GraphNode represents a node in the ecosystem architecture.
 type GraphNode struct {
-	ID          string `json:"id"`
-	Label       string `json:"label"`
-	Role        string `json:"role"`
-	Category    string `json:"category"`
-	Repository  string `json:"repository,omitempty"`
+	ID         string `json:"id"`
+	Label      string `json:"label"`
+	Role       string `json:"role"`
+	Category   string `json:"category"`
+	Repository string `json:"repository,omitempty"`
 }
 
 // GraphEdge represents a directed relationship between architectural nodes.
