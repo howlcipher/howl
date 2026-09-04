@@ -19,9 +19,11 @@ import (
 const keepReleases = 2
 
 // ActivateRelease points a component's "current" pointer at the given
-// version's staged release directory and prunes old releases beyond the
-// current + previous retained for rollback.
-func ActivateRelease(paths platform.Paths, name, version string) error {
+// version's staged release directory, prunes old releases beyond the
+// current + previous retained for rollback, and -- unless exposeOnBin is
+// false, for components users never invoke directly -- exposes the
+// component's executable on the user's PATH via paths.ComponentBinLink.
+func ActivateRelease(paths platform.Paths, name, version string, exposeOnBin bool) error {
 	link := paths.ComponentCurrentLink(name)
 	target := paths.ComponentReleaseDir(name, version)
 
@@ -35,6 +37,20 @@ func ActivateRelease(paths platform.Paths, name, version string) error {
 		// support (e.g. Windows without the privilege to create one).
 		if writeErr := os.WriteFile(link, []byte(version), 0o644); writeErr != nil {
 			return fmt.Errorf("failed to activate %s@%s: %w", name, version, writeErr)
+		}
+	}
+
+	if exposeOnBin {
+		binLink := paths.ComponentBinLink(name)
+		exePath := filepath.Join(target, platform.ExeName(name))
+		_ = os.Remove(binLink)
+		if err := os.Symlink(exePath, binLink); err != nil {
+			// Fall back to copying the executable for platforms without
+			// symlink support -- a plain pointer file wouldn't itself be
+			// runnable from PATH the way a symlink or a real copy is.
+			if copyErr := copyFile(exePath, binLink); copyErr != nil {
+				return fmt.Errorf("failed to expose %s@%s on PATH: %w", name, version, copyErr)
+			}
 		}
 	}
 

@@ -134,6 +134,27 @@ func PipInstallEditable(ctx context.Context, r Runner, venvDir, checkoutDir, pac
 	return nil
 }
 
+// PipInstallWheel installs a single prebuilt, already-checksum-verified
+// wheel file into the venv (non-editable), with the given optional extras
+// (e.g. ["web"] for `pip install "<wheel>[web]"`). Unlike
+// PipInstallEditable, there is no source checkout involved: wheelPath is
+// the whole install unit.
+func PipInstallWheel(ctx context.Context, r Runner, venvDir, wheelPath string, extras []string) error {
+	target := wheelPath
+	if len(extras) > 0 {
+		target = fmt.Sprintf("%s[%s]", wheelPath, strings.Join(extras, ","))
+	}
+
+	python := VenvPython(venvDir)
+	if _, err := r.Run(ctx, "", python, []string{"-m", "pip", "install", "--quiet", "--upgrade", "pip"}); err != nil {
+		return fmt.Errorf("failed to upgrade pip in venv: %w", err)
+	}
+	if _, err := r.Run(ctx, "", python, []string{"-m", "pip", "install", "--quiet", target}); err != nil {
+		return fmt.Errorf("failed to install wheel into venv: %w", err)
+	}
+	return nil
+}
+
 // WriteWrapperScript writes a thin, platform-appropriate wrapper at
 // scriptPath that execs the venv's console-script entry point. This lets
 // Python-installed components be located the same way as any other

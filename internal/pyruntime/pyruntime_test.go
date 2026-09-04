@@ -110,6 +110,57 @@ func TestPipInstallEditableUsesPackageSubdir(t *testing.T) {
 	}
 }
 
+func TestPipInstallWheelInvokesExpectedCommands(t *testing.T) {
+	r := &fakeRunner{}
+	venvDir := t.TempDir()
+	wheelPath := filepath.Join(t.TempDir(), "howlwriter-1.0.0-py3-none-any.whl")
+
+	if err := PipInstallWheel(context.Background(), r, venvDir, wheelPath, nil); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(r.calls) != 2 {
+		t.Fatalf("expected 2 calls (pip upgrade + install), got %d: %+v", len(r.calls), r.calls)
+	}
+	install := r.calls[1]
+	found := false
+	for _, a := range install.args {
+		if a == wheelPath {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("expected install args to include the bare wheel path %q, got %v", wheelPath, install.args)
+	}
+	for _, a := range install.args {
+		if a == "-e" {
+			t.Errorf("wheel install must not be editable, got args %v", install.args)
+		}
+	}
+}
+
+func TestPipInstallWheelWithExtras(t *testing.T) {
+	r := &fakeRunner{}
+	venvDir := t.TempDir()
+	wheelPath := filepath.Join(t.TempDir(), "howlwriter-1.0.0-py3-none-any.whl")
+
+	if err := PipInstallWheel(context.Background(), r, venvDir, wheelPath, []string{"web"}); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	install := r.calls[1]
+	wantTarget := wheelPath + "[web]"
+	found := false
+	for _, a := range install.args {
+		if a == wantTarget {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("expected install args to include %q, got %v", wantTarget, install.args)
+	}
+}
+
 func TestWriteWrapperScriptCreatesExecutableFile(t *testing.T) {
 	scriptPath := filepath.Join(t.TempDir(), "bin", "howlwriter")
 	venvDir := "/fake/venv"

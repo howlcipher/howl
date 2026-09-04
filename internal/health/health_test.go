@@ -48,7 +48,7 @@ func activateFakeBinary(t *testing.T, paths platform.Paths, name string, executa
 	if err := os.WriteFile(filepath.Join(dir, platform.ExeName(name)), []byte("bin"), mode); err != nil {
 		t.Fatal(err)
 	}
-	if err := component.ActivateRelease(paths, name, "1.0.0"); err != nil {
+	if err := component.ActivateRelease(paths, name, "1.0.0", true); err != nil {
 		t.Fatal(err)
 	}
 }

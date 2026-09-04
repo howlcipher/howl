@@ -53,6 +53,13 @@ func (p Paths) RuntimeDir(name string) string {
 	return filepath.Join(p.DataHome, "runtimes", name)
 }
 
+// ComponentBinLink returns the path where a component's executable is
+// exposed on the user's PATH (a symlink, or a copy on platforms without
+// symlink privilege, into the currently activated release).
+func (p Paths) ComponentBinLink(name string) string {
+	return filepath.Join(p.BinDir, ExeName(name))
+}
+
 // DownloadCacheDir returns the directory downloads are staged into before
 // integrity verification.
 func (p Paths) DownloadCacheDir() string {

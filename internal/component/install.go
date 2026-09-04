@@ -55,6 +55,8 @@ func (i *Installer) Install(ctx context.Context, c manifest.Component, paths pla
 		default:
 			return fmt.Errorf("component %q declares unsupported source_build language %q", c.Name, c.Install.SourceBuild.Language)
 		}
+	case manifest.MethodGithubReleaseWheel:
+		return i.installGithubReleaseWheel(ctx, c, paths)
 	default:
 		return fmt.Errorf("component %q declares unsupported install method %q", c.Name, c.Install.Method)
 	}
@@ -152,7 +154,7 @@ func (i *Installer) installGithubRelease(ctx context.Context, c manifest.Compone
 		_ = os.Chmod(binPath, 0o755)
 	}
 
-	return ActivateRelease(paths, c.Name, c.Version)
+	return ActivateRelease(paths, c.Name, c.Version, !c.Internal)
 }
 
 func (i *Installer) installGoSource(ctx context.Context, c manifest.Component, paths platform.Paths) error {
@@ -189,7 +191,7 @@ func (i *Installer) installGoSource(ctx context.Context, c manifest.Component, p
 		}
 	}
 
-	return ActivateRelease(paths, c.Name, c.Version)
+	return ActivateRelease(paths, c.Name, c.Version, !c.Internal)
 }
 
 func (i *Installer) installPythonSource(ctx context.Context, c manifest.Component, paths platform.Paths) error {
@@ -222,5 +224,77 @@ func (i *Installer) installPythonSource(ctx context.Context, c manifest.Componen
 		return err
 	}
 
-	return ActivateRelease(paths, c.Name, c.Version)
+	return ActivateRelease(paths, c.Name, c.Version, !c.Internal)
+}
+
+// installGithubReleaseWheel downloads a prebuilt, checksummed pure-Python
+// wheel from a GitHub release and installs it (non-editable) into a
+// Howl-managed, isolated virtualenv -- the wheel-based counterpart to
+// installGithubRelease (binary archive) and installPythonSource (source
+// checkout + editable install).
+func (i *Installer) installGithubReleaseWheel(ctx context.Context, c manifest.Component, paths platform.Paths) error {
+	grw := c.Install.GithubReleaseWheel
+	if grw == nil {
+		return fmt.Errorf("component %q has no github_release_python_wheel configuration", c.Name)
+	}
+
+	tag := "v" + c.Version
+	wheelName := strings.NewReplacer(
+		"{version}", tag,
+		"{pep440_version}", c.Version,
+	).Replace(grw.ArtifactPattern)
+
+	base := fmt.Sprintf("%s/%s/releases/download/%s", i.githubBaseURL(), grw.Repository, tag)
+
+	cacheDir := paths.DownloadCacheDir()
+	wheelPath := filepath.Join(cacheDir, wheelName)
+	checksumPath := filepath.Join(cacheDir, c.Name+"-"+tag+"-"+grw.ChecksumFile)
+
+	if err := artifact.DownloadToFile(ctx, i.Downloader, base+"/"+wheelName, wheelPath); err != nil {
+		return fmt.Errorf("failed to download %s: %w", c.Name, err)
+	}
+	if err := artifact.DownloadToFile(ctx, i.Downloader, base+"/"+grw.ChecksumFile, checksumPath); err != nil {
+		return fmt.Errorf("failed to download checksums for %s: %w", c.Name, err)
+	}
+
+	checksumData, err := os.ReadFile(checksumPath)
+	if err != nil {
+		return fmt.Errorf("failed to read downloaded checksum file: %w", err)
+	}
+	sums, err := artifact.ParseChecksumFile(checksumData)
+	if err != nil {
+		return err
+	}
+	expected, ok := sums[wheelName]
+	if !ok {
+		return fmt.Errorf("no checksum entry for %s in %s", wheelName, grw.ChecksumFile)
+	}
+	if err := artifact.VerifySHA256(wheelPath, expected); err != nil {
+		return err
+	}
+
+	pythonPath, _, err := pyruntime.DetectPython(ctx, i.Runner, grw.MinPython)
+	if err != nil {
+		return fmt.Errorf("failed to provision python runtime for %s: %w", c.Name, err)
+	}
+
+	runtimeRoot := paths.RuntimeDir(c.Name)
+	venvDir := pyruntime.VenvDir(runtimeRoot)
+	if err := pyruntime.CreateVenv(ctx, i.Runner, pythonPath, venvDir); err != nil {
+		return fmt.Errorf("failed to create python runtime for %s: %w", c.Name, err)
+	}
+	if err := pyruntime.PipInstallWheel(ctx, i.Runner, venvDir, wheelPath, grw.Extras); err != nil {
+		return fmt.Errorf("failed to install %s into its python runtime: %w", c.Name, err)
+	}
+
+	releaseDir := paths.ComponentReleaseDir(c.Name, c.Version)
+	if err := os.MkdirAll(releaseDir, 0o755); err != nil {
+		return fmt.Errorf("failed to create staging directory: %w", err)
+	}
+	wrapperPath := filepath.Join(releaseDir, platform.ExeName(c.Name))
+	if err := pyruntime.WriteWrapperScript(wrapperPath, venvDir, grw.ConsoleScript); err != nil {
+		return err
+	}
+
+	return ActivateRelease(paths, c.Name, c.Version, !c.Internal)
 }

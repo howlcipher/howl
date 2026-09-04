@@ -4,9 +4,27 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/howlcipher/howl/internal/platform"
 	"github.com/howlcipher/howl/internal/state"
 	"github.com/spf13/cobra"
 )
+
+// removeComponentBinLink removes a component's PATH exposure created by
+// ActivateRelease, if any. BinDir (~/.local/bin) isn't an exclusively
+// Howl-owned path the way DataHome/CacheHome are, so this only removes a
+// real symlink that resolves into Howl's data directory -- never a plain
+// file, which could be something the user placed there themselves.
+func removeComponentBinLink(paths platform.Paths, name string) {
+	binLink := paths.ComponentBinLink(name)
+	target, err := os.Readlink(binLink)
+	if err != nil {
+		return
+	}
+	if !paths.Owns(target) {
+		return
+	}
+	_ = os.Remove(binLink)
+}
 
 func newUninstallCommand() *cobra.Command {
 	var purge bool
@@ -74,6 +92,7 @@ without it, state history is kept.`,
 						return exitErr(ExitGeneric, fmt.Errorf("failed to remove %s: %w", p, err))
 					}
 				}
+				removeComponentBinLink(app.Paths, name)
 				delete(app.State.Components, name)
 				if purge {
 					delete(app.State.PreviousComponents, name)

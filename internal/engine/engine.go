@@ -199,6 +199,9 @@ func (e *Engine) Rollback(ctx context.Context, m *manifest.Manifest, st *state.S
 			continue
 		}
 		c.Version = target.Version
+		if st.Profile == "developer" && c.DeveloperInstall != nil {
+			c.Install = *c.DeveloperInstall
+		}
 
 		cr := ComponentResult{Name: name, Action: "rollback"}
 		if err := e.Installer.Install(ctx, c, e.Paths); err != nil {

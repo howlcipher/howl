@@ -74,6 +74,48 @@ func TestUninstallComponentRemovesOnlyHowlOwnedPaths(t *testing.T) {
 	}
 }
 
+func TestUninstallRemovesBinLinkButLeavesUnrelatedFiles(t *testing.T) {
+	sandboxHowlPaths(t)
+	paths := mustResolveTestPaths(t)
+	seedInstalledState(t, paths, "howlframe", "0.1.1")
+
+	releaseDir := paths.ComponentReleaseDir("howlframe", "0.1.1")
+	if err := os.MkdirAll(releaseDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	binPath := filepath.Join(releaseDir, "howlframe")
+	if err := os.WriteFile(binPath, []byte("bin"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	howlframeLink := paths.ComponentBinLink("howlframe")
+	if err := os.Symlink(binPath, howlframeLink); err != nil {
+		t.Fatal(err)
+	}
+
+	// A pre-existing, unrelated file with a component's exact name must
+	// never be deleted just because it shares that name -- only a real
+	// symlink resolving into Howl's own data directory is Howl's to
+	// remove.
+	unrelatedLink := paths.ComponentBinLink("howlchangeops")
+	if err := os.WriteFile(unrelatedLink, []byte("not howl's"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	rootCmd := NewRootCommand()
+	rootCmd.SetOut(&bytes.Buffer{})
+	rootCmd.SetArgs([]string{"uninstall", "howlframe", "--yes"})
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if _, err := os.Lstat(howlframeLink); !os.IsNotExist(err) {
+		t.Errorf("expected the howlframe bin link to be removed, got err=%v", err)
+	}
+	if _, err := os.Stat(unrelatedLink); err != nil {
+		t.Errorf("expected the unrelated file to be left alone: %v", err)
+	}
+}
+
 func TestUninstallPurgeClearsRollbackHistory(t *testing.T) {
 	sandboxHowlPaths(t)
 	paths := mustResolveTestPaths(t)

@@ -42,7 +42,7 @@ the previous binary as howl.prev.`,
 			}
 
 			p, err := plan.Build(app.Manifest, app.State, plan.BuildOptions{
-				Profile:  "standard",
+				Profile:  installedProfile(app.State),
 				Detector: plan.ExecDetector{},
 			})
 			if err != nil {
@@ -110,6 +110,19 @@ the previous binary as howl.prev.`,
 	return cmd
 }
 
+// installedProfile reports the profile the ecosystem was last installed
+// with, defaulting to "standard" for state files written before Howl
+// started persisting it. Update must reuse this rather than assuming
+// "standard" outright, or a component installed with --profile developer
+// would silently flip back to a downloaded release artifact on the next
+// plain `howl update`.
+func installedProfile(st *state.State) string {
+	if st.Profile == "" {
+		return "standard"
+	}
+	return st.Profile
+}
+
 // checkSelfUpdate looks for a newer howl release. Failure (no network, no
 // releases published yet, GitHub unreachable) is treated as "no update
 // available" rather than an error -- self-update is a nice-to-have on top
@@ -139,7 +152,7 @@ func applySelfUpdate(ctx context.Context, app *appContext, rel *selfupdate.Relea
 }
 
 func runUpdateCheck(cmd *cobra.Command, app *appContext, selfRelease *selfupdate.ReleaseInfo) error {
-	p, err := plan.Build(app.Manifest, app.State, plan.BuildOptions{Profile: "standard"})
+	p, err := plan.Build(app.Manifest, app.State, plan.BuildOptions{Profile: installedProfile(app.State)})
 	if err != nil {
 		return exitErr(ExitValidationFailure, err)
 	}

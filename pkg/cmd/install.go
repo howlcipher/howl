@@ -40,6 +40,7 @@ already installed at the target version is left alone.`,
 			if err != nil {
 				return exitErr(ExitValidationFailure, err)
 			}
+			app.State.Profile = profile
 
 			plan.Render(cmd.OutOrStdout(), p)
 

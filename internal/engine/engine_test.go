@@ -15,12 +15,17 @@ import (
 // fakeInstaller lets tests script per-component/per-version success or
 // failure without touching a real filesystem or subprocess.
 type fakeInstaller struct {
-	failOn map[string]bool // component name -> fail
-	calls  []string
+	failOn        map[string]bool // component name -> fail
+	calls         []string
+	methodsByName map[string]manifest.InstallMethod
 }
 
 func (f *fakeInstaller) Install(ctx context.Context, c manifest.Component, paths platform.Paths) error {
 	f.calls = append(f.calls, fmt.Sprintf("%s@%s", c.Name, c.Version))
+	if f.methodsByName == nil {
+		f.methodsByName = map[string]manifest.InstallMethod{}
+	}
+	f.methodsByName[c.Name] = c.Install.Method
 	if f.failOn[c.Name] {
 		return fmt.Errorf("simulated install failure for %s", c.Name)
 	}
@@ -86,6 +91,84 @@ archs = ["amd64"]
 		t.Fatalf("failed to load test manifest: %v", err)
 	}
 	return m
+}
+
+func manifestWithDeveloperInstall(t *testing.T, version string) *manifest.Manifest {
+	t.Helper()
+	toml := fmt.Sprintf(`
+schema_version = 1
+[ecosystem]
+name = "Howl"
+version = "0.1.0"
+channel = "stable"
+
+[[components]]
+name = "howlchangeops"
+role = "gate"
+version = "%s"
+platforms = ["linux"]
+archs = ["amd64"]
+  [components.install]
+  method = "github_release"
+    [components.install.github_release]
+    repository = "x/howlchangeops"
+    artifact_pattern = "p"
+    checksum_file = "SHA256SUMS"
+  [components.developer_install]
+  method = "source_build"
+    [components.developer_install.source_build]
+    checkout_name = "howlchangeops"
+    language = "go"
+      [components.developer_install.source_build.go]
+      package = "./adapter"
+      build_output = "howlchangeops"
+  [components.health_check]
+  type = "binary_exists"
+`, version)
+	m, err := manifest.LoadBytes([]byte(toml))
+	if err != nil {
+		t.Fatalf("failed to load developer-install test manifest: %v", err)
+	}
+	return m
+}
+
+func TestEngineRollbackRespectsPersistedDeveloperProfile(t *testing.T) {
+	m := manifestWithDeveloperInstall(t, "0.2.0")
+	st := state.New("stable")
+	st.Profile = "developer"
+	st.Components["howlchangeops"] = state.ComponentState{Version: "0.2.0"}
+	st.PreviousComponents = map[string]state.ComponentState{"howlchangeops": {Version: "0.1.0"}}
+	paths, statePath := testPaths(t)
+
+	inst := &fakeInstaller{}
+	eng := New(inst, &fakeHealth{}, paths)
+
+	if _, err := eng.Rollback(context.Background(), m, st, statePath, "howlchangeops"); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if got := inst.methodsByName["howlchangeops"]; got != manifest.MethodSourceBuild {
+		t.Errorf("expected rollback under a developer-profile installation to reinstall via source_build, got %q", got)
+	}
+}
+
+func TestEngineRollbackUsesStandardInstallWhenProfileUnset(t *testing.T) {
+	m := manifestWithDeveloperInstall(t, "0.2.0")
+	st := state.New("stable")
+	st.Components["howlchangeops"] = state.ComponentState{Version: "0.2.0"}
+	st.PreviousComponents = map[string]state.ComponentState{"howlchangeops": {Version: "0.1.0"}}
+	paths, statePath := testPaths(t)
+
+	inst := &fakeInstaller{}
+	eng := New(inst, &fakeHealth{}, paths)
+
+	if _, err := eng.Rollback(context.Background(), m, st, statePath, "howlchangeops"); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if got := inst.methodsByName["howlchangeops"]; got != manifest.MethodGithubRelease {
+		t.Errorf("expected rollback with no persisted developer profile to use github_release, got %q", got)
+	}
 }
 
 func testPaths(t *testing.T) (platform.Paths, string) {

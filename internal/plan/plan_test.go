@@ -160,6 +160,126 @@ func TestBuildMissingRequiredDependency(t *testing.T) {
 	}
 }
 
+func developerOverrideManifest(t *testing.T) *manifest.Manifest {
+	t.Helper()
+	toml := `
+schema_version = 1
+[ecosystem]
+name = "Howl"
+version = "0.1.0"
+channel = "stable"
+
+[[components]]
+name = "howlchangeops"
+role = "gate"
+version = "0.1.0"
+platforms = ["linux"]
+archs = ["amd64"]
+  [components.install]
+  method = "github_release"
+    [components.install.github_release]
+    repository = "x/howlchangeops"
+    artifact_pattern = "p"
+    checksum_file = "SHA256SUMS"
+  [components.developer_install]
+  method = "source_build"
+    [components.developer_install.source_build]
+    checkout_name = "howlchangeops"
+    language = "go"
+      [components.developer_install.source_build.go]
+      package = "./adapter"
+      build_output = "howlchangeops"
+  [components.health_check]
+  type = "binary_exists"
+
+[[components]]
+name = "howlframe"
+role = "language"
+version = "0.1.1"
+platforms = ["linux"]
+archs = ["amd64"]
+  [components.install]
+  method = "github_release"
+    [components.install.github_release]
+    repository = "x/howlframe"
+    artifact_pattern = "p"
+    checksum_file = "SHA256SUMS"
+  [components.health_check]
+  type = "exec_version"
+  args = ["--version"]
+`
+	m, err := manifest.LoadBytes([]byte(toml))
+	if err != nil {
+		t.Fatalf("failed to load developer-override test manifest: %v", err)
+	}
+	return m
+}
+
+func TestBuildDeveloperProfileUsesDeveloperInstall(t *testing.T) {
+	m := developerOverrideManifest(t)
+	st := state.New("stable")
+
+	dev, err := Build(m, st, BuildOptions{Profile: "developer"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	stdPlan, err := Build(m, st, BuildOptions{Profile: "standard"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var devMethod, stdMethod manifest.InstallMethod
+	for _, cp := range dev.Components {
+		if cp.Name == "howlchangeops" {
+			devMethod = cp.Component.Install.Method
+		}
+	}
+	for _, cp := range stdPlan.Components {
+		if cp.Name == "howlchangeops" {
+			stdMethod = cp.Component.Install.Method
+		}
+	}
+
+	if devMethod != manifest.MethodSourceBuild {
+		t.Errorf("expected developer profile to resolve howlchangeops to source_build, got %q", devMethod)
+	}
+	if stdMethod != manifest.MethodGithubRelease {
+		t.Errorf("expected standard profile to resolve howlchangeops to github_release, got %q", stdMethod)
+	}
+}
+
+func TestBuildStandardProfileNeverFallsBackWhenDeveloperInstallAbsent(t *testing.T) {
+	// howlframe in developerOverrideManifest has no developer_install
+	// stanza at all -- both profiles must resolve it identically, proving
+	// its absence never synthesizes an implicit fallback.
+	m := developerOverrideManifest(t)
+	st := state.New("stable")
+
+	dev, err := Build(m, st, BuildOptions{Profile: "developer"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	stdPlan, err := Build(m, st, BuildOptions{Profile: "standard"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var devMethod, stdMethod manifest.InstallMethod
+	for _, cp := range dev.Components {
+		if cp.Name == "howlframe" {
+			devMethod = cp.Component.Install.Method
+		}
+	}
+	for _, cp := range stdPlan.Components {
+		if cp.Name == "howlframe" {
+			stdMethod = cp.Component.Install.Method
+		}
+	}
+	if devMethod != manifest.MethodGithubRelease || stdMethod != manifest.MethodGithubRelease {
+		t.Errorf("expected both profiles to resolve howlframe to github_release with no developer_install set, got developer=%q standard=%q", devMethod, stdMethod)
+	}
+}
+
 func TestBuildOptionalCapabilityOnlyCheckedUnderLocalAIProfile(t *testing.T) {
 	toml := `
 schema_version = 1
@@ -231,6 +351,75 @@ func TestBuildUnknownComponentScopeErrors(t *testing.T) {
 	_, err := Build(m, st, BuildOptions{Components: []string{"does-not-exist"}})
 	if err == nil {
 		t.Fatal("expected error for unknown component in scope")
+	}
+}
+
+// TestBuildAgainstRealEmbeddedManifest proves the actual shipped
+// ecosystem.toml -- not a synthetic fixture -- resolves to a complete,
+// installable plan under both profiles, before any real release has been
+// tagged for the three components this milestone moved off source_build.
+func TestBuildAgainstRealEmbeddedManifest(t *testing.T) {
+	m, path, err := manifest.LoadDefault(t.TempDir())
+	if err != nil {
+		t.Fatalf("failed to load the embedded default manifest: %v", err)
+	}
+	if path != "<embedded>" {
+		t.Fatalf("expected the embedded manifest (no local override), got %s", path)
+	}
+	st := state.New("stable")
+
+	wantStandardMethod := map[string]manifest.InstallMethod{
+		"howlframe":        manifest.MethodGithubRelease,
+		"howlchangeops":    manifest.MethodGithubRelease,
+		"howlplane-engine": manifest.MethodGithubReleaseWheel,
+		"howlplane":        manifest.MethodGithubRelease,
+		"howlwriter":       manifest.MethodGithubReleaseWheel,
+	}
+	wantExposedOnBin := map[string]bool{
+		"howlframe":        true,
+		"howlchangeops":    true,
+		"howlplane-engine": false,
+		"howlplane":        true,
+		"howlwriter":       true,
+	}
+
+	standard, err := Build(m, st, BuildOptions{Profile: "standard"})
+	if err != nil {
+		t.Fatalf("unexpected error building the standard-profile plan: %v", err)
+	}
+	if len(standard.Components) != len(wantStandardMethod) {
+		t.Fatalf("expected %d components in the standard plan, got %d", len(wantStandardMethod), len(standard.Components))
+	}
+	for _, cp := range standard.Components {
+		wantMethod, ok := wantStandardMethod[cp.Name]
+		if !ok {
+			t.Fatalf("unexpected component %q in the standard plan", cp.Name)
+		}
+		if cp.Component.Install.Method != wantMethod {
+			t.Errorf("standard profile: expected %q to install via %q, got %q", cp.Name, wantMethod, cp.Component.Install.Method)
+		}
+		if cp.Component.Internal == wantExposedOnBin[cp.Name] {
+			t.Errorf("standard profile: expected %q internal=%v (exposed on PATH=%v)", cp.Name, cp.Component.Internal, wantExposedOnBin[cp.Name])
+		}
+	}
+
+	developer, err := Build(m, st, BuildOptions{Profile: "developer"})
+	if err != nil {
+		t.Fatalf("unexpected error building the developer-profile plan: %v", err)
+	}
+	for _, cp := range developer.Components {
+		if cp.Name == "howlframe" {
+			// howlframe has no developer_install: both profiles must
+			// resolve it identically, proving absence never synthesizes
+			// an implicit source-build fallback.
+			if cp.Component.Install.Method != manifest.MethodGithubRelease {
+				t.Errorf("developer profile: expected howlframe to still install via github_release (no developer_install declared), got %q", cp.Component.Install.Method)
+			}
+			continue
+		}
+		if cp.Component.Install.Method != manifest.MethodSourceBuild {
+			t.Errorf("developer profile: expected %q to install via source_build, got %q", cp.Name, cp.Component.Install.Method)
+		}
 	}
 }
 

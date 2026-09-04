@@ -27,8 +27,9 @@ const CurrentSchemaVersion = 1
 type InstallMethod string
 
 const (
-	MethodGithubRelease InstallMethod = "github_release"
-	MethodSourceBuild   InstallMethod = "source_build"
+	MethodGithubRelease      InstallMethod = "github_release"
+	MethodSourceBuild        InstallMethod = "source_build"
+	MethodGithubReleaseWheel InstallMethod = "github_release_python_wheel"
 )
 
 // HealthCheckType identifies how a component's installation is verified.
@@ -127,24 +128,48 @@ type SourceBuild struct {
 	Python       *PythonSourceBuild `toml:"python,omitempty" json:"python,omitempty"`
 }
 
+// GithubReleaseWheel describes fetching a prebuilt, checksummed pure-Python
+// wheel from GitHub Releases and installing it (non-editable) into a
+// Howl-managed, isolated virtualenv. Unlike SourceBuild's python variant,
+// this never checks out or builds from source: the wheel is the install
+// unit, and its checksum is verified before pip ever touches it.
+type GithubReleaseWheel struct {
+	Repository      string   `toml:"repository" json:"repository"`
+	ArtifactPattern string   `toml:"artifact_pattern" json:"artifact_pattern"`
+	ChecksumFile    string   `toml:"checksum_file" json:"checksum_file"`
+	ConsoleScript   string   `toml:"console_script" json:"console_script"`
+	Extras          []string `toml:"extras,omitempty" json:"extras,omitempty"`
+	MinPython       string   `toml:"min_python" json:"min_python"`
+}
+
 // Install describes how a component is obtained and installed.
 type Install struct {
-	Method        InstallMethod        `toml:"method" json:"method"`
-	GithubRelease *GithubReleaseSource `toml:"github_release,omitempty" json:"github_release,omitempty"`
-	SourceBuild   *SourceBuild         `toml:"source_build,omitempty" json:"source_build,omitempty"`
+	Method             InstallMethod        `toml:"method" json:"method"`
+	GithubRelease      *GithubReleaseSource `toml:"github_release,omitempty" json:"github_release,omitempty"`
+	SourceBuild        *SourceBuild         `toml:"source_build,omitempty" json:"source_build,omitempty"`
+	GithubReleaseWheel *GithubReleaseWheel  `toml:"github_release_python_wheel,omitempty" json:"github_release_python_wheel,omitempty"`
 }
 
 // Component defines a single registered ecosystem component.
 type Component struct {
-	Name                 string               `toml:"name" json:"name"`
-	DisplayName          string               `toml:"display_name" json:"display_name"`
-	Role                 string               `toml:"role" json:"role"`
-	Repository           string               `toml:"repository" json:"repository"`
-	Version              string               `toml:"version" json:"version"`
-	Optional             bool                 `toml:"optional,omitempty" json:"optional,omitempty"`
-	Platforms            []string             `toml:"platforms" json:"platforms"`
-	Archs                []string             `toml:"archs" json:"archs"`
-	Install              Install              `toml:"install" json:"install"`
+	Name        string `toml:"name" json:"name"`
+	DisplayName string `toml:"display_name" json:"display_name"`
+	Role        string `toml:"role" json:"role"`
+	Repository  string `toml:"repository" json:"repository"`
+	Version     string `toml:"version" json:"version"`
+	Optional    bool   `toml:"optional,omitempty" json:"optional,omitempty"`
+	// Internal marks a component that exists to be installed and health
+	// checked, but is never itself exposed on the user's PATH (e.g. a
+	// Python engine driven by a sibling CLI's binary, not invoked directly).
+	Internal  bool     `toml:"internal,omitempty" json:"internal,omitempty"`
+	Platforms []string `toml:"platforms" json:"platforms"`
+	Archs     []string `toml:"archs" json:"archs"`
+	Install   Install  `toml:"install" json:"install"`
+	// DeveloperInstall, if set, replaces Install when the active profile is
+	// "developer". Standard-profile planning never looks at this field, so
+	// there is no code path by which a missing or broken release artifact
+	// can silently fall back to a source build.
+	DeveloperInstall     *Install             `toml:"developer_install,omitempty" json:"developer_install,omitempty"`
 	HealthCheck          HealthCheck          `toml:"health_check" json:"health_check"`
 	DependsOn            []Dependency         `toml:"depends_on,omitempty" json:"depends_on,omitempty"`
 	ExternalDependencies []ExternalDependency `toml:"external_dependencies,omitempty" json:"external_dependencies,omitempty"`
@@ -227,8 +252,13 @@ func validateComponent(c Component, all map[string]Component) error {
 		}
 	}
 
-	if err := validateInstall(c); err != nil {
+	if err := validateInstallStanza(c.Name, c.Install); err != nil {
 		return err
+	}
+	if c.DeveloperInstall != nil {
+		if err := validateInstallStanza(c.Name, *c.DeveloperInstall); err != nil {
+			return err
+		}
 	}
 	if err := validateHealthCheck(c); err != nil {
 		return err
@@ -262,38 +292,49 @@ func validateComponent(c Component, all map[string]Component) error {
 	return nil
 }
 
-func validateInstall(c Component) error {
-	switch c.Install.Method {
+func validateInstallStanza(name string, inst Install) error {
+	switch inst.Method {
 	case MethodGithubRelease:
-		gr := c.Install.GithubRelease
+		gr := inst.GithubRelease
 		if gr == nil {
-			return fmt.Errorf("manifest validation error: component %q uses github_release but has no github_release block", c.Name)
+			return fmt.Errorf("manifest validation error: component %q uses github_release but has no github_release block", name)
 		}
 		if strings.TrimSpace(gr.Repository) == "" || strings.TrimSpace(gr.ArtifactPattern) == "" || strings.TrimSpace(gr.ChecksumFile) == "" {
-			return fmt.Errorf("manifest validation error: component %q github_release block is missing required fields", c.Name)
+			return fmt.Errorf("manifest validation error: component %q github_release block is missing required fields", name)
 		}
 	case MethodSourceBuild:
-		sb := c.Install.SourceBuild
+		sb := inst.SourceBuild
 		if sb == nil {
-			return fmt.Errorf("manifest validation error: component %q uses source_build but has no source_build block", c.Name)
+			return fmt.Errorf("manifest validation error: component %q uses source_build but has no source_build block", name)
 		}
 		if strings.TrimSpace(sb.CheckoutName) == "" {
-			return fmt.Errorf("manifest validation error: component %q source_build block is missing checkout_name", c.Name)
+			return fmt.Errorf("manifest validation error: component %q source_build block is missing checkout_name", name)
 		}
 		switch sb.Language {
 		case "go":
 			if sb.Go == nil || strings.TrimSpace(sb.Go.Package) == "" || strings.TrimSpace(sb.Go.BuildOutput) == "" {
-				return fmt.Errorf("manifest validation error: component %q go source_build block is missing required fields", c.Name)
+				return fmt.Errorf("manifest validation error: component %q go source_build block is missing required fields", name)
 			}
 		case "python":
 			if sb.Python == nil || strings.TrimSpace(sb.Python.ConsoleScript) == "" {
-				return fmt.Errorf("manifest validation error: component %q python source_build block is missing required fields", c.Name)
+				return fmt.Errorf("manifest validation error: component %q python source_build block is missing required fields", name)
 			}
 		default:
-			return fmt.Errorf("manifest validation error: component %q source_build declares unsupported language %q", c.Name, sb.Language)
+			return fmt.Errorf("manifest validation error: component %q source_build declares unsupported language %q", name, sb.Language)
+		}
+	case MethodGithubReleaseWheel:
+		grw := inst.GithubReleaseWheel
+		if grw == nil {
+			return fmt.Errorf("manifest validation error: component %q uses github_release_python_wheel but has no github_release_python_wheel block", name)
+		}
+		if strings.TrimSpace(grw.Repository) == "" || strings.TrimSpace(grw.ArtifactPattern) == "" || strings.TrimSpace(grw.ChecksumFile) == "" {
+			return fmt.Errorf("manifest validation error: component %q github_release_python_wheel block is missing required fields", name)
+		}
+		if strings.TrimSpace(grw.ConsoleScript) == "" || strings.TrimSpace(grw.MinPython) == "" {
+			return fmt.Errorf("manifest validation error: component %q github_release_python_wheel block is missing console_script or min_python", name)
 		}
 	default:
-		return fmt.Errorf("manifest validation error: component %q declares unsupported install method %q", c.Name, c.Install.Method)
+		return fmt.Errorf("manifest validation error: component %q declares unsupported install method %q", name, inst.Method)
 	}
 	return nil
 }

@@ -35,7 +35,10 @@ func (f *fakeRunner) Run(ctx context.Context, dir, name string, args []string) (
 	if f.fail {
 		return nil, fmt.Errorf("simulated failure")
 	}
-	return []byte("3.11.6\n"), nil
+	// Formatted the way `python3 --version` actually prints, so this
+	// runner also works as the injected Runner for pyruntime.DetectPython
+	// (which parses "Python 3.11.6" into "3.11.6").
+	return []byte("Python 3.11.6\n"), nil
 }
 
 // touchingRunner simulates `go build -o <path>` by creating an empty file
@@ -185,6 +188,187 @@ func TestInstallGithubReleaseRejectsChecksumMismatch(t *testing.T) {
 	}
 }
 
+func TestInstallGithubReleaseMissingArtifactFailsClosedNoFallback(t *testing.T) {
+	// A 404 from the release host proves there is no fallback branch in
+	// Install() for github_release: the error from installGithubRelease
+	// is terminal, and nothing is left activated.
+	srv := httptest.NewServer(http.NotFoundHandler())
+	defer srv.Close()
+
+	c := manifest.Component{
+		Name:    "howlframe",
+		Version: "0.1.1",
+		Install: manifest.Install{
+			Method: manifest.MethodGithubRelease,
+			GithubRelease: &manifest.GithubReleaseSource{
+				Repository:      "x/howlframe",
+				ArtifactPattern: "howlframe_{version}_{os}_{arch}.{ext}",
+				ChecksumFile:    "SHA256SUMS",
+			},
+		},
+	}
+
+	paths := testPaths(t)
+	inst := &Installer{
+		Downloader:    artifact.HTTPDownloader{Client: srv.Client()},
+		GithubBaseURL: srv.URL,
+	}
+
+	if err := inst.Install(context.Background(), c, paths); err == nil {
+		t.Fatal("expected a missing artifact to fail closed")
+	}
+	if _, ok := CurrentBinaryPath(paths, "howlframe"); ok {
+		if _, statErr := os.Stat(paths.ComponentCurrentLink("howlframe")); statErr == nil {
+			t.Error("must not activate anything when the artifact could not be downloaded")
+		}
+	}
+}
+
+func buildWheelFixture(t *testing.T, content []byte) string {
+	t.Helper()
+	path := filepath.Join(t.TempDir(), "howlwriter-1.0.0-py3-none-any.whl")
+	if err := os.WriteFile(path, content, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return path
+}
+
+func TestInstallGithubReleaseWheelDownloadsVerifiesInstallsActivates(t *testing.T) {
+	wheelContent := []byte("fake wheel contents")
+	wheelPath := buildWheelFixture(t, wheelContent)
+	wheelBytes, err := os.ReadFile(wheelPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sum := sha256.Sum256(wheelBytes)
+	checksumLine := fmt.Sprintf("%s  howlwriter-1.0.0-py3-none-any.whl\n", hex.EncodeToString(sum[:]))
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/x/howlwriter/releases/download/v1.0.0/howlwriter-1.0.0-py3-none-any.whl", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, wheelPath)
+	})
+	mux.HandleFunc("/x/howlwriter/releases/download/v1.0.0/SHA256SUMS", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(checksumLine))
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	c := manifest.Component{
+		Name:    "howlwriter",
+		Version: "1.0.0",
+		Install: manifest.Install{
+			Method: manifest.MethodGithubReleaseWheel,
+			GithubReleaseWheel: &manifest.GithubReleaseWheel{
+				Repository:      "x/howlwriter",
+				ArtifactPattern: "howlwriter-{pep440_version}-py3-none-any.whl",
+				ChecksumFile:    "SHA256SUMS",
+				ConsoleScript:   "howlwriter",
+				Extras:          []string{"web"},
+				MinPython:       "3.0.0",
+			},
+		},
+	}
+
+	paths := testPaths(t)
+	runner := &fakeRunner{}
+	inst := &Installer{
+		Downloader:    artifact.HTTPDownloader{Client: srv.Client()},
+		GithubBaseURL: srv.URL,
+		Runner:        runner,
+	}
+
+	if err := inst.Install(context.Background(), c, paths); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	binPath, ok := CurrentBinaryPath(paths, "howlwriter")
+	if !ok {
+		t.Fatal("expected activated wrapper script")
+	}
+	data, err := os.ReadFile(binPath)
+	if err != nil {
+		t.Fatalf("expected wrapper script to exist: %v", err)
+	}
+	if !bytes.Contains(data, []byte("howlwriter")) {
+		t.Errorf("expected wrapper script to reference the howlwriter console script, got:\n%s", data)
+	}
+
+	// A venv must have been created before pip was ever invoked, and the
+	// non-editable install must reference the *downloaded* wheel (in
+	// Howl's cache dir, not the test fixture's source path) with its
+	// extra, never "-e".
+	downloadedWheel := filepath.Join(paths.DownloadCacheDir(), "howlwriter-1.0.0-py3-none-any.whl")
+	var sawVenv, sawInstall bool
+	for _, call := range runner.calls {
+		if len(call.args) >= 2 && call.args[0] == "-m" && call.args[1] == "venv" {
+			sawVenv = true
+		}
+		for _, a := range call.args {
+			if a == "-e" {
+				t.Errorf("wheel install must not be editable, got call %+v", call)
+			}
+			if a == downloadedWheel+"[web]" {
+				sawInstall = true
+			}
+		}
+	}
+	if !sawVenv {
+		t.Errorf("expected a venv to be created, got calls: %+v", runner.calls)
+	}
+	if !sawInstall {
+		t.Errorf("expected pip install to target %s[web], got calls: %+v", downloadedWheel, runner.calls)
+	}
+}
+
+func TestInstallGithubReleaseWheelChecksumMismatchFailsClosed(t *testing.T) {
+	wheelPath := buildWheelFixture(t, []byte("original contents"))
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/x/howlwriter/releases/download/v1.0.0/howlwriter-1.0.0-py3-none-any.whl", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, wheelPath)
+	})
+	mux.HandleFunc("/x/howlwriter/releases/download/v1.0.0/SHA256SUMS", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("0000000000000000000000000000000000000000000000000000000000000000  howlwriter-1.0.0-py3-none-any.whl\n"))
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	c := manifest.Component{
+		Name:    "howlwriter",
+		Version: "1.0.0",
+		Install: manifest.Install{
+			Method: manifest.MethodGithubReleaseWheel,
+			GithubReleaseWheel: &manifest.GithubReleaseWheel{
+				Repository:      "x/howlwriter",
+				ArtifactPattern: "howlwriter-{pep440_version}-py3-none-any.whl",
+				ChecksumFile:    "SHA256SUMS",
+				ConsoleScript:   "howlwriter",
+				MinPython:       "3.0.0",
+			},
+		},
+	}
+
+	paths := testPaths(t)
+	runner := &fakeRunner{}
+	inst := &Installer{
+		Downloader:    artifact.HTTPDownloader{Client: srv.Client()},
+		GithubBaseURL: srv.URL,
+		Runner:        runner,
+	}
+
+	if err := inst.Install(context.Background(), c, paths); err == nil {
+		t.Fatal("expected checksum mismatch to be rejected")
+	}
+	if len(runner.calls) != 0 {
+		t.Errorf("expected no venv/pip commands to run after a checksum mismatch, got: %+v", runner.calls)
+	}
+	if _, ok := CurrentBinaryPath(paths, "howlwriter"); ok {
+		if _, statErr := os.Stat(paths.ComponentCurrentLink("howlwriter")); statErr == nil {
+			t.Error("must not activate a release that failed checksum verification")
+		}
+	}
+}
+
 func TestInstallGoSourceBuildsAndActivates(t *testing.T) {
 	checkoutDir := t.TempDir()
 	paths := testPaths(t)
@@ -263,7 +447,7 @@ func TestInstallGoSourceExtraStepsRunAgainstDependency(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(frameDir, platform.ExeName("howlframe")), []byte("bin"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := ActivateRelease(paths, "howlframe", "0.1.1"); err != nil {
+	if err := ActivateRelease(paths, "howlframe", "0.1.1", true); err != nil {
 		t.Fatal(err)
 	}
 

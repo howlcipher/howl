@@ -47,6 +47,12 @@ type State struct {
 	SchemaVersion    int    `json:"schema_version"`
 	InstallerVersion string `json:"installer_version"`
 	Channel          string `json:"channel"`
+	// Profile is the install profile ("standard", "local-ai", or
+	// "developer") the ecosystem was last installed/updated with. Update
+	// and rollback reuse it so a component installed via --profile
+	// developer never silently switches install method on a later
+	// operation that doesn't repeat the flag.
+	Profile          string `json:"profile,omitempty"`
 	EcosystemVersion string `json:"ecosystem_version,omitempty"`
 
 	Components         map[string]ComponentState `json:"components"`

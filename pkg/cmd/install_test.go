@@ -135,6 +135,40 @@ func TestInstallEndToEndAgainstFakeGithubRelease(t *testing.T) {
 	}
 }
 
+func TestInstallPersistsProfileForSubsequentUpdate(t *testing.T) {
+	// A component installed with --profile developer must have that
+	// profile recorded in state, so a later plain `howl update` (which
+	// never repeats --profile) doesn't silently re-plan against
+	// "standard" and flip a developer-profile component's install method.
+	sandboxHowlPaths(t)
+	srv := startFakeGithubRelease(t)
+	defer srv.Close()
+	t.Setenv("HOWL_GITHUB_BASE_URL", srv.URL)
+
+	tempDir := t.TempDir()
+	manifestFile := filepath.Join(tempDir, "ecosystem.toml")
+	if err := os.WriteFile(manifestFile, []byte(githubReleaseManifestTOML()), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	rootCmd := NewRootCommand()
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetArgs([]string{"install", "--manifest", manifestFile, "--profile", "developer", "--yes"})
+	if err := rootCmd.Execute(); err != nil {
+		t.Fatalf("unexpected install error: %v\noutput:\n%s", err, buf.String())
+	}
+
+	paths := mustResolveTestPaths(t)
+	data, err := os.ReadFile(paths.StateFile())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(data), `"profile": "developer"`) {
+		t.Errorf("expected installed profile to be persisted as developer, got state:\n%s", data)
+	}
+}
+
 func TestInstallUnknownProfileRejected(t *testing.T) {
 	sandboxHowlPaths(t)
 	tempDir := t.TempDir()

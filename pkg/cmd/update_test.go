@@ -6,7 +6,24 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/howlcipher/howl/internal/state"
 )
+
+func TestInstalledProfileDefaultsToStandardForOlderStateFiles(t *testing.T) {
+	st := state.New("stable")
+	if got := installedProfile(st); got != "standard" {
+		t.Errorf("expected default profile standard for a state file with no persisted profile, got %q", got)
+	}
+}
+
+func TestInstalledProfilePreservesDeveloper(t *testing.T) {
+	st := state.New("stable")
+	st.Profile = "developer"
+	if got := installedProfile(st); got != "developer" {
+		t.Errorf("expected persisted developer profile to be preserved, got %q", got)
+	}
+}
 
 func TestUpdateCheckReportsNoUpdate(t *testing.T) {
 	sandboxHowlPaths(t)

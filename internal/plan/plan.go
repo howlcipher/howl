@@ -83,9 +83,13 @@ type Detector interface {
 
 // BuildOptions configures how a Plan is constructed.
 type BuildOptions struct {
-	// Profile is one of "standard", "local-ai", or "developer". Only
-	// "local-ai" currently changes behavior: it adds the manifest's
-	// optional_capabilities to the dependency check list.
+	// Profile is one of "standard", "local-ai", or "developer".
+	// "local-ai" adds the manifest's optional_capabilities to the
+	// dependency check list. "developer" swaps each component's Install
+	// for its DeveloperInstall, where the manifest declares one (e.g.
+	// building from a local source checkout instead of downloading a
+	// release artifact); components without a DeveloperInstall are
+	// unaffected -- there is no implicit fallback either way.
 	Profile string
 	// Components restricts planning to specific component names. Empty
 	// means every component in the manifest.
@@ -128,11 +132,16 @@ func Build(m *manifest.Manifest, st *state.State, opts BuildOptions) (*Plan, err
 		}
 		c, _ := m.GetComponent(name)
 
+		effective := c
+		if opts.Profile == "developer" && c.DeveloperInstall != nil {
+			effective.Install = *c.DeveloperInstall
+		}
+
 		cp := ComponentPlan{
 			Name:        c.Name,
 			DisplayName: displayName(c),
 			ToVersion:   c.Version,
-			Component:   c,
+			Component:   effective,
 		}
 		if existing, ok := st.Components[c.Name]; ok {
 			cp.FromVersion = existing.Version
