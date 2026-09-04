@@ -110,19 +110,21 @@ proves data ownership by path prefix before removing anything.
 
 ## Known v1 Limitations
 
-- **Only HowlFrame has a real `github_release` install path today.**
-  HowlChangeOps, HowlPlane, and HowlWriter have no published release
-  artifacts yet, so Howl installs them via `source_build` (compiling or
-  `pip install`-ing from the local sibling checkout). This means a system Go
-  toolchain and Python 3 interpreter are effectively required in the
-  standard profile right now, not developer-only — a known, documented
-  deviation from the target end state. See `docs/SCOPE.md` for what would
-  resolve this.
-- **HowlWriter's dependency on HowlPlane is a hardcoded absolute path** in
-  HowlWriter's own source (a `sys.path` insertion pointing at a specific
-  dev-machine checkout location). Howl does not patch other repositories'
-  source; `howl doctor` surfaces this as a compatibility note instead of
-  silently working around it.
+- **Every component now has a real `github_release`/`github_release_python_wheel`
+  install path** (Release Artifacts v1). `source_build` remains reachable
+  only via each component's `developer_install`, under `--profile
+  developer`; the standard profile no longer requires a system Go
+  toolchain, Git, or a local sibling checkout for any component. This
+  closes the deviation this section used to document; see each
+  component's own repository for its release pipeline
+  (`.github/workflows/release*.yml`).
+- **No official release has actually been tagged for HowlChangeOps,
+  HowlPlane, or HowlWriter yet** — their release pipelines exist and have
+  been verified locally (build, checksum, install-into-a-scratch-venv,
+  health check), but cutting the first real tag per repository is
+  separate, explicitly user-approved follow-up work. Until then, `howl
+  install` against the default manifest fails closed (a 404 on the
+  expected artifact), not by falling back to source_build.
 - **macOS and Windows** get platform detection, path handling, and
   cross-compiled builds, but are not runtime-verified — see the support
   matrix in the README.

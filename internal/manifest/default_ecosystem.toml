@@ -3,25 +3,50 @@
 # This is a tested, compatible combination of ecosystem component versions
 # -- not "whatever is newest in each repository." See docs/MANIFEST.md for
 # the schema and docs/ARCHITECTURE.md for why the install order below
-# (howlframe -> howlchangeops -> howlplane -> howlwriter) is required.
+# (howlframe -> howlchangeops -> howlplane-engine -> howlplane -> howlwriter)
+# is required.
 #
-# Component versions below reflect the real, evidenced state of each
-# repository at the time this manifest was authored:
-#   - howlframe:     latest *published GitHub Release* (v0.1.0) with real
-#                     assets + SHA256SUMS. Note: a v0.1.1 git tag exists
-#                     upstream but has no corresponding GitHub Release or
-#                     artifacts (verified against the live GitHub API), so
-#                     it is not usable via github_release and is not used
-#                     here -- do not bump this to 0.1.1 until howlframe
-#                     actually publishes a release for that tag.
-#   - howlchangeops: no tags/releases exist yet upstream; version here is
-#                     Howl's own nominal tracking version for this
-#                     ecosystem release, installed via source_build.
-#   - howlplane:     latest tagged release (v2.0.0); no plain howlplane
-#                     release artifact exists yet (only its own ai_installer
-#                     bootstrap tool), so it is installed via source_build.
-#   - howlwriter:    pyproject.toml version (0.1.0); no tags/releases exist
-#                     yet upstream, installed via source_build.
+# As of the Release Artifacts v1 milestone, every component below installs
+# via a real, checksummed GitHub Release artifact (github_release or
+# github_release_python_wheel) under the standard profile -- no component
+# still requires a local Go/Python toolchain or sibling source checkout to
+# install. Each also declares a developer_install reproducing its previous
+# source_build path, used only under `--profile developer`; standard-profile
+# planning never looks at it, so there is no code path by which a missing
+# or broken release artifact can silently fall back to building from source.
+#
+# The release pipelines these entries assume (release.yml/.goreleaser.yaml
+# in each component's own repository) exist and have been verified locally
+# (build, checksum, install-into-a-scratch-venv-or-extracted-archive,
+# `--version`/health check), but no git tag has actually been cut for any
+# of howlchangeops, howlplane, or howlwriter yet -- that is explicit,
+# separate, user-approved follow-up work per repository. Until a real tag
+# exists, `howl install` against this manifest will fail closed with a 404
+# downloading the artifact, exactly as it should: no hidden source-build
+# fallback exists to mask a release that hasn't been cut yet.
+#
+# Component versions below:
+#   - howlframe:        latest *published GitHub Release* (v0.1.0) with real
+#                        assets + SHA256SUMS. A v0.1.1 git tag exists
+#                        upstream but has no corresponding GitHub Release or
+#                        artifacts (verified against the live GitHub API),
+#                        so it is not used here.
+#   - howlchangeops:     0.1.0 -- the version its new --version flag and
+#                        release.yml are built against; no tag cut yet.
+#   - howlplane:         0.1.0 -- resets from this manifest's previous
+#                        nominal "2.0.0" (which tracked the standalone
+#                        ai_installer's own tag scheme, a different
+#                        artifact, not a released "howlplane" binary).
+#                        This is the first version any howlplane/ai binary
+#                        or howlplane-engine wheel has ever been released
+#                        as; no tag cut yet.
+#   - howlplane-engine:  0.1.0, matching pyproject.toml's [project] version
+#                        for the wheel built from src/control_plane. Not a
+#                        component end users invoke directly (internal =
+#                        true); howlplane depends on it and delegates every
+#                        non-"project" subcommand to it once both are
+#                        installed.
+#   - howlwriter:        0.1.0, matching pyproject.toml; no tag cut yet.
 schema_version = 1
 
 [ecosystem]
@@ -70,40 +95,92 @@ platforms = ["linux", "darwin", "windows"]
 archs = ["amd64", "arm64"]
 
   [components.install]
+  method = "github_release"
+
+    [components.install.github_release]
+    repository = "howlcipher/howlchangeops"
+    artifact_pattern = "howlchangeops_{version}_{os}_{arch}.{ext}"
+    checksum_file = "SHA256SUMS"
+
+  [components.developer_install]
   method = "source_build"
 
-    [components.install.source_build]
+    [components.developer_install.source_build]
     checkout_name = "howlchangeops"
     language = "go"
 
-      [components.install.source_build.go]
+      [components.developer_install.source_build.go]
       package = "./adapter"
       build_output = "howlchangeops"
 
-        [[components.install.source_build.go.extra_steps]]
+        [[components.developer_install.source_build.go.extra_steps]]
         run_component = "howlframe"
         args = ["check", "src/howlchangeops.howl"]
 
-        [[components.install.source_build.go.extra_steps]]
+        [[components.developer_install.source_build.go.extra_steps]]
         run_component = "howlframe"
         args = ["build", "src/howlchangeops.howl"]
 
   [components.health_check]
-  type = "binary_exists"
+  type = "exec_version"
+  args = ["--version"]
 
   [[components.depends_on]]
   component = "howlframe"
   min_version = "0.1.0"
 
-  [[components.external_dependencies]]
-  name = "go"
-  required = true
-  capability = "source-build"
+# ---------------------------------------------------------------------------
+# The Python control-plane engine (src/control_plane), distributed as its
+# own wheel. Not exposed on PATH (internal = true): the howlplane Go binary
+# below is what users invoke, and delegates to this component's activated
+# console script for every subcommand it doesn't natively implement.
+[[components]]
+name = "howlplane-engine"
+display_name = "HowlPlane Control-Plane Engine"
+role = "Python control-plane engine backing the howlplane CLI"
+repository = "https://github.com/howlcipher/howlplane"
+version = "0.1.0"
+optional = false
+internal = true
+platforms = ["linux", "darwin", "windows"]
+archs = ["amd64", "arm64"]
+
+  [components.install]
+  method = "github_release_python_wheel"
+
+    [components.install.github_release_python_wheel]
+    repository = "howlcipher/howlplane"
+    artifact_pattern = "howlplane-{pep440_version}-py3-none-any.whl"
+    checksum_file = "howlplane-engine-SHA256SUMS"
+    console_script = "howlplane"
+    extras = []
+    min_python = "3.9.0"
+
+  [components.developer_install]
+  method = "source_build"
+
+    [components.developer_install.source_build]
+    checkout_name = "howlplane"
+    language = "python"
+
+      [components.developer_install.source_build.python]
+      package_dir = "."
+      extras = []
+      console_script = "howlplane"
+      min_python = "3.9.0"
+
+  [components.health_check]
+  type = "python_import"
+  module = "src.control_plane"
+
+  [[components.depends_on]]
+  component = "howlchangeops"
 
   [[components.external_dependencies]]
-  name = "git"
+  name = "python3"
   required = true
-  capability = "source-build"
+  capability = "python-runtime"
+  min_version = "3.9.0"
 
 # ---------------------------------------------------------------------------
 [[components]]
@@ -111,43 +188,39 @@ name = "howlplane"
 display_name = "HowlPlane"
 role = "AI engineering control plane"
 repository = "https://github.com/howlcipher/howlplane"
-version = "2.0.0"
+version = "0.1.0"
 optional = false
 platforms = ["linux", "darwin", "windows"]
 archs = ["amd64", "arm64"]
 
   [components.install]
+  method = "github_release"
+
+    [components.install.github_release]
+    repository = "howlcipher/howlplane"
+    artifact_pattern = "howlplane_{version}_{os}_{arch}.{ext}"
+    checksum_file = "SHA256SUMS"
+
+  [components.developer_install]
   method = "source_build"
 
-    [components.install.source_build]
+    [components.developer_install.source_build]
     checkout_name = "howlplane"
     language = "go"
 
-      [components.install.source_build.go]
+      [components.developer_install.source_build.go]
       package = "./cmd/howlplane"
       build_output = "howlplane"
 
   [components.health_check]
-  type = "binary_exists"
+  type = "exec_version"
+  args = ["--version"]
+
+  [[components.depends_on]]
+  component = "howlplane-engine"
 
   [[components.depends_on]]
   component = "howlchangeops"
-
-  [[components.external_dependencies]]
-  name = "go"
-  required = true
-  capability = "source-build"
-
-  [[components.external_dependencies]]
-  name = "python3"
-  required = true
-  capability = "source-build"
-  min_version = "3.9.0"
-
-  [[components.external_dependencies]]
-  name = "git"
-  required = true
-  capability = "source-build"
 
 # ---------------------------------------------------------------------------
 [[components]]
@@ -161,20 +234,32 @@ platforms = ["linux", "darwin", "windows"]
 archs = ["amd64", "arm64"]
 
   [components.install]
+  method = "github_release_python_wheel"
+
+    [components.install.github_release_python_wheel]
+    repository = "howlcipher/howlwriter"
+    artifact_pattern = "howlwriter-{pep440_version}-py3-none-any.whl"
+    checksum_file = "SHA256SUMS"
+    console_script = "howlwriter"
+    extras = ["web"]
+    min_python = "3.11.0"
+
+  [components.developer_install]
   method = "source_build"
 
-    [components.install.source_build]
+    [components.developer_install.source_build]
     checkout_name = "howlwriter"
     language = "python"
 
-      [components.install.source_build.python]
+      [components.developer_install.source_build.python]
       package_dir = "."
-      extras = []
+      extras = ["dev"]
       console_script = "howlwriter"
       min_python = "3.11.0"
 
   [components.health_check]
-  type = "binary_exists"
+  type = "exec_version"
+  args = ["--version"]
 
   [[components.depends_on]]
   component = "howlplane"
@@ -182,5 +267,5 @@ archs = ["amd64", "arm64"]
   [[components.external_dependencies]]
   name = "python3"
   required = true
-  capability = "source-build"
+  capability = "python-runtime"
   min_version = "3.11.0"

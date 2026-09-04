@@ -45,13 +45,12 @@ for the manifest schema.
 
 ## Installation Profiles
 
-- **`standard`** (default) — the full ecosystem and the runtimes/
-  dependencies it requires. No Ollama, no local models required by Howl
-  itself. **Known v1 limitation:** three of the four components don't yet
-  publish prebuilt release binaries (see below), so `standard` currently
-  also requires a system Go toolchain and Python 3 to build them from a
-  local source checkout — this is a documented gap against the target end
-  state, not intended long-term behavior.
+- **`standard`** (default) — the full ecosystem, installed from versioned,
+  checksummed release artifacts (a binary or wheel per component from
+  each repository's own GitHub Releases). No Go toolchain, Git, or source
+  checkout required. Python remains a runtime dependency for the two
+  Python-based components (HowlPlane's engine, HowlWriter), each in its
+  own Howl-managed virtualenv Howl creates and owns.
 - **`local-ai`** — `standard`, plus detection of local-inference
   prerequisites (currently: Ollama). Missing optional capabilities are
   reported, not installed automatically, and never block the rest of the

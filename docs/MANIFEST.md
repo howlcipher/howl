@@ -44,8 +44,13 @@ optional = false
 platforms = ["linux", "darwin", "windows"]
 archs = ["amd64", "arm64"]
 
+internal = false                   # true hides it from PATH (an engine another component drives)
+
 [components.install]
-method = "github_release"          # or "source_build"
+method = "github_release"          # github_release | github_release_python_wheel | source_build
+
+[components.developer_install]     # optional; only consulted under --profile developer
+method = "source_build"
 
 [components.health_check]
 type = "exec_version"              # exec_version | binary_exists | python_import
@@ -62,7 +67,17 @@ capability = "source-build"
 
 Every component's binary is located by the uniform convention
 `<release-dir>/<component-name>` (or `.exe` on Windows) regardless of
-install method — see `docs/ARCHITECTURE.md`'s activation model.
+install method — see `docs/ARCHITECTURE.md`'s activation model. A component
+marked `internal = true` (e.g. a Python engine another component's CLI
+drives) is still installed, health-checked, and staged at that path, but
+Howl never symlinks it onto the user's PATH.
+
+`developer_install`, if set, is an entire second `Install` stanza used
+instead of `install` when the active profile is `developer` (e.g. a
+`source_build` fallback for a component whose standard path is
+`github_release`). Standard-profile planning never reads this field, so a
+missing or broken release artifact never silently falls back to it —
+`--profile developer` must be requested explicitly.
 
 ### `install.method = "github_release"`
 
@@ -80,6 +95,26 @@ verified before extraction, and extraction rejects path traversal,
 absolute paths, and symlink/hardlink entries. `{os}`/`{arch}` resolve to Go's
 own `GOOS`/`GOARCH` names; `{ext}` is `zip` on Windows and `tar.gz`
 everywhere else.
+
+### `install.method = "github_release_python_wheel"`
+
+```toml
+[components.install.github_release_python_wheel]
+repository = "howlcipher/howlwriter"
+artifact_pattern = "howlwriter-{pep440_version}-py3-none-any.whl" # no "v" prefix -- wheel filenames must be valid PEP 440
+checksum_file = "SHA256SUMS"
+console_script = "howlwriter"      # the entry point pyproject.toml's [project.scripts] declares
+extras = ["web"]                   # baked in at install time, not into the wheel itself
+min_python = "3.11.0"
+```
+
+The wheel and its checksum file are downloaded and verified exactly like a
+`github_release` archive, but nothing is extracted: the wheel itself is
+`pip install`ed (non-editable) into a Howl-managed, isolated virtualenv
+under `<DataHome>/runtimes/<name>/venv`, the same venv layout
+`source_build`'s Python variant uses. A thin wrapper script at
+`<release-dir>/<component-name>` execs the venv's `console_script` entry
+point, giving this method the same uniform binary location as every other.
 
 ### `install.method = "source_build"`
 
@@ -109,9 +144,10 @@ min_python = "3.11.0"
 
 `source_build` is a developer-machine-only install path: it requires a
 local sibling checkout (see `internal/devlocate`) and, for Go components, a
-system Go toolchain. See `docs/ARCHITECTURE.md`'s Known v1 Limitations for
-why three of the four current components use it instead of
-`github_release`.
+system Go toolchain. As of the Release Artifacts v1 milestone, every
+component in the default manifest uses `github_release` or
+`github_release_python_wheel` under the standard profile; `source_build`
+only remains reachable via each component's `developer_install`.
 
 ### Health Checks
 
