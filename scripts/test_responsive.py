@@ -12,7 +12,7 @@ Capabilities:
    - Zero console errors or uncaught exceptions
    - Interactive components: Theme toggle, Drawer open/close lifecycle + ARIA state, Copy buttons
 2. Cross-Ecosystem Smoke Checks (--ecosystem):
-   Probes the 7 live deployed Howl Pages sites for HTTP availability, clean initial load,
+   Probes the 9 live deployed Howl Pages sites for HTTP availability, clean initial load,
    zero uncaught JS errors, and mobile container containment without tight coupling.
 
 Usage:
@@ -44,10 +44,12 @@ VIEWPORTS = [
 
 ECOSYSTEM_SITES = {
     'Howl Hub': 'https://howlcipher.github.io/howl/',
+    'HowlCreate': 'https://howlcipher.github.io/howlcreate/',
     'HowlFrame': 'https://howlcipher.github.io/howlframe/',
     'HowlPlane': 'https://howlcipher.github.io/howlplane/',
-    'HowlNotes': 'https://howlcipher.github.io/howlnotes/',
     'HowlChangeOps': 'https://howlcipher.github.io/howlchangeops/',
+    'HowlRelay': 'https://howlcipher.github.io/howlrelay/',
+    'HowlNotes': 'https://howlcipher.github.io/howlnotes/',
     'HowlBoard': 'https://howlcipher.github.io/howlboard/',
     'HowlWriter': 'https://howlcipher.github.io/howlwriter/',
 }

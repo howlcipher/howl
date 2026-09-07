@@ -32,6 +32,19 @@ invented: HowlChangeOps's own README documents building against a
 (`src/control_plane/executor.py`); HowlWriter's integration bridge inserts
 HowlPlane's source tree onto `sys.path` at runtime.
 
+### Broader Ecosystem Repositories (Independent / Non-Installer Profile)
+
+Beyond the components managed directly by the `howl` CLI installer, the Howl ecosystem includes first-class companion repositories serving distinct architectural roles:
+
+| Repository | Role | Documentation & Site | Status |
+| :--- | :--- | :--- | :--- |
+| **[`howlcreate`](https://github.com/howlcipher/howlcreate)** | Computational creativity, exploratory ideation, lateral operators, reframing, and concept lineage | [howlcipher.github.io/howlcreate](https://howlcipher.github.io/howlcreate/) | Active (v0.1.0) |
+| **[`howlrelay`](https://github.com/howlcipher/howlrelay)** | Persistent asynchronous work coordination, durable journals, verified handoffs, session resumption, and anti-surveillance telemetry | [howlcipher.github.io/howlrelay](https://howlcipher.github.io/howlrelay/) | Active (Pre-alpha) |
+| **[`howlnotes`](https://github.com/howlcipher/howlnotes)** | External dogfood consumer application proving HowlFrame browser compilation and native persistent record store | [howlcipher.github.io/howlnotes](https://howlcipher.github.io/howlnotes/) | Active |
+| **[`howlboard`](https://github.com/howlcipher/howlboard)** | Full-stack evaluation surface and deterministic task state machine telemetry console | [howlcipher.github.io/howlboard](https://howlcipher.github.io/howlboard/) | Active |
+
+These repositories participate in the unified visual design language, cross-ecosystem navigation drawer, and interoperability topology. They remain standalone repositories and are intentionally decoupled from the core `howl` CLI runtime installer profile (`default_ecosystem.toml`).
+
 ## Language Decision
 
 Howl is implemented in **Go**, evolving the existing Cobra-based CLI rather

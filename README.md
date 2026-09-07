@@ -43,6 +43,19 @@ each repository right now." See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 for why that order is required and [`docs/MANIFEST.md`](docs/MANIFEST.md)
 for the manifest schema.
 
+## Ecosystem Hub & Architecture
+
+The Howl ecosystem is unified by an overarching architectural topology and interactive documentation hub hosted at [**howlcipher.github.io/howl**](https://howlcipher.github.io/howl/).
+
+In addition to the core runtime components managed by the `howl` CLI installer, the broader ecosystem includes:
+
+- [**HowlCreate**](https://github.com/howlcipher/howlcreate) ([Documentation Site](https://howlcipher.github.io/howlcreate/)) — Computational creativity, exploratory ideation, lateral operators, reframing, and concept lineage.
+- [**HowlRelay**](https://github.com/howlcipher/howlrelay) ([Documentation Site](https://howlcipher.github.io/howlrelay/)) — Persistent asynchronous work coordination, durable work journals, verified handoffs, and session resumption.
+- [**HowlNotes**](https://github.com/howlcipher/howlnotes) ([Documentation Site](https://howlcipher.github.io/howlnotes/)) — Engineering knowledge notebook and full-stack dogfood consumer proving HowlFrame native storage.
+- [**HowlBoard**](https://github.com/howlcipher/howlboard) ([Documentation Site](https://howlcipher.github.io/howlboard/)) — Flagship evaluation surface and deterministic task state machine telemetry console.
+
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#broader-ecosystem-repositories-independent--non-installer-profile) for how these projects interoperate.
+
 ## Installation Profiles
 
 - **`standard`** (default) — the full ecosystem, installed from versioned,

@@ -612,7 +612,7 @@ body {
 
 .ecosystem-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.6rem;
 }
 
@@ -635,10 +635,12 @@ body {
   word-break: break-word;
 }
 
+.node-create .enc-header { background: var(--color-amber); }
 .node-frame  .enc-header { background: var(--color-magenta); }
 .node-plane  .enc-header { background: var(--color-blue); }
-.node-notes  .enc-header { background: var(--color-cyan); }
 .node-change .enc-header { background: var(--color-red); }
+.node-relay  .enc-header { background: var(--color-cyan); }
+.node-notes  .enc-header { background: var(--color-cyan); }
 .node-board  .enc-header { background: var(--color-amber); }
 .node-writer .enc-header { background: var(--color-magenta); }
 
@@ -676,11 +678,11 @@ body {
 
 @media (max-width: 1080px) {
   .ecosystem-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .ecosystem-grid {
     grid-template-columns: repeat(2, 1fr);
   }
