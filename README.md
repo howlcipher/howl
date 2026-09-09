@@ -61,6 +61,7 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#broader-ecosystem-repositories
 The dedicated [Ecosystem page](https://howlcipher.github.io/howl/ecosystem.html)
 explains component maturity, newcomer paths, experimental companions, and the
 boundary between proposals, evidence, orchestration, and governed execution.
+It links only available companion sites; HowlBot currently has a repository-only listing.
 
 ## Installation Profiles
 
