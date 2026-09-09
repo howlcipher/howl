@@ -38,12 +38,21 @@ Beyond the components managed directly by the `howl` CLI installer, the Howl eco
 
 | Repository | Role | Documentation & Site | Status |
 | :--- | :--- | :--- | :--- |
+| **[`howldream`](https://github.com/howlcipher/howldream)** | Controlled divergent experiments, baseline comparisons, known failure checks, and evidence-preserving candidate triage | [howlcipher.github.io/howldream](https://howlcipher.github.io/howldream/) | Experimental (Phase 1; standalone installation) |
 | **[`howlcreate`](https://github.com/howlcipher/howlcreate)** | Computational creativity, exploratory ideation, lateral operators, reframing, and concept lineage | [howlcipher.github.io/howlcreate](https://howlcipher.github.io/howlcreate/) | Active (v0.1.0) |
 | **[`howlrelay`](https://github.com/howlcipher/howlrelay)** | Persistent asynchronous work coordination, durable journals, verified handoffs, session resumption, and anti-surveillance telemetry | [howlcipher.github.io/howlrelay](https://howlcipher.github.io/howlrelay/) | Active (Pre-alpha) |
 | **[`howlnotes`](https://github.com/howlcipher/howlnotes)** | External dogfood consumer application proving HowlFrame browser compilation and native persistent record store | [howlcipher.github.io/howlnotes](https://howlcipher.github.io/howlnotes/) | Active |
 | **[`howlboard`](https://github.com/howlcipher/howlboard)** | Full-stack evaluation surface and deterministic task state machine telemetry console | [howlcipher.github.io/howlboard](https://howlcipher.github.io/howlboard/) | Active |
 
 These repositories participate in the unified visual design language, cross-ecosystem navigation drawer, and interoperability topology. They remain standalone repositories and are intentionally decoupled from the core `howl` CLI runtime installer profile (`default_ecosystem.toml`).
+
+See the [Ecosystem page](https://howlcipher.github.io/howl/ecosystem.html) for
+conceptual relationships and maturity. HowlDream exports advisory run artifacts;
+native HowlCreate, HowlPlane, HowlFrame, HowlRelay, and HowlWriter adapters are
+future work. Dream output cannot authorize HowlChangeOps execution. HowlFrame
+is a language and capability-bounded runtime, not a general factual verifier.
+HowlBot is an additional external Discord policy dogfood application; ChangeOps
+is a compatibility name for HowlChangeOps, not a separate component.
 
 ## Language Decision
 
