@@ -60,7 +60,8 @@ jobs:
 
       - name: Run Playwright Responsive QA Suite
         run: python3 scripts/test_responsive.py
+      - name: Verify Ecosystem Page
+        run: python3 scripts/test_ecosystem.py
 
       - name: Run SEO & Metadata Validation Suite
         run: python3 scripts/test_seo.py
-

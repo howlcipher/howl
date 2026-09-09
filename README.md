@@ -49,12 +49,18 @@ The Howl ecosystem is unified by an overarching architectural topology and inter
 
 In addition to the core runtime components managed by the `howl` CLI installer, the broader ecosystem includes:
 
+- [**HowlDream**](https://github.com/howlcipher/howldream) ([Documentation Site](https://howlcipher.github.io/howldream/)) — Experimental controlled divergence, hallucination experiments, baseline comparisons, and scoped verification. Separately installed; not in the default profile.
+
 - [**HowlCreate**](https://github.com/howlcipher/howlcreate) ([Documentation Site](https://howlcipher.github.io/howlcreate/)) — Computational creativity, exploratory ideation, lateral operators, reframing, and concept lineage.
 - [**HowlRelay**](https://github.com/howlcipher/howlrelay) ([Documentation Site](https://howlcipher.github.io/howlrelay/)) — Persistent asynchronous work coordination, durable work journals, verified handoffs, and session resumption.
 - [**HowlNotes**](https://github.com/howlcipher/howlnotes) ([Documentation Site](https://howlcipher.github.io/howlnotes/)) — Engineering knowledge notebook and full-stack dogfood consumer proving HowlFrame native storage.
 - [**HowlBoard**](https://github.com/howlcipher/howlboard) ([Documentation Site](https://howlcipher.github.io/howlboard/)) — Flagship evaluation surface and deterministic task state machine telemetry console.
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#broader-ecosystem-repositories-independent--non-installer-profile) for how these projects interoperate.
+
+The dedicated [Ecosystem page](https://howlcipher.github.io/howl/ecosystem.html)
+explains component maturity, newcomer paths, experimental companions, and the
+boundary between proposals, evidence, orchestration, and governed execution.
 
 ## Installation Profiles
 
