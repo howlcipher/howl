@@ -52,6 +52,7 @@ ECOSYSTEM_SITES = {
     'HowlNotes': 'https://howlcipher.github.io/howlnotes/',
     'HowlBoard': 'https://howlcipher.github.io/howlboard/',
     'HowlWriter': 'https://howlcipher.github.io/howlwriter/',
+    'HowlDream': 'https://howlcipher.github.io/howldream/',
 }
 
 ELEMENT_OVERFLOW_DIAGNOSTIC_JS = """() => {
