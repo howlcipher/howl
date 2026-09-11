@@ -27,7 +27,7 @@ def main():
                 fragment = link.get_attribute("href")[1:]
                 assert page.locator(f'[id="{fragment}"]').count() == 1, fragment
             page.keyboard.press("Tab")
-            assert page.locator(".skip").evaluate("e => e === document.activeElement")
+            assert page.locator(".skip-link").evaluate("e => e === document.activeElement")
             page.screenshot(path=str(screenshots / f"site_{width}.png"), full_page=True)
             print(f"PASS {width}px: title, landmarks, navigation, keyboard, no overflow")
             page.close()
