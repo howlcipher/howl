@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Understand HowlPlane, HowlFrame, HowlChangeOps, HowlCreate, HowlDream, HowlRelay and HowlWriter. Clear responsibilities, explicit evidence and governed execution.">
+    <meta name="description" content="Understand HowlPlane, HowlFrame, HowlProof, HowlChangeOps, HowlCreate, HowlDream and HowlRelay. Clear responsibilities, independent verification and governed execution.">
     <link rel="canonical" href="https://howlcipher.github.io/howl/ecosystem.html">
 
     <!-- Open Graph Metadata -->
@@ -42,6 +42,14 @@
                     <span class="node-card-role">[PORTAL]</span>
                 </div>
                 <div class="node-card-desc">Central ecosystem portal, architectural blueprint, and cross-project governance map.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlproof/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLPROOF</span>
+                    <span class="node-card-role" style="color: var(--color-red);">[RED-TEAM QA]</span>
+                </div>
+                <div class="node-card-desc">Independent adversarial evaluation, falsification, reproducible findings, and evidence for verdicts.</div>
             </a>
 
             <a href="https://howlcipher.github.io/howlcreate/" class="drawer-node-card">
@@ -117,7 +125,7 @@
             </a>
         </div>
         <div class="drawer-footer">
-            <span>● 9 CORE TOOLS &amp; EXPERIMENTAL COMPANIONS</span>
+            <span>● 11 ECOSYSTEM NODES</span>
             <span>AUTH // HOWL 2026</span>
         </div>
     </aside>
@@ -206,6 +214,10 @@
                                 <p><a href="https://howlcipher.github.io/howldream/" style="color: var(--color-khaki); text-decoration: underline;">HowlDream</a></p>
                             </div>
                             <div>
+                                <h3>Independent verification</h3>
+                                <p><a href="https://howlcipher.github.io/howlproof/" style="color: var(--color-red); text-decoration: underline;">HowlProof</a></p>
+                            </div>
+                            <div>
                                 <h3>Writing and provenance</h3>
                                 <p><a href="https://howlcipher.github.io/howlwriter/" style="color: var(--color-magenta); text-decoration: underline;">HowlWriter</a></p>
                             </div>
@@ -233,11 +245,23 @@
                             <p>Intentional invention and controlled speculative experiments. Candidates return for evaluation.</p>
                         </div>
                         <div>
+                            <h3>HowlFrame → HowlProof</h3>
+                            <p>What is built is challenged before it is trusted. HowlProof produces findings and evidence; it never repairs the artifact it evaluates.</p>
+                        </div>
+                        <div>
+                            <h3>HowlProof → HowlPlane → the builder</h3>
+                            <p>Remediation is routed by the control plane to whoever owns the artifact, and HowlProof independently re-verifies the repair rather than accepting a claim that one was made.</p>
+                        </div>
+                        <div>
+                            <h3>HowlProof → HowlChangeOps</h3>
+                            <p>Evidence informs promotion. The verdict is advisory: HowlProof holds no authority to release, and HowlChangeOps owns approval and rollback.</p>
+                        </div>
+                        <div>
                             <h3>HowlFrame → HowlChangeOps</h3>
                             <p>Capability-bounded runtime and deterministic policy underpin governed change execution.</p>
                         </div>
                     </div>
-                    <p>HowlRelay carries work state and handoffs. HowlWriter communicates reviewed knowledge. HowlDream currently exports advisory artifacts only.</p>
+                    <p>HowlRelay carries work state and handoffs. HowlWriter communicates reviewed knowledge. HowlDream and HowlProof both export advisory artifacts only; neither can authorize an effect.</p>
 
                     <div class="axiom-card" style="margin-bottom: 0;">
                         <strong>Dream output is data, not authority.</strong> HowlDream cannot deploy, merge, approve or send communications. Its WAKE checks are scoped to supplied facts, source IDs and arithmetic. HowlPlane evaluates work; applicable human and HowlChangeOps gates still govern consequential actions.
@@ -252,7 +276,7 @@
                     <span class="subsystem-tag">ECO-MOD-COMPONENTS</span>
                 </div>
                 <div class="tech-body">
-                    <p>The standard installer manifest includes HowlFrame, HowlChangeOps, HowlPlane and HowlWriter. Core membership describes installation scope, not production maturity. HowlCreate, HowlDream, HowlRelay and reference applications are separately installed companions.</p>
+                    <p>The standard installer manifest includes HowlFrame, HowlChangeOps, HowlPlane and HowlWriter. Core membership describes installation scope, not production maturity. HowlCreate, HowlDream, HowlProof, HowlRelay and reference applications are separately installed companions.</p>
 
                     <div class="node-directory-grid">
                         <div class="dir-card" style="border-top: 3px solid var(--color-blue);">
@@ -312,6 +336,18 @@
                             <div class="dir-card-links">
                                 <a href="https://howlcipher.github.io/howlcreate/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
                                 <a href="https://github.com/howlcipher/howlcreate" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+                        <div class="dir-card" style="border-top: 3px solid var(--color-red);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlProof</span>
+                                <span class="chip chip-deny">TIER 2 // VERIFICATION</span>
+                            </div>
+                            <p class="dir-card-desc">Independent red-team QA. Challenges an artifact across functional, security, reliability, AI and operator adversaries, reproduces what it finds, and issues a verdict backed by an evidence bundle. It does not repair what it judges, and holds no authority to release.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howlproof/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howlproof" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
                             </div>
                         </div>
 
@@ -425,7 +461,8 @@
                 </div>
                 <div class="tech-body">
                     <p>ChangeOps is the compatibility name for HowlChangeOps, not another active component. The former AI knowledge library now lives within HowlPlane. HowlBoard, HowlNotes and HowlBot are dogfood applications, not required platform services. Experimental does not mean deprecated; repository existence alone does not mean production-ready.</p>
-                    <p class="small" style="font-size: 0.85rem; color: var(--text-dim);">Audit: September 2026, based on current repository documentation, code and Pages metadata. <a href="https://github.com/howlcipher/howldream/blob/main/docs/ecosystem.md" style="color: var(--color-blue);">Read the integration audit</a> · <a href="https://github.com/howlcipher/howl/blob/main/docs/ARCHITECTURE.md" style="color: var(--color-blue);">Installer architecture</a></p>
+                    <p>HowlProof and HowlChangeOps are adjacent and easily confused. HowlProof asks whether an artifact can be demonstrated untrustworthy and produces evidence; HowlChangeOps asks whether a change is authorized to happen and can be undone. An approval over an unverified artifact is a governed mistake, and a verdict with no gate behind it is an ungoverned success. A future HowlGuard, watching whether the ecosystem's security posture has changed enough to require re-evaluation, is a documented boundary and is not built.</p>
+                    <p class="small" style="font-size: 0.85rem; color: var(--text-dim);">Audit: 11 September 2026, based on current repository documentation, code and Pages metadata. <a href="https://github.com/howlcipher/howldream/blob/main/docs/ecosystem.md" style="color: var(--color-blue);">Read the integration audit</a> · <a href="https://github.com/howlcipher/howl/blob/main/docs/ARCHITECTURE.md" style="color: var(--color-blue);">Installer architecture</a></p>
                 </div>
             </section>
         </main>
@@ -451,6 +488,7 @@
                     <a href="https://howlcipher.github.io/howlboard/">HowlBoard</a>
                     <a href="https://howlcipher.github.io/howlwriter/">HowlWriter</a>
                     <a href="https://howlcipher.github.io/howldream/">HowlDream</a>
+                    <a href="https://howlcipher.github.io/howlproof/">HowlProof</a>
                 </nav>
                 <a href="#main-content">[ BACK TO TOP ]</a>
             </div>
