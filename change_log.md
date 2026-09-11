@@ -20,6 +20,13 @@ adjacent and easily confused.
 Installer behavior is unchanged. HowlProof is not in the default installer
 manifest and holds no authority to release anything.
 
+Corrected the quick start in the same pass. It advertised `howl graph`,
+`howl project validate` and `howl plane --help`, none of which the CLI registers;
+`docs/SCOPE.md` records that they were removed. The block now shows doctor,
+status, install, update, rollback, channel and uninstall. The HowlProof cards
+state that it is experimental and at milestone one, so the directory does not
+imply a maturity the repository does not claim.
+
 ## 2026-09-09
 
 Added a first-class Ecosystem page with accurate runtime and authority boundaries,
