@@ -527,7 +527,7 @@
                                 <span class="dir-card-title">HowlProof</span>
                                 <span class="chip chip-deny">TIER 2 // VERIFICATION</span>
                             </div>
-                            <p class="dir-card-desc">Independent red-team QA. Challenges an artifact, tries to falsify it, and issues a verdict backed by a reproducible evidence bundle. It never repairs what it judges.</p>
+                            <p class="dir-card-desc">Independent red-team QA. Challenges an artifact, tries to falsify it, and issues a verdict backed by a reproducible evidence bundle. It never repairs what it judges. Experimental, milestone one.</p>
                             <div class="dir-card-links">
                                 <a href="https://howlcipher.github.io/howlproof/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
                                 <a href="https://github.com/howlcipher/howlproof" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
@@ -666,16 +666,18 @@
 git clone https://github.com/howlcipher/howl.git
 cd howl &amp;&amp; go build -o bin/howl ./cmd/howl
 
-# Run ecosystem diagnostics and inspect status:
+# Check the environment and what is installed:
 ./bin/howl doctor
 ./bin/howl status
-./bin/howl graph
 
-# Validate project integrations:
-./bin/howl project validate
+# Install, update and roll back managed components:
+./bin/howl install howlframe
+./bin/howl update
+./bin/howl rollback howlframe
 
-# Forward to HowlPlane control plane:
-./bin/howl plane --help</code></pre>
+# Switch release channel, or remove a component:
+./bin/howl channel stable
+./bin/howl uninstall howlframe</code></pre>
                     </div>
                 </div>
             </section>
