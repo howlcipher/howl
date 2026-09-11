@@ -38,6 +38,7 @@ Beyond the components managed directly by the `howl` CLI installer, the Howl eco
 
 | Repository | Role | Documentation & Site | Status |
 | :--- | :--- | :--- | :--- |
+| **[`howlproof`](https://github.com/howlcipher/howlproof)** | Independent red-team QA: adversarial evaluation, falsification, reproducible findings, and evidence bundles supporting a verdict | [howlcipher.github.io/howlproof](https://howlcipher.github.io/howlproof/) | Experimental (Milestone 1; standalone installation) |
 | **[`howldream`](https://github.com/howlcipher/howldream)** | Controlled divergent experiments, baseline comparisons, known failure checks, and evidence-preserving candidate triage | [howlcipher.github.io/howldream](https://howlcipher.github.io/howldream/) | Experimental (Phase 1; standalone installation) |
 | **[`howlcreate`](https://github.com/howlcipher/howlcreate)** | Computational creativity, exploratory ideation, lateral operators, reframing, and concept lineage | [howlcipher.github.io/howlcreate](https://howlcipher.github.io/howlcreate/) | Active (v0.1.0) |
 | **[`howlrelay`](https://github.com/howlcipher/howlrelay)** | Persistent asynchronous work coordination, durable journals, verified handoffs, session resumption, and anti-surveillance telemetry | [howlcipher.github.io/howlrelay](https://howlcipher.github.io/howlrelay/) | Active (Pre-alpha) |
@@ -51,6 +52,11 @@ conceptual relationships and maturity. HowlDream exports advisory run artifacts;
 native HowlCreate, HowlPlane, HowlFrame, HowlRelay, and HowlWriter adapters are
 future work. Dream output cannot authorize HowlChangeOps execution. HowlFrame
 is a language and capability-bounded runtime, not a general factual verifier.
+HowlProof emits documented file contracts in schemas HowlPlane, HowlBoard and
+HowlRelay already read, rather than native adapters, and its verdicts are
+advisory: HowlChangeOps has no ingest path for an external verdict and HowlProof
+holds no authority to release. HowlProof never modifies the artifact it
+evaluates; remediation is routed through HowlPlane to that artifact's builder.
 HowlBot is an additional external Discord policy dogfood application; ChangeOps
 is a compatibility name for HowlChangeOps, not a separate component.
 

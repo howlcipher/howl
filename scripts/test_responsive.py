@@ -12,7 +12,7 @@ Capabilities:
    - Zero console errors or uncaught exceptions
    - Interactive components: Theme toggle, Drawer open/close lifecycle + ARIA state, Copy buttons
 2. Cross-Ecosystem Smoke Checks (--ecosystem):
-   Probes the 9 live deployed Howl Pages sites for HTTP availability, clean initial load,
+   Probes the 11 live deployed Howl Pages sites for HTTP availability, clean initial load,
    zero uncaught JS errors, and mobile container containment without tight coupling.
 
 Usage:
@@ -53,6 +53,7 @@ ECOSYSTEM_SITES = {
     'HowlBoard': 'https://howlcipher.github.io/howlboard/',
     'HowlWriter': 'https://howlcipher.github.io/howlwriter/',
     'HowlDream': 'https://howlcipher.github.io/howldream/',
+    'HowlProof': 'https://howlcipher.github.io/howlproof/',
 }
 
 ELEMENT_OVERFLOW_DIAGNOSTIC_JS = """() => {

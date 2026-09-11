@@ -644,6 +644,7 @@ body {
 .node-board  .enc-header { background: var(--color-amber); }
 .node-writer .enc-header { background: var(--color-magenta); }
 .node-dream  .enc-header { background: var(--color-khaki); }
+.node-proof  .enc-header { background: var(--color-red); }
 
 .enc-body {
   padding: 0.6rem 0.5rem;
