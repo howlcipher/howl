@@ -1,23 +1,462 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Howl Ecosystem | Components, experiments and authority</title>
-<meta name="description" content="Understand HowlPlane, HowlFrame, HowlChangeOps, HowlCreate, HowlDream, HowlRelay and HowlWriter. Clear responsibilities, explicit evidence and governed execution.">
-<link rel="canonical" href="https://howlcipher.github.io/howl/ecosystem.html"><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="ecosystem.css">
-<meta property="og:title" content="The Howl Ecosystem"><meta property="og:description" content="Specialized engineering tools. Explicit evidence. Governed execution."><meta property="og:type" content="website"><meta property="og:url" content="https://howlcipher.github.io/howl/ecosystem.html">
-</head><body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="./">HOWL / ECOSYSTEM</a><nav aria-label="Main"><a href="./">Home</a><a href="#architecture">Architecture</a><a href="#components">Components</a><a href="#start">Start here</a></nav></header>
-<main id="main"><section class="hero"><div><p class="eyebrow">Engineering tools / Shared boundaries</p><h1>One ecosystem.<br>Clear roles.</h1><p class="lead">Explore possibilities.<br>Keep evidence.<br>Control consequential actions.</p><p>Howl brings specialized tools together around a common rule: intent is not authority. Each component owns a distinct problem so creative work, factual claims, orchestration and execution do not silently become the same thing.</p></div><div class="signal"><p class="eyebrow">Where to begin</p><h2>Choose the work.</h2><p>Engineering orchestration: HowlPlane.<br>Creative development: HowlCreate.<br>Controlled experiments: HowlDream.<br>Writing and provenance: HowlWriter.</p><p class="resolved">The Howl CLI installs and maintains registered components. It does not orchestrate AI work.</p></div></section>
-<section id="architecture"><p class="eyebrow">Architecture / conceptual relationships</p><h2>Proposals do not authorize effects.</h2><div class="flow"><div><strong>Human objective → HowlPlane</strong><p>Planning, agent routing, evidence and policy evaluation.</p></div><div><strong>HowlCreate ↔ HowlDream</strong><p>Intentional invention and controlled speculative experiments. Candidates return for evaluation.</p></div><div><strong>HowlFrame → HowlChangeOps</strong><p>Capability-bounded runtime and deterministic policy underpin governed change execution.</p></div></div><p>HowlRelay carries work state and handoffs. HowlWriter communicates reviewed knowledge. The arrows describe responsibilities, not a claim that every pair has a native runtime adapter. HowlDream currently exports advisory artifacts only.</p><div class="boundary"><strong>Dream output is data, not authority.</strong><p>HowlDream cannot deploy, merge, approve or send communications. Its WAKE checks are scoped to supplied facts, source IDs and arithmetic. HowlPlane evaluates work; applicable human and HowlChangeOps gates still govern consequential actions.</p></div></section>
-<section id="components"><p class="eyebrow">Current component directory</p><h2>Core installation and optional companions.</h2><p>The standard installer manifest includes HowlFrame, HowlChangeOps, HowlPlane and HowlWriter. Core membership describes installation scope, not production maturity. HowlCreate, HowlDream, HowlRelay and reference applications are separately installed companions.</p><div class="grid"><article class="card"><span class="label">Operational control plane</span><h3>HowlPlane</h3><p>Plans and routes engineering work, coordinates agents, records evidence, and applies authority gates. Start here for governed AI engineering.</p><p><a href="https://github.com/howlcipher/howlplane">Repository</a> · <a href="https://howlcipher.github.io/howlplane/">Site</a></p></article>
-<article class="card"><span class="label">Experimental runtime</span><h3>HowlFrame</h3><p>AI-native language, compiler, and capability-bounded VM. It verifies program and policy constraints; it is not a general factual-truth oracle.</p><p><a href="https://github.com/howlcipher/howlframe">Repository</a> · <a href="https://howlcipher.github.io/howlframe/">Site</a></p></article>
-<article class="card"><span class="label">Governed release tooling</span><h3>HowlChangeOps</h3><p>Collects trusted evidence, evaluates HowlFrame policy, requires applicable human approvals, and executes bounded changes.</p><p><a href="https://github.com/howlcipher/howlchangeops">Repository</a> · <a href="https://howlcipher.github.io/howlchangeops/">Site</a></p></article>
-<article class="card"><span class="label">Working deterministic core</span><h3>HowlWriter</h3><p>Writing, citation, provenance, and review workflows. Model-backed roles require explicit integration; standalone deterministic tools remain useful.</p><p><a href="https://github.com/howlcipher/howlwriter">Repository</a> · <a href="https://howlcipher.github.io/howlwriter/">Site</a></p></article>
-<article class="card"><span class="label">Experimental companion</span><h3>HowlCreate</h3><p>Deliberate invention through reframing, creative search, mutation, challenge, synthesis, and concept lineage.</p><p><a href="https://github.com/howlcipher/howlcreate">Repository</a> · <a href="https://howlcipher.github.io/howlcreate/">Site</a></p></article>
-<article class="card"><span class="label">Experimental / Phase 1</span><h3>HowlDream</h3><p>Controlled divergent exploration. Explores possibilities that may be incorrect, measures known failures, and checks speculative ideas before downstream evaluation.</p><p><a href="https://github.com/howlcipher/howldream">Repository</a> · <a href="https://howlcipher.github.io/howldream/">Site</a></p></article>
-<article class="card"><span class="label">Pre-alpha companion</span><h3>HowlRelay</h3><p>Collects observable work state, journals, evidence and handoffs so engineering can continue asynchronously without worker surveillance.</p><p><a href="https://github.com/howlcipher/howlrelay">Repository</a> · <a href="https://howlcipher.github.io/howlrelay/">Site</a></p></article>
-<article class="card"><span class="label">Reference application</span><h3>HowlBoard</h3><p>A deterministic task board that exercises HowlFrame browser compilation, backend state transitions, and persistent storage.</p><p><a href="https://github.com/howlcipher/howlboard">Repository</a> · <a href="https://howlcipher.github.io/howlboard/">Site</a></p></article>
-<article class="card"><span class="label">Reference application</span><h3>HowlNotes</h3><p>A notes application used to expose concrete HowlFrame language, runtime and native-storage gaps.</p><p><a href="https://github.com/howlcipher/howlnotes">Repository</a> · <a href="https://howlcipher.github.io/howlnotes/">Site</a></p></article>
-<article class="card"><span class="label">External dogfood application</span><h3>HowlBot</h3><p>A Discord operations adapter with deterministic HowlFrame policy and bounded actions; not a core orchestration component.</p><p><a href="https://github.com/howlcipher/howlbot">Repository</a> · Pages site unavailable at the September 2026 audit.</p></article></div></section>
-<section><div class="two"><div><p class="eyebrow">Create and Dream</p><h2>Two kinds of exploration.</h2><p>HowlCreate invents intentionally: it searches for useful concepts through deliberate creative operators and convergence.</p><p>HowlDream explores speculatively: it treats outputs as experimental material, compares conditions with a baseline, induces failures, and preserves unresolved claims after checks.</p></div><div><h3>Controlled divergent exploration</h3><p>HowlDream intentionally explores possibilities that may be incorrect, measures known model failures, and verifies speculative ideas within explicit limits before downstream evaluation. A candidate can deserve investigation while remaining unverified.</p><a class="button" href="https://howlcipher.github.io/howldream/">Visit HowlDream</a></div></div></section>
-<section id="start"><p class="eyebrow">Newcomer paths</p><h2>Start with one component.</h2><div class="grid"><article class="card"><h3>Run an offline experiment</h3><p>Clone HowlDream, install in a virtual environment, and run its deterministic sample and Dreambench. No API credentials required.</p><p><a href="https://github.com/howlcipher/howldream#quick-start">HowlDream quick start</a></p></article><article class="card"><h3>Coordinate engineering</h3><p>Read HowlPlane's workflow and authority model. Add other tools when the work needs them.</p><p><a href="https://github.com/howlcipher/howlplane">HowlPlane documentation</a></p></article><article class="card"><h3>Install registered tools</h3><p>Howl resolves a tested release manifest and manages installation lifecycle. Experimental companions are not silently added.</p><p><a href="https://github.com/howlcipher/howl#installation-profiles">Installer profiles</a></p></article></div></section>
-<section><h2>Names and maturity are evidence-based.</h2><p>ChangeOps is the compatibility name for HowlChangeOps, not another active component. The former AI knowledge library now lives within HowlPlane. HowlBoard, HowlNotes and HowlBot are dogfood applications, not required platform services. Experimental does not mean deprecated; repository existence alone does not mean production-ready.</p><p>Audit: September 2026, based on current repository documentation, code and Pages metadata. <a href="https://github.com/howlcipher/howldream/blob/main/docs/ecosystem.md">Read the integration audit</a> · <a href="https://github.com/howlcipher/howl/blob/main/docs/ARCHITECTURE.md">Installer architecture</a></p></section>
-</main><footer>HOWL / Intent is not authority. <a href="./">Return to the Howl hub</a></footer></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Understand HowlPlane, HowlFrame, HowlChangeOps, HowlCreate, HowlDream, HowlRelay and HowlWriter. Clear responsibilities, explicit evidence and governed execution.">
+    <link rel="canonical" href="https://howlcipher.github.io/howl/ecosystem.html">
+
+    <!-- Open Graph Metadata -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Howl Ecosystem">
+    <meta property="og:title" content="The Howl Ecosystem | Components, Experiments and Authority">
+    <meta property="og:description" content="Specialized engineering tools. Explicit evidence. Governed execution.">
+    <meta property="og:url" content="https://howlcipher.github.io/howl/ecosystem.html">
+
+    <!-- Twitter Card Metadata -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="The Howl Ecosystem | Components, Experiments and Authority">
+    <meta name="twitter:description" content="Specialized engineering tools. Explicit evidence. Governed execution.">
+
+    <title>Howl Ecosystem | Components, experiments and authority</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" type="image/png" href="favicon.png">
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <!-- Ecosystem Slide-out Drawer Overlay -->
+    <div id="eco-drawer-overlay" class="eco-drawer-overlay" aria-hidden="true"></div>
+
+    <!-- Ecosystem Slide-out Drawer Panel -->
+    <aside id="eco-drawer" class="eco-drawer" aria-label="Howl Ecosystem Directory" aria-hidden="true">
+        <div class="drawer-header">
+            <div class="drawer-title">HOWL // ECOSYSTEM DIRECTORY</div>
+            <button id="eco-drawer-close" class="btn-drawer-close" type="button" aria-label="Close ecosystem directory">[✕ CLOSE]</button>
+        </div>
+        <div class="drawer-body">
+            <a href="https://howlcipher.github.io/howl/" class="drawer-node-card active-hub">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWL // HUB</span>
+                    <span class="node-card-role">[PORTAL]</span>
+                </div>
+                <div class="node-card-desc">Central ecosystem portal, architectural blueprint, and cross-project governance map.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlcreate/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLCREATE</span>
+                    <span class="node-card-role" style="color: var(--color-amber);">[CREATIVE SEARCH]</span>
+                </div>
+                <div class="node-card-desc">Computational creativity, open-ended problem exploration, reframing, and concept lineage.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlframe/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLFRAME</span>
+                    <span class="node-card-role" style="color: var(--color-magenta);">[VM &amp; COMPILER]</span>
+                </div>
+                <div class="node-card-desc">AI-native reasoning language, typed intermediate representation, and sandboxed bytecode VM.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlplane/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLPLANE</span>
+                    <span class="node-card-role" style="color: var(--color-blue);">[CONTROL PLANE]</span>
+                </div>
+                <div class="node-card-desc">Engineering control plane with deterministic routing, adversarial falsification, and human gates.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlchangeops/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLCHANGEOPS</span>
+                    <span class="node-card-role" style="color: var(--color-red);">[AUTHORITY GATE]</span>
+                </div>
+                <div class="node-card-desc">Governed release controller enforcing cryptographic human approvals and bounded Git mutations.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlrelay/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLRELAY</span>
+                    <span class="node-card-role" style="color: var(--color-cyan);">[CONTINUITY]</span>
+                </div>
+                <div class="node-card-desc">Persistent asynchronous work coordination, durable journals, and resumable execution handoffs.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlnotes/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLNOTES</span>
+                    <span class="node-card-role" style="color: var(--color-cyan);">[KNOWLEDGE NOTEBOOK]</span>
+                </div>
+                <div class="node-card-desc">Engineering knowledge notebook &amp; full-stack dogfood consumer proving native persistent storage.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlboard/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLBOARD</span>
+                    <span class="node-card-role" style="color: var(--color-amber);">[EVALUATION SURFACE]</span>
+                </div>
+                <div class="node-card-desc">Observation console and full-stack deterministic task state machine application.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlwriter/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLWRITER</span>
+                    <span class="node-card-role" style="color: var(--color-magenta);">[WRITING CONTROL]</span>
+                </div>
+                <div class="node-card-desc">Writing control system for voice preservation, deterministic style linting, humanization, and review.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howldream/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLDREAM</span>
+                    <span class="node-card-role" style="color: var(--color-khaki);">[CONTROLLED DIVERGENCE]</span>
+                </div>
+                <div class="node-card-desc">Controlled divergent experiments, hallucination testing, failure analysis, and scoped verification.</div>
+            </a>
+        </div>
+        <div class="drawer-footer">
+            <span>● 9 CORE TOOLS &amp; EXPERIMENTAL COMPANIONS</span>
+            <span>AUTH // HOWL 2026</span>
+        </div>
+    </aside>
+
+    <div class="layout-container">
+        <!-- Site Header -->
+        <header class="site-header">
+            <div class="header-top">
+                <div class="header-brand">
+                    <a href="https://howlcipher.github.io/howl/ecosystem.html" class="brand-sig">HOWL <span>//</span> ECOSYSTEM</a>
+                    <span class="subsystem-tag">SYS_ID: HOWL-ECO-01</span>
+                </div>
+                <div class="header-actions">
+                    <button id="eco-menu-toggle" class="btn-eco-toggle" type="button" aria-expanded="false" aria-controls="eco-drawer" aria-label="Toggle Howl Ecosystem Directory">
+                        <span aria-hidden="true">☰</span> [ECOSYSTEM]
+                    </button>
+                    <button id="theme-toggle" class="btn-theme-toggle" type="button" aria-pressed="false">
+                        <span aria-hidden="true">☾</span> [DARK_MODE]
+                    </button>
+                    <a href="./" class="btn-tech btn-tech-primary">
+                        [ BACK TO HUB ]
+                    </a>
+                </div>
+            </div>
+
+            <!-- In-Page Section Navigation -->
+            <nav class="section-nav" aria-label="Page sections">
+                <span class="section-nav-label">READ_PATH:</span>
+                <a href="./">Home</a>
+                <a href="#architecture">01_Architecture</a>
+                <a href="#components">02_Components</a>
+                <a href="#start">03_StartHere</a>
+            </nav>
+        </header>
+
+        <!-- Main Content Surface -->
+        <main id="main-content">
+            <!-- Hero Panel -->
+            <section class="hero-panel" aria-labelledby="main-title">
+                <div class="hero-banner">
+                    <span>SPEC_VER // 2026.1 (RETRO-FUTURIST INDUSTRIAL SPEC)</span>
+                    <span>SHARED BOUNDARIES: PROPOSALS DO NOT AUTHORIZE EFFECTS</span>
+                </div>
+                <div class="hero-body">
+                    <div class="hero-header-block">
+                        <p class="hero-kicker">// engineering tools / shared boundaries</p>
+                        <h1 id="main-title" class="hero-title">One Ecosystem. Clear Roles. <span class="jp-sub">エコシステム // 2026</span></h1>
+                        <p class="hero-lead">
+                            Explore possibilities. Keep evidence. Control consequential actions. Howl brings specialized tools together around a common rule: intent is not authority. Each component owns a distinct problem so creative work, factual claims, orchestration and execution do not silently become the same thing.
+                        </p>
+                    </div>
+
+                    <div class="axiom-card" role="region" aria-label="Governing Principle">
+                        <strong>AXIOM // INTENT IS NOT AUTHORITY.</strong> Probabilistic intelligence proposes changes; deterministic machinery strictly verifies constraints; human operators retain sovereign authority over consequential risk.
+                    </div>
+
+                    <div class="hero-actions">
+                        <a href="#components" class="btn-tech btn-tech-primary">
+                            [ EXPLORE COMPONENTS ]
+                        </a>
+                        <a href="#architecture" class="btn-tech">
+                            [ ARCHITECTURE ]
+                        </a>
+                        <a href="https://github.com/howlcipher" class="btn-tech" target="_blank" rel="noreferrer">
+                            [ VIEW ON GITHUB ]
+                        </a>
+                    </div>
+
+                    <!-- Where To Begin -->
+                    <div class="hero-diagram-wrap" aria-label="Where to begin">
+                        <div class="diagram-header">
+                            <span>WHERE TO BEGIN // CHOOSE THE WORK</span>
+                            <span>INSTALLER MANAGES REGISTERED TOOLS ONLY</span>
+                        </div>
+                        <div class="grid-2col">
+                            <div>
+                                <h3>Engineering orchestration</h3>
+                                <p><a href="https://howlcipher.github.io/howlplane/" style="color: var(--color-blue); text-decoration: underline;">HowlPlane</a></p>
+                            </div>
+                            <div>
+                                <h3>Creative development</h3>
+                                <p><a href="https://howlcipher.github.io/howlcreate/" style="color: var(--color-amber); text-decoration: underline;">HowlCreate</a></p>
+                            </div>
+                            <div>
+                                <h3>Controlled experiments</h3>
+                                <p><a href="https://howlcipher.github.io/howldream/" style="color: var(--color-khaki); text-decoration: underline;">HowlDream</a></p>
+                            </div>
+                            <div>
+                                <h3>Writing and provenance</h3>
+                                <p><a href="https://howlcipher.github.io/howlwriter/" style="color: var(--color-magenta); text-decoration: underline;">HowlWriter</a></p>
+                            </div>
+                        </div>
+                        <p style="margin-top: 0.75rem; margin-bottom: 0; font-family: var(--font-mono); font-size: 0.85rem; color: var(--color-cyan);">The Howl CLI installs and maintains registered components. It does not orchestrate AI work.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 01 Architecture -->
+            <section id="architecture" class="tech-panel">
+                <div class="tech-header">
+                    <h2><span class="sec-id">SECTION // 01</span> Proposals Do Not Authorize Effects</h2>
+                    <span class="subsystem-tag">ECO-MOD-ARCHITECTURE</span>
+                </div>
+                <div class="tech-body">
+                    <p>Architecture / conceptual relationships. The arrows below describe responsibilities, not a claim that every pair has a native runtime adapter.</p>
+                    <div class="grid-2col">
+                        <div>
+                            <h3>Human objective → HowlPlane</h3>
+                            <p>Planning, agent routing, evidence and policy evaluation.</p>
+                        </div>
+                        <div>
+                            <h3>HowlCreate ↔ HowlDream</h3>
+                            <p>Intentional invention and controlled speculative experiments. Candidates return for evaluation.</p>
+                        </div>
+                        <div>
+                            <h3>HowlFrame → HowlChangeOps</h3>
+                            <p>Capability-bounded runtime and deterministic policy underpin governed change execution.</p>
+                        </div>
+                    </div>
+                    <p>HowlRelay carries work state and handoffs. HowlWriter communicates reviewed knowledge. HowlDream currently exports advisory artifacts only.</p>
+
+                    <div class="axiom-card" style="margin-bottom: 0;">
+                        <strong>Dream output is data, not authority.</strong> HowlDream cannot deploy, merge, approve or send communications. Its WAKE checks are scoped to supplied facts, source IDs and arithmetic. HowlPlane evaluates work; applicable human and HowlChangeOps gates still govern consequential actions.
+                    </div>
+                </div>
+            </section>
+
+            <!-- 02 Component Directory -->
+            <section id="components" class="tech-panel">
+                <div class="tech-header">
+                    <h2><span class="sec-id">SECTION // 02</span> Core Installation &amp; Optional Companions</h2>
+                    <span class="subsystem-tag">ECO-MOD-COMPONENTS</span>
+                </div>
+                <div class="tech-body">
+                    <p>The standard installer manifest includes HowlFrame, HowlChangeOps, HowlPlane and HowlWriter. Core membership describes installation scope, not production maturity. HowlCreate, HowlDream, HowlRelay and reference applications are separately installed companions.</p>
+
+                    <div class="node-directory-grid">
+                        <div class="dir-card" style="border-top: 3px solid var(--color-blue);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlPlane</span>
+                                <span class="chip chip-blue">TIER 1 // ORCHESTRATION</span>
+                            </div>
+                            <p class="dir-card-desc">Plans and routes engineering work, coordinates agents, records evidence, and applies authority gates. Start here for governed AI engineering.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howlplane/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howlplane" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+                        <div class="dir-card" style="border-top: 3px solid var(--color-magenta);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlFrame</span>
+                                <span class="chip chip-magenta">TIER 0 // COMPILER</span>
+                            </div>
+                            <p class="dir-card-desc">AI-native language, compiler, and capability-bounded VM. It verifies program and policy constraints; it is not a general factual-truth oracle.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howlframe/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howlframe" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+                        <div class="dir-card" style="border-top: 3px solid var(--color-red);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlChangeOps</span>
+                                <span class="chip chip-red">TIER 1 // GOVERNANCE</span>
+                            </div>
+                            <p class="dir-card-desc">Collects trusted evidence, evaluates HowlFrame policy, requires applicable human approvals, and executes bounded changes.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howlchangeops/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howlchangeops" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+                        <div class="dir-card" style="border-top: 3px solid var(--color-magenta);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlWriter</span>
+                                <span class="chip chip-magenta">TIER 2 // PROSE</span>
+                            </div>
+                            <p class="dir-card-desc">Writing, citation, provenance, and review workflows. Model-backed roles require explicit integration; standalone deterministic tools remain useful.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howlwriter/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howlwriter" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+                        <div class="dir-card" style="border-top: 3px solid var(--color-amber);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlCreate</span>
+                                <span class="chip chip-amber">TIER 0 // IDEATION</span>
+                            </div>
+                            <p class="dir-card-desc">Deliberate invention through reframing, creative search, mutation, challenge, synthesis, and concept lineage.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howlcreate/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howlcreate" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+                        <div class="dir-card" style="border-top: 3px solid var(--color-khaki);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlDream</span>
+                                <span class="chip chip-khaki">TIER 2 // EXPERIMENTAL</span>
+                            </div>
+                            <p class="dir-card-desc">Controlled divergent exploration. Explores possibilities that may be incorrect, measures known failures, and checks speculative ideas before downstream evaluation.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howldream/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howldream" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+                        <div class="dir-card" style="border-top: 3px solid var(--color-cyan);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlRelay</span>
+                                <span class="chip chip-cyan">TIER 1 // CONTINUITY</span>
+                            </div>
+                            <p class="dir-card-desc">Collects observable work state, journals, evidence and handoffs so engineering can continue asynchronously without worker surveillance.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howlrelay/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howlrelay" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+                        <div class="dir-card" style="border-top: 3px solid var(--color-amber);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlBoard</span>
+                                <span class="chip chip-amber">TIER 2 // TELEMETRY</span>
+                            </div>
+                            <p class="dir-card-desc">A deterministic task board that exercises HowlFrame browser compilation, backend state transitions, and persistent storage. Reference application.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howlboard/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howlboard" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+                        <div class="dir-card" style="border-top: 3px solid var(--color-cyan);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlNotes</span>
+                                <span class="chip chip-cyan">TIER 2 // KNOWLEDGE</span>
+                            </div>
+                            <p class="dir-card-desc">A notes application used to expose concrete HowlFrame language, runtime and native-storage gaps. Reference application.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howlnotes/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howlnotes" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+                        <div class="dir-card" style="border-top: 3px solid var(--border-medium);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlBot</span>
+                                <span class="chip" style="color: var(--text-dim); background: rgba(130, 124, 104, 0.08);">EXTERNAL // DOGFOOD</span>
+                            </div>
+                            <p class="dir-card-desc">A Discord operations adapter with deterministic HowlFrame policy and bounded actions; not a core orchestration component. Pages site unavailable at the September 2026 audit.</p>
+                            <div class="dir-card-links">
+                                <a href="https://github.com/howlcipher/howlbot" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>Two kinds of exploration</h3>
+                    <div class="grid-2col">
+                        <div>
+                            <p>HowlCreate invents intentionally: it searches for useful concepts through deliberate creative operators and convergence.</p>
+                            <p>HowlDream explores speculatively: it treats outputs as experimental material, compares conditions with a baseline, induces failures, and preserves unresolved claims after checks.</p>
+                        </div>
+                        <div>
+                            <p>HowlDream intentionally explores possibilities that may be incorrect, measures known model failures, and verifies speculative ideas within explicit limits before downstream evaluation. A candidate can deserve investigation while remaining unverified.</p>
+                            <a href="https://howlcipher.github.io/howldream/" class="btn-tech btn-tech-primary">[ VISIT HOWLDREAM ]</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 03 Start Here -->
+            <section id="start" class="tech-panel">
+                <div class="tech-header">
+                    <h2><span class="sec-id">SECTION // 03</span> Start With One Component</h2>
+                    <span class="subsystem-tag">ECO-MOD-START</span>
+                </div>
+                <div class="tech-body">
+                    <p>Newcomer paths.</p>
+                    <div class="grid-2col">
+                        <div>
+                            <h3>Run an offline experiment</h3>
+                            <p>Clone HowlDream, install in a virtual environment, and run its deterministic sample and Dreambench. No API credentials required.</p>
+                            <p><a href="https://github.com/howlcipher/howldream#quick-start" style="color: var(--color-blue); text-decoration: underline;">HowlDream quick start</a></p>
+                        </div>
+                        <div>
+                            <h3>Coordinate engineering</h3>
+                            <p>Read HowlPlane's workflow and authority model. Add other tools when the work needs them.</p>
+                            <p><a href="https://howlcipher.github.io/howlplane/" style="color: var(--color-blue); text-decoration: underline;">HowlPlane documentation</a></p>
+                        </div>
+                        <div>
+                            <h3>Install registered tools</h3>
+                            <p>Howl resolves a tested release manifest and manages installation lifecycle. Experimental companions are not silently added.</p>
+                            <p><a href="https://howlcipher.github.io/howl/#getting-started" style="color: var(--color-blue); text-decoration: underline;">Installer profiles</a></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 04 Naming & Maturity -->
+            <section id="naming" class="tech-panel">
+                <div class="tech-header">
+                    <h2><span class="sec-id">SECTION // 04</span> Names and Maturity Are Evidence-Based</h2>
+                    <span class="subsystem-tag">ECO-MOD-NAMING</span>
+                </div>
+                <div class="tech-body">
+                    <p>ChangeOps is the compatibility name for HowlChangeOps, not another active component. The former AI knowledge library now lives within HowlPlane. HowlBoard, HowlNotes and HowlBot are dogfood applications, not required platform services. Experimental does not mean deprecated; repository existence alone does not mean production-ready.</p>
+                    <p class="small" style="font-size: 0.85rem; color: var(--text-dim);">Audit: September 2026, based on current repository documentation, code and Pages metadata. <a href="https://github.com/howlcipher/howldream/blob/main/docs/ecosystem.md" style="color: var(--color-blue);">Read the integration audit</a> · <a href="https://github.com/howlcipher/howl/blob/main/docs/ARCHITECTURE.md" style="color: var(--color-blue);">Installer architecture</a></p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Site Footer -->
+        <footer class="site-footer">
+            <div class="footer-telemetry">
+                <div class="status-indicator">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    <span>SYS_STATUS: ACTIVE // HOWL-ECOSYSTEM-PAGE</span>
+                </div>
+                <div>INTENT IS NOT AUTHORITY // HOWL 2026</div>
+            </div>
+            <div class="footer-links">
+                <nav class="footer-nav" aria-label="Ecosystem Links">
+                    <a href="https://howlcipher.github.io/howl/">Howl Hub</a>
+                    <a href="https://howlcipher.github.io/howlcreate/">HowlCreate</a>
+                    <a href="https://howlcipher.github.io/howlframe/">HowlFrame</a>
+                    <a href="https://howlcipher.github.io/howlplane/">HowlPlane</a>
+                    <a href="https://howlcipher.github.io/howlchangeops/">HowlChangeOps</a>
+                    <a href="https://howlcipher.github.io/howlrelay/">HowlRelay</a>
+                    <a href="https://howlcipher.github.io/howlnotes/">HowlNotes</a>
+                    <a href="https://howlcipher.github.io/howlboard/">HowlBoard</a>
+                    <a href="https://howlcipher.github.io/howlwriter/">HowlWriter</a>
+                    <a href="https://howlcipher.github.io/howldream/">HowlDream</a>
+                </nav>
+                <a href="#main-content">[ BACK TO TOP ]</a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

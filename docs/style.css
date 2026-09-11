@@ -643,6 +643,7 @@ body {
 .node-notes  .enc-header { background: var(--color-cyan); }
 .node-board  .enc-header { background: var(--color-amber); }
 .node-writer .enc-header { background: var(--color-magenta); }
+.node-dream  .enc-header { background: var(--color-khaki); }
 
 .enc-body {
   padding: 0.6rem 0.5rem;
@@ -966,6 +967,7 @@ tr:hover td {
 .chip-deny, .chip-red { color: var(--color-red); background: rgba(217, 71, 50, 0.1); }
 .chip-require, .chip-amber { color: var(--color-amber); background: rgba(242, 169, 27, 0.1); }
 .chip-ai, .chip-magenta { color: var(--color-magenta); background: rgba(226, 29, 104, 0.1); }
+.chip-khaki { color: var(--color-khaki); background: rgba(130, 124, 104, 0.1); }
 
 /* ==========================================================================
    FOOTER
