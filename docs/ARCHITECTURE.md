@@ -48,10 +48,18 @@ Beyond the components managed directly by the `howl` CLI installer, the Howl eco
 These repositories participate in the unified visual design language, cross-ecosystem navigation drawer, and interoperability topology. They remain standalone repositories and are intentionally decoupled from the core `howl` CLI runtime installer profile (`default_ecosystem.toml`).
 
 See the [Ecosystem page](https://howlcipher.github.io/howl/ecosystem.html) for
-conceptual relationships and maturity. HowlDream exports advisory run artifacts;
-native HowlCreate, HowlPlane, HowlFrame, HowlRelay, and HowlWriter adapters are
-future work. Dream output cannot authorize HowlChangeOps execution. HowlFrame
-is a language and capability-bounded runtime, not a general factual verifier.
+conceptual relationships and maturity. HowlDream exports advisory run artifacts.
+As of HowlDream 0.4.1: a HowlPlane adapter (`HowlDreamRunner`) and a HowlCreate
+adapter (`candidate_ingestion.develop_candidate`) are merged in their respective
+repos, but neither side's CI installs the other package, so the real cross-repo
+import path is untested by automation on either side. A HowlRelay adapter
+(`HowlDreamCollector`) is merged and genuinely exercised end-to-end — it reads
+exploration evidence off disk with no package dependency on HowlDream. A
+HowlFrame evaluator (`candidate_evaluator.howl`/`.hfbc`) exists only on an
+unmerged howlframe branch, not on any `main`. A HowlWriter adapter remains
+future work. Dream output cannot authorize HowlChangeOps execution regardless
+of adapter maturity. HowlFrame is a language and capability-bounded runtime,
+not a general factual verifier.
 HowlProof emits documented file contracts in schemas HowlPlane, HowlBoard and
 HowlRelay already read, rather than native adapters, and its verdicts are
 advisory: HowlChangeOps has no ingest path for an external verdict and HowlProof
