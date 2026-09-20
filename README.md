@@ -49,6 +49,8 @@ The Howl ecosystem is unified by an overarching architectural topology and inter
 
 In addition to the core runtime components managed by the `howl` CLI installer, the broader ecosystem includes:
 
+- [**HowlFutureWorks**](https://github.com/howlcipher/HowlFutureWorks) ([Documentation Site](https://howlcipher.github.io/HowlFutureWorks/)) — Version-controlled organizational operating system for the Howl autonomous software organization: persistent positions, replaceable AI workers, policy, institutional memory, staffing lifecycle, and human-governed authority.
+
 - [**HowlProof**](https://github.com/howlcipher/howlproof) ([Documentation Site](https://howlcipher.github.io/howlproof/)) — Independent red-team QA. Challenges an artifact, reproduces what it finds, and issues a verdict backed by an evidence bundle. It does not repair what it judges. Separately installed; not in the default profile.
 
 - [**HowlDream**](https://github.com/howlcipher/howldream) ([Documentation Site](https://howlcipher.github.io/howldream/)) — Experimental controlled divergence, hallucination experiments, baseline comparisons, and scoped verification. Separately installed; not in the default profile.

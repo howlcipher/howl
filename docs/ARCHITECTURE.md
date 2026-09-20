@@ -38,6 +38,7 @@ Beyond the components managed directly by the `howl` CLI installer, the Howl eco
 
 | Repository | Role | Documentation & Site | Status |
 | :--- | :--- | :--- | :--- |
+| **[`HowlFutureWorks`](https://github.com/howlcipher/HowlFutureWorks)** | Version-controlled organizational operating system: persistent positions, replaceable AI workers, staffing lifecycle, policy, institutional memory, and human-governed authority | [howlcipher.github.io/HowlFutureWorks](https://howlcipher.github.io/HowlFutureWorks/) | Active (v0.4.1) |
 | **[`howlproof`](https://github.com/howlcipher/howlproof)** | Independent red-team QA: adversarial evaluation, falsification, reproducible findings, and evidence bundles supporting a verdict | [howlcipher.github.io/howlproof](https://howlcipher.github.io/howlproof/) | Experimental (Milestone 1; standalone installation) |
 | **[`howldream`](https://github.com/howlcipher/howldream)** | Controlled divergent experiments, baseline comparisons, known failure checks, and evidence-preserving candidate triage | [howlcipher.github.io/howldream](https://howlcipher.github.io/howldream/) | Experimental (Phase 1; standalone installation) |
 | **[`howlcreate`](https://github.com/howlcipher/howlcreate)** | Computational creativity, exploratory ideation, lateral operators, reframing, and concept lineage | [howlcipher.github.io/howlcreate](https://howlcipher.github.io/howlcreate/) | Active (v0.1.0) |
@@ -46,6 +47,8 @@ Beyond the components managed directly by the `howl` CLI installer, the Howl eco
 | **[`howlboard`](https://github.com/howlcipher/howlboard)** | Full-stack evaluation surface and deterministic task state machine telemetry console | [howlcipher.github.io/howlboard](https://howlcipher.github.io/howlboard/) | Active |
 
 These repositories participate in the unified visual design language, cross-ecosystem navigation drawer, and interoperability topology. They remain standalone repositories and are intentionally decoupled from the core `howl` CLI runtime installer profile (`default_ecosystem.toml`).
+
+HowlFutureWorks defines organizational desired state and workforce governance; HowlPlane coordinates execution/workflow state. They are complementary rather than aliases.
 
 See the [Ecosystem page](https://howlcipher.github.io/howl/ecosystem.html) for
 conceptual relationships and maturity. HowlDream exports advisory run artifacts.
