@@ -132,7 +132,7 @@ howl channel [stable|beta|dev]
 howl version [--json] [--components|-c]
 ```
 
-howl install` and `howl update` always show a plan before touching your
+`howl install` and `howl update` always show a plan before touching your
 machine and require `--yes` to run non-interactively. Running `howl
 install` again after a successful install is a safe no-op for anything
 already at the target version. `howl update` also checks for and, on
