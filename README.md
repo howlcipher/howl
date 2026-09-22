@@ -49,6 +49,10 @@ The Howl ecosystem is unified by an overarching architectural topology and inter
 
 In addition to the core runtime components managed by the `howl` CLI installer, the broader ecosystem includes:
 
+- [**HowlInstinct**](https://github.com/howlcipher/howlInstinct) ([Documentation Site](https://howlcipher.github.io/howlInstinct/)) — Fast semantic decision layer: typed judgments with explicit uncertainty and provenance. Confidence is not permission.
+
+- [**HowlForge**](https://github.com/howlcipher/howlforge) ([Documentation Site](https://howlcipher.github.io/howlforge/)) — AI workforce definition and runtime selection for HowlFutureWorks: durable roles, replaceable runtimes, deterministic matching, and handoff validation.
+
 - [**HowlFutureWorks**](https://github.com/howlcipher/HowlFutureWorks) ([Documentation Site](https://howlcipher.github.io/HowlFutureWorks/)) — Version-controlled organizational operating system for the Howl autonomous software organization: persistent positions, replaceable AI workers, policy, institutional memory, staffing lifecycle, and human-governed authority.
 
 - [**HowlProof**](https://github.com/howlcipher/howlproof) ([Documentation Site](https://howlcipher.github.io/howlproof/)) — Independent red-team QA. Challenges an artifact, reproduces what it finds, and issues a verdict backed by an evidence bundle. It does not repair what it judges. Separately installed; not in the default profile.
@@ -128,7 +132,7 @@ howl channel [stable|beta|dev]
 howl version [--json] [--components|-c]
 ```
 
-`howl install` and `howl update` always show a plan before touching your
+howl install` and `howl update` always show a plan before touching your
 machine and require `--yes` to run non-interactively. Running `howl
 install` again after a successful install is a safe no-op for anything
 already at the target version. `howl update` also checks for and, on
