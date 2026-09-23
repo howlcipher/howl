@@ -45,6 +45,7 @@ failed upgrades, and uninstalls cleanly.`,
 	rootCmd.AddCommand(newRollbackCommand())
 	rootCmd.AddCommand(newUninstallCommand())
 	rootCmd.AddCommand(newChannelCommand())
+	rootCmd.AddCommand(newOrchestrateCommand())
 
 	return rootCmd
 }
@@ -53,7 +54,9 @@ failed upgrades, and uninstalls cleanly.`,
 func Execute() int {
 	rootCmd := NewRootCommand()
 	if err := rootCmd.ExecuteContext(context.Background()); err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
+		if _, forwarded := err.(*forwardedExit); !forwarded {
+			fmt.Fprintln(os.Stderr, "Error:", err)
+		}
 		if ec, ok := err.(ExitCoder); ok {
 			return ec.ExitCode()
 		}
