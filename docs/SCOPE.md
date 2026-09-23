@@ -151,3 +151,13 @@ left out — recorded here so they are not silently re-proposed:
   and `howl project validate` commands, which imported and forwarded into
   HowlPlane's command tree). This duplicated functionality HowlPlane already
   owns and created a circular source dependency; removed in this milestone.
+
+## Explicit Orchestration Entry Point Exception
+
+`howl orchestrate` is a narrow process adapter to the installed `howlplane
+orchestrate` command. It forwards arguments, standard input, standard output,
+standard error, and exit status. Howl owns no session state, provider selection,
+model routing, workflow policy, or agent execution. HowlPlane owns those
+decisions. This entry point is an explicit exception to the rejected general
+component command forwarding rule above; it does not permit a general
+`howl plane` command tree or a source dependency on HowlPlane.
