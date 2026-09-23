@@ -408,15 +408,6 @@ func TestBuildAgainstRealEmbeddedManifest(t *testing.T) {
 		t.Fatalf("unexpected error building the developer-profile plan: %v", err)
 	}
 	for _, cp := range developer.Components {
-		if cp.Name == "howlframe" {
-			// howlframe has no developer_install: both profiles must
-			// resolve it identically, proving absence never synthesizes
-			// an implicit source-build fallback.
-			if cp.Component.Install.Method != manifest.MethodGithubRelease {
-				t.Errorf("developer profile: expected howlframe to still install via github_release (no developer_install declared), got %q", cp.Component.Install.Method)
-			}
-			continue
-		}
 		if cp.Component.Install.Method != manifest.MethodSourceBuild {
 			t.Errorf("developer profile: expected %q to install via source_build, got %q", cp.Name, cp.Component.Install.Method)
 		}

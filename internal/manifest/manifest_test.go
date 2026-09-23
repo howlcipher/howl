@@ -88,10 +88,9 @@ func TestLoadDefaultEmbedded(t *testing.T) {
 		}
 	}
 
-	// Every non-howlframe component must declare a developer_install,
-	// since none of them can be installed the old way anymore by default
-	// -- --profile developer is the only way to still build from source.
-	for _, name := range []string{"howlchangeops", "howlplane-engine", "howlplane", "howlwriter"} {
+	// Every component must declare a developer_install,
+	// allowing --profile developer to build from source checkouts.
+	for _, name := range []string{"howlframe", "howlchangeops", "howlplane-engine", "howlplane", "howlwriter"} {
 		c, ok := m.GetComponent(name)
 		if !ok {
 			t.Fatalf("expected component %q to exist", name)

@@ -79,6 +79,17 @@ archs = ["amd64", "arm64"]
     artifact_pattern = "howlframe_{version}_{os}_{arch}.{ext}"
     checksum_file = "SHA256SUMS"
 
+  [components.developer_install]
+  method = "source_build"
+
+    [components.developer_install.source_build]
+    checkout_name = "howlframe"
+    language = "go"
+
+      [components.developer_install.source_build.go]
+      package = "."
+      build_output = "howlframe"
+
   [components.health_check]
   type = "exec_version"
   args = ["--version"]
@@ -130,7 +141,7 @@ archs = ["amd64", "arm64"]
   min_version = "0.1.0"
 
 # ---------------------------------------------------------------------------
-# The Python control-plane engine (src/control_plane), distributed as its
+# The Python control-plane engine (howlplane.control_plane), distributed as its
 # own wheel. Not exposed on PATH (internal = true): the howlplane Go binary
 # below is what users invoke, and delegates to this component's activated
 # console script for every subcommand it doesn't natively implement.
@@ -171,7 +182,7 @@ archs = ["amd64", "arm64"]
 
   [components.health_check]
   type = "python_import"
-  module = "src.control_plane"
+  module = "howlplane.control_plane"
 
   [[components.depends_on]]
   component = "howlchangeops"
