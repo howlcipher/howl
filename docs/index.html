@@ -49,10 +49,9 @@
 <body>
     <a class="skip-link" href="#main-content">Skip to main content</a>
 
-    <!-- Ecosystem Slide-out Drawer Overlay -->
+    <!-- Ecosystem Slide-out Drawer -->
     <div id="eco-drawer-overlay" class="eco-drawer-overlay" aria-hidden="true"></div>
 
-    <!-- Ecosystem Slide-out Drawer Panel -->
     <aside id="eco-drawer" class="eco-drawer" aria-label="Howl Ecosystem Directory" aria-hidden="true">
         <div class="drawer-header">
             <div class="drawer-title">HOWL // ECOSYSTEM DIRECTORY</div>
@@ -73,6 +72,22 @@
                     <span class="node-card-role" style="color: var(--color-blue);">[ORGANIZATION OS]</span>
                 </div>
                 <div class="node-card-desc">Version-controlled autonomous software organization: workforce, policy, institutional memory, governance and operating state.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlInstinct/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLINSTINCT</span>
+                    <span class="node-card-role" style="color: var(--color-amber);">[DECISION LAYER]</span>
+                </div>
+                <div class="node-card-desc">Bounded semantic judgments with explicit uncertainty and provenance. Confidence is not permission.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlforge/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLFORGE</span>
+                    <span class="node-card-role" style="color: var(--color-blue);">[WORKFORCE LAYER]</span>
+                </div>
+                <div class="node-card-desc">Durable roles, replaceable runtimes, deterministic matching, and inspectable handoff contracts for AI workers.</div>
             </a>
 
             <a href="https://howlcipher.github.io/howlproof/" class="drawer-node-card">
@@ -154,9 +169,10 @@
                 </div>
                 <div class="node-card-desc">Controlled divergent experiments, hallucination testing, failure analysis, and scoped verification.</div>
             </a>
+
         </div>
         <div class="drawer-footer">
-            <span>● 12 ECOSYSTEM NODES</span>
+            <span>● 14 ECOSYSTEM NODES</span>
             <span>AUTH // HOWL 2026</span>
         </div>
     </aside>
@@ -232,7 +248,7 @@
                     <div class="hero-diagram-wrap" aria-label="Howl Ecosystem Interoperability Architecture">
                         <div class="diagram-header">
                             <span>LIFECYCLE // IMAGINE → ORCHESTRATE → BUILD → CHALLENGE → GOVERN → LEARN ↺</span>
-                            <span>12 NODES // 6 LIFECYCLE, 6 SUPPORTING</span>
+                            <span>14 NODES // DECISION + WORKFORCE + CORE + SUPPORTING</span>
                         </div>
                         <div class="ecosystem-grid">
                             <div class="eco-node-card node-create">
@@ -323,6 +339,23 @@
                                     <div class="enc-tag">[ORG // OPERATING SYSTEM]</div>
                                 </div>
                             </div>
+                            <div class="eco-node-card" style="border-top: 3px solid var(--color-amber);">
+                                <div class="enc-header" style="background: var(--color-amber); color: var(--howl-near-black);">12 // HOWLINSTINCT</div>
+                                <div class="enc-body">
+                                    <div class="enc-title">Decision Layer</div>
+                                    <div class="enc-desc">Typed judgments with explicit uncertainty. Confidence is not permission.</div>
+                                    <div class="enc-tag">[TIER 1 // DECISION]</div>
+                                </div>
+                            </div>
+                            <div class="eco-node-card" style="border-top: 3px solid var(--color-blue);">
+                                <div class="enc-header" style="background: var(--color-blue);">13 // HOWLFORGE</div>
+                                <div class="enc-body">
+                                    <div class="enc-title">Workforce Layer</div>
+                                    <div class="enc-desc">Durable roles, replaceable runtimes, deterministic matching and handoffs.</div>
+                                    <div class="enc-tag">[TIER 1 // WORKFORCE]</div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -356,45 +389,43 @@
                             <span class="code-title">[SCHEMATIC // BUILD → CHALLENGE → GOVERN → LEARN]</span>
                             <span class="subsystem-tag">HOWL_TOPOLOGY</span>
                         </div>
-                        <pre><code>                    ┌────────────────────────┐   ┌────────────────────────┐
-                    │  HOWLCREATE (IDEATE)   │   │  HOWLDREAM (EXPLORE)   │
-                    │ Concepts &amp; Lineage     │   │ Divergence &amp; Failure   │
-                    └───────────┬────────────┘   └───────────┬────────────┘
-                                └──────────┬─────────────────┘
-                                           ▼  candidate work
-                              ┌────────────────────────┐
-   ┌─────────────────────────►│  HOWLPLANE (CONTROL)   │◄──────────────────┐
-   │                          │ Routing, Review, Gates │                   │
-   │                          └───────────┬────────────┘                   │
-   │  remediation routed                  │ builds                         │
-   │  to the right builder                ▼                                │
-   │                          ┌────────────────────────┐                   │
-   │                          │  HOWLFRAME (BUILD)     │                   │
-   │                          │ Typed HFIR &amp; Bounded VM│                   │
-   │                          └───────────┬────────────┘                   │
-   │                                      │ artifact                       │
-   │                                      ▼                                │
-   │                          ┌────────────────────────┐                   │
-   └──────────────────────────┤  HOWLPROOF (CHALLENGE) │                   │
-       findings + evidence    │ Falsify. Reproduce.    │                   │
-       (never repairs)        │ Verdict.               │                   │
-                              └───────────┬────────────┘                   │
-                                          │ ADVISORY verdict               │
-                                          ▼                                │
-                              ┌────────────────────────┐                   │
-                              │ HOWLCHANGEOPS (GOVERN) │                   │
-                              │ Approval &amp; Rollback    │                   │
-                              └───────────┬────────────┘                   │
-                                          │ released                       │
-                                          ▼                                │
-   ┌──────────────────────┬───────────────┴──────┬──────────────────┐      │
-   ▼                      ▼                      ▼                  ▼      │
-┌────────────────┐┌────────────────┐┌────────────────┐┌────────────────┐   │
-│HOWLRELAY       ││HOWLBOARD       ││HOWLWRITER      ││HOWLNOTES       │   │
-│Continuity      ││Evidence Surface││Prose &amp; Review  ││Knowledge       │   │
-└────────────────┘└───────┬────────┘└────────────────┘└────────────────┘   │
-                          └──────────────────────────────────────────────► ┘
-                                        what was learned re-enters control</code></pre>
+                        <pre><code>                         HUMAN OWNER
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │ Intent / Exploration│
+                    │ HowlDream · Create  │
+                    └──────────┬──────────┘
+                               ▼
+                    ┌─────────────────────┐
+                    │   HowlInstinct      │  “Should we, and why?”
+                    │   Decision Layer    │
+                    └──────────┬──────────┘
+                               ▼
+                    ┌─────────────────────┐
+                    │    HowlForge        │  “Who should do it?”
+                    │    Agent Team       │
+                    └──────────┬──────────┘
+                               ▼
+                    ┌─────────────────────┐
+                    │    HowlPlane        │  Orchestration
+                    └──────────┬──────────┘
+                     ┌─────────┴─────────┐
+                     ▼                   ▼
+              ┌────────────┐      ┌────────────┐
+              │ HowlFrame  │      │HowlChangeOps│
+              │ Policy/VM  │      │ Change gate │
+              └─────┬──────┘      └──────┬─────┘
+                    └─────────┬──────────┘
+                              ▼
+                    ┌─────────────────────┐
+                    │    HowlProof        │  Independent assurance
+                    └─────────────────────┘
+
+  Organization: HowlFutureWorks     Work surface: HowlBoard
+  Continuity: HowlRelay             Prose: HowlWriter · Notes: HowlNotes
+
+  This is a responsibility map, not a claim that every edge is a hard dependency.</code></pre>
                     </div>
 
                     <p style="margin-top: 1.5rem;">This lifecycle sits inside an organizational layer that governs it, defined by <a href="https://howlcipher.github.io/HowlFutureWorks/" style="color: var(--color-cyan); text-decoration: underline;">HowlFutureWorks</a>:</p>
@@ -406,12 +437,16 @@
                         <pre><code>HUMAN OWNER
      │
      ▼
-HOWLFUTUREWORKS
-organization / workforce / policy / knowledge
+HOWLFUTUREWORKS          organization / workforce / policy / knowledge
      │
+     ├── HowlInstinct    bounded judgments (proposed consumer contracts)
+     ├── HowlForge        role &amp; runtime definition layer
      ▼
-HOWLPLANE
-execution orchestration</code></pre>
+HOWLPLANE                execution orchestration
+     │
+     ├── HowlFrame        authority / capability boundaries
+     ├── HowlRelay        checkpoints &amp; continuity
+     └── HowlChangeOps    governed change</code></pre>
                     </div>
                     <p style="margin-top: 0.75rem;">HowlFutureWorks does not itself execute deployments — it defines the organizational desired state (positions, workforce, policy) that HowlPlane's execution orchestration operates within.</p>
                 </div>
@@ -436,7 +471,7 @@ execution orchestration</code></pre>
 
                     <div class="faq-entry">
                         <h3 style="color: var(--color-cyan); margin-bottom: 0.5rem;">What is an autonomous AI engineering ecosystem?</h3>
-                        <p><strong>Direct Answer:</strong> A coordinated multi-tier platform where specialized autonomous agents perform distinct engineering lifecycle functions—ideation, compilation, orchestration, verification, continuity, and documentation—under strict deterministic invariants. Rather than an unconstrained "all-in-one" bot, each subsystem owns a distinct domain: <a href="https://howlcipher.github.io/howlcreate/" style="color: var(--color-cyan); text-decoration: underline;">HowlCreate</a> explores candidate approaches, <a href="https://howlcipher.github.io/howlplane/" style="color: var(--color-cyan); text-decoration: underline;">HowlPlane</a> directs execution and adversarial verification, <a href="https://howlcipher.github.io/howlframe/" style="color: var(--color-cyan); text-decoration: underline;">HowlFrame</a> provides the capability runtime, and <a href="https://howlcipher.github.io/howlchangeops/" style="color: var(--color-cyan); text-decoration: underline;">HowlChangeOps</a> guards the production release boundary.</p>
+                        <p><strong>Direct Answer:</strong> A coordinated multi-tier platform where specialized autonomous agents perform distinct engineering lifecycle functions—decision, workforce selection, ideation, compilation, orchestration, verification, continuity, and documentation—under strict deterministic invariants. <a href="https://howlcipher.github.io/howlInstinct/" style="color: var(--color-cyan); text-decoration: underline;">HowlInstinct</a> judges bounded questions; <a href="https://howlcipher.github.io/howlforge/" style="color: var(--color-cyan); text-decoration: underline;">HowlForge</a> defines who should work them. Rather than an unconstrained "all-in-one" bot, each subsystem owns a distinct domain: <a href="https://howlcipher.github.io/howlcreate/" style="color: var(--color-cyan); text-decoration: underline;">HowlCreate</a> explores candidate approaches, <a href="https://howlcipher.github.io/howlplane/" style="color: var(--color-cyan); text-decoration: underline;">HowlPlane</a> directs execution and adversarial verification, <a href="https://howlcipher.github.io/howlframe/" style="color: var(--color-cyan); text-decoration: underline;">HowlFrame</a> provides the capability runtime, and <a href="https://howlcipher.github.io/howlchangeops/" style="color: var(--color-cyan); text-decoration: underline;">HowlChangeOps</a> guards the production release boundary.</p>
                     </div>
                 </div>
             </section>
@@ -581,7 +616,33 @@ execution orchestration</code></pre>
                             </div>
                         </div>
 
-                        <!-- HowlFutureWorks -->
+                                                <!-- HowlInstinct -->
+                        <div class="dir-card" style="border-top: 3px solid var(--color-amber);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlInstinct</span>
+                                <span class="chip chip-amber">TIER 1 // DECISION</span>
+                            </div>
+                            <p class="dir-card-desc">Fast semantic decision layer. Typed judgments with explicit uncertainty and provenance. Confidence is not permission — HowlInstinct judges; consumers decide what is allowed.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howlInstinct/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howlInstinct" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+                        <!-- HowlForge -->
+                        <div class="dir-card" style="border-top: 3px solid var(--color-blue);">
+                            <div class="dir-card-header">
+                                <span class="dir-card-title">HowlForge</span>
+                                <span class="chip chip-blue">TIER 1 // WORKFORCE</span>
+                            </div>
+                            <p class="dir-card-desc">AI workforce definition and runtime selection for HowlFutureWorks. Durable roles, replaceable runtimes, deterministic matching with reasons, and inspectable handoff contracts. Selects and explains — never launches.</p>
+                            <div class="dir-card-links">
+                                <a href="https://howlcipher.github.io/howlforge/" class="btn-tech btn-tech-primary">[ LIVE SITE ]</a>
+                                <a href="https://github.com/howlcipher/howlforge" class="btn-tech" target="_blank" rel="noreferrer">[ GITHUB ]</a>
+                            </div>
+                        </div>
+
+<!-- HowlFutureWorks -->
                         <div class="dir-card" style="border-top: 3px solid var(--color-blue);">
                             <div class="dir-card-header">
                                 <span class="dir-card-title">HowlFutureWorks</span>
@@ -742,7 +803,11 @@ cd howl &amp;&amp; go build -o bin/howl ./cmd/howl
             <div class="footer-links">
                 <nav class="footer-nav" aria-label="Ecosystem Links">
                     <a href="https://howlcipher.github.io/howl/">Howl Hub</a>
+                    <a href="https://howlcipher.github.io/howl/ecosystem.html">Ecosystem</a>
                     <a href="https://howlcipher.github.io/HowlFutureWorks/">HowlFutureWorks</a>
+                    <a href="https://howlcipher.github.io/howlInstinct/">HowlInstinct</a>
+                    <a href="https://howlcipher.github.io/howlforge/">HowlForge</a>
+                    <a href="https://howlcipher.github.io/howlproof/">HowlProof</a>
                     <a href="https://howlcipher.github.io/howlcreate/">HowlCreate</a>
                     <a href="https://howlcipher.github.io/howlframe/">HowlFrame</a>
                     <a href="https://howlcipher.github.io/howlplane/">HowlPlane</a>
@@ -752,7 +817,6 @@ cd howl &amp;&amp; go build -o bin/howl ./cmd/howl
                     <a href="https://howlcipher.github.io/howlboard/">HowlBoard</a>
                     <a href="https://howlcipher.github.io/howlwriter/">HowlWriter</a>
                     <a href="https://howlcipher.github.io/howldream/">HowlDream</a>
-                    <a href="https://howlcipher.github.io/howlproof/">HowlProof</a>
                 </nav>
                 <a href="#main-content">[ BACK TO TOP ]</a>
             </div>
