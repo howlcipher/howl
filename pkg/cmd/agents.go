@@ -9,7 +9,7 @@ func newAgentsCommand() *cobra.Command {
 		Use:   "agents",
 		Short: "Inspect agent CLI readiness through HowlPlane",
 	}
-	agents.AddCommand(newHowlPlaneForward("doctor [--repo PATH] [--live] [--json]",
+	agents.AddCommand(newHowlPlaneForward("doctor [--repo PATH] [--live] [--json] [--workspace-trust strict|prepare|bypass]",
 		"Verify agent CLIs and, with --repo, workspace trust (howlplane agents doctor)", "agents", "doctor"))
 	return agents
 }
@@ -21,7 +21,7 @@ func newFactoryCommand() *cobra.Command {
 		Use:   "factory",
 		Short: "Prepare repositories for unattended HowlPlane Factory work",
 	}
-	factory.AddCommand(newHowlPlaneForward("prepare [--repo PATH] [--yes] [--revoke] [--live] [--json]",
+	factory.AddCommand(newHowlPlaneForward("prepare [--repo PATH] [--yes] [--revoke] [--live] [--json] [--workspace-trust strict|prepare|bypass]",
 		"Authorize a repository and prepare agent workspace trust (howlplane factory prepare)", "factory", "prepare"))
 	return factory
 }
