@@ -171,3 +171,8 @@ status unchanged. Howl implements no readiness checks, trust handling,
 authorization, or Factory behavior. Any other `howl agents` or `howl factory`
 subcommand is not forwarded. These exceptions do not permit a general
 `howl plane` command tree or a source dependency on HowlPlane.
+
+The workspace trust policy (`--workspace-trust strict|prepare|bypass`, or
+`[workspace_trust] policy` in HowlPlane configuration) is HowlPlane's alone.
+`howl orchestrate`, `howl agents doctor`, and `howl factory prepare` forward
+the option verbatim and never interpret, default, or rewrite it.

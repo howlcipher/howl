@@ -61,6 +61,10 @@ func TestAgentsDoctorAndFactoryPrepareForwardVerbatim(t *testing.T) {
 		"args:agents doctor --repo /r --live --json": {"agents", "doctor", "--repo", "/r", "--live", "--json"},
 		"args:factory prepare --repo /r --yes":       {"factory", "prepare", "--repo", "/r", "--yes"},
 		"args:factory prepare --revoke":              {"factory", "prepare", "--revoke"},
+		// HowlPlane owns the workspace trust policy; Howl passes the option through untouched.
+		"args:agents doctor --repo /r --workspace-trust strict": {"agents", "doctor", "--repo", "/r", "--workspace-trust", "strict"},
+		"args:factory prepare --yes --workspace-trust bypass":   {"factory", "prepare", "--yes", "--workspace-trust", "bypass"},
+		"args:orchestrate goal --workspace-trust bypass":        {"orchestrate", "goal", "--workspace-trust", "bypass"},
 	}
 	for want, args := range cases {
 		out, err := runForwarded(t, args...)
