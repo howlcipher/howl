@@ -161,3 +161,13 @@ model routing, workflow policy, or agent execution. HowlPlane owns those
 decisions. This entry point is an explicit exception to the rejected general
 component command forwarding rule above; it does not permit a general
 `howl plane` command tree or a source dependency on HowlPlane.
+
+## Agent Readiness and Workspace Preparation Exceptions
+
+`howl agents doctor` and `howl factory prepare` are the same kind of narrow
+process adapter, to `howlplane agents doctor` and `howlplane factory prepare`.
+Each forwards one fixed subcommand path with its arguments, streams, and exit
+status unchanged. Howl implements no readiness checks, trust handling,
+authorization, or Factory behavior. Any other `howl agents` or `howl factory`
+subcommand is not forwarded. These exceptions do not permit a general
+`howl plane` command tree or a source dependency on HowlPlane.
