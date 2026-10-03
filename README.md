@@ -135,6 +135,33 @@ already at the target version. `howl update` also checks for and, on
 confirmation, applies an update to the `howl` binary itself, keeping the
 previous binary as `howl.prev`.
 
+### Doing work with the ecosystem
+
+Three commands are thin forwards to HowlPlane, which owns what they do. Howl
+passes arguments, streams, and exit status through unchanged (see the
+[scope exception](docs/SCOPE.md#explicit-orchestration-entry-point-exception)):
+
+```bash
+howl agents doctor [--live] [--repo PATH]         # which AI agent CLIs are ready
+howl factory prepare --repo PATH --yes            # authorize a Git repository for unattended work
+howl orchestrate "Goal" --repo PATH               # plan, implement, audit, and accept a goal
+howl orchestrate inspect|resume|discard --repo PATH
+```
+
+A first run, from an existing Git repository:
+
+```bash
+howl agents doctor --repo .
+howl factory prepare --repo . --yes
+howl orchestrate "Add a --version flag" --repo . --verify python3 -m unittest
+```
+
+`orchestrate` prints its progress, ends with a report, and exits 0 only when the
+session is `COMPLETE`. If it stops at `HANDOFF REQUIRED`, the report says why and
+`howl orchestrate resume --repo .` continues it. Options, session states, and
+recovery are documented by HowlPlane in `howlplane/documentation/ORCHESTRATE.md`
+and `howl orchestrate --help`.
+
 ## Filesystem Layout
 
 Howl is entirely user-scoped and XDG-compliant (respects `XDG_DATA_HOME`,
