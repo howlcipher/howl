@@ -1,0 +1,50 @@
+name: Decode Pages Assets
+on:
+  push:
+    branches: ["cursor/hub-forge-instinct-4ad1"]
+    paths:
+      - "docs/*.zlib.b64"
+      - "docs/*.zlib.b64.part*"
+      - ".github/workflows/decode-pages.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: decode-pages
+  cancel-in-progress: true
+jobs:
+  decode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Assemble and decode zlib+base64 assets
+        run: |
+          python3 <<'PY'
+          import base64, zlib, hashlib, pathlib
+          docs = pathlib.Path("docs")
+          expected = {
+            "index.html": "de0475287a77ef056a0d54eb24383ac853157d797c41b6247ffc7108972b4dc8",
+            "ecosystem.html": "63f0252e7a547a298abe9e4b9850ad40478b66fecea273777875941a4c20c5be",
+          }
+          for stem in ("index.html", "ecosystem.html"):
+              parts = sorted(docs.glob(f"{stem}.zlib.b64.part*"))
+              assert parts, f"missing parts for {stem}"
+              joined = "".join(p.read_text().strip() for p in parts)
+              (docs / f"{stem}.zlib.b64").write_text(joined + "\n")
+              data = zlib.decompress(base64.b64decode(joined))
+              digest = hashlib.sha256(data).hexdigest()
+              assert digest == expected[stem], (stem, digest, expected[stem])
+              (docs / stem).write_bytes(data)
+              print(f"wrote docs/{stem} ({len(data)} bytes) from {len(parts)} parts")
+          PY
+      - name: Commit decoded assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/index.html docs/ecosystem.html docs/index.html.zlib.b64 docs/ecosystem.html.zlib.b64
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "docs: decode Pages assets (HowlForge/HowlInstinct hub integration)"
+            git push
+          fi
