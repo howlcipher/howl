@@ -132,10 +132,7 @@ func Build(m *manifest.Manifest, st *state.State, opts BuildOptions) (*Plan, err
 		}
 		c, _ := m.GetComponent(name)
 
-		effective := c
-		if opts.Profile == "developer" && c.DeveloperInstall != nil {
-			effective.Install = *c.DeveloperInstall
-		}
+		effective := c.ForProfile(opts.Profile)
 
 		cp := ComponentPlan{
 			Name:        c.Name,

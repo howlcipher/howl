@@ -31,16 +31,23 @@ type Checker struct {
 // Check runs c's declared health check against its currently activated
 // release.
 func (h Checker) Check(ctx context.Context, c manifest.Component, paths platform.Paths) error {
+	var err error
 	switch c.HealthCheck.Type {
 	case manifest.HealthBinaryExists:
-		return checkBinaryExists(paths, c.Name)
+		err = checkBinaryExists(paths, c.Name)
 	case manifest.HealthExecVersion:
-		return h.checkExecVersion(ctx, paths, c)
+		err = h.checkExecVersion(ctx, paths, c)
 	case manifest.HealthPythonImport:
-		return h.checkPythonImport(ctx, paths, c)
+		err = h.checkPythonImport(ctx, paths, c)
 	default:
 		return fmt.Errorf("component %q declares unsupported health_check type %q", c.Name, c.HealthCheck.Type)
 	}
+	if err != nil {
+		return err
+	}
+	// `--version` passes even when an editable runtime lacks a dependency
+	// its checkout added later (DOG-031); that drift is checked separately.
+	return pyruntime.CheckSourceDependencies(paths.RuntimeDir(c.Name))
 }
 
 func checkBinaryExists(paths platform.Paths, name string) error {

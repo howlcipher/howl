@@ -198,7 +198,14 @@ func (i *Installer) installPythonSource(ctx context.Context, c manifest.Componen
 	sb := c.Install.SourceBuild
 	checkoutDir, err := i.locateCheckout(sb.CheckoutName)
 	if err != nil {
-		return err
+		// A reinstall (e.g. `howl doctor --fix`) repairs a runtime that already
+		// records its checkout; reuse it rather than fail for want of
+		// HOWL_<NAME>_DIR (DOG-031). Explicit overrides above still win.
+		previous, ok := pyruntime.InstalledCheckout(paths.RuntimeDir(c.Name), sb.Python.PackageDir)
+		if !ok {
+			return err
+		}
+		checkoutDir = previous
 	}
 
 	pythonPath, _, err := pyruntime.DetectPython(ctx, i.Runner, sb.Python.MinPython)
@@ -213,6 +220,9 @@ func (i *Installer) installPythonSource(ctx context.Context, c manifest.Componen
 	}
 	if err := pyruntime.PipInstallEditable(ctx, i.Runner, venvDir, checkoutDir, sb.Python.PackageDir, sb.Python.Extras); err != nil {
 		return fmt.Errorf("failed to install %s into its python runtime: %w", c.Name, err)
+	}
+	if err := pyruntime.RecordSourceDependencies(runtimeRoot, filepath.Join(checkoutDir, sb.Python.PackageDir)); err != nil {
+		return fmt.Errorf("failed to record %s's dependency declarations: %w", c.Name, err)
 	}
 
 	releaseDir := paths.ComponentReleaseDir(c.Name, c.Version)
