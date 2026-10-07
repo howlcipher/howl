@@ -333,6 +333,9 @@ func checkComponentHealth(ctx context.Context, opts Options) []CheckResult {
 		if _, installed := opts.State.Components[c.Name]; !installed {
 			continue
 		}
+		// Check and repair the component as it was installed: a developer
+		// install is reinstalled from its checkout, not as a release wheel.
+		c = c.ForProfile(opts.State.Profile)
 		cr := CheckResult{Category: "Component Health", Name: c.Name}
 		err := opts.Health.Check(ctx, c, opts.Paths)
 		if err == nil {

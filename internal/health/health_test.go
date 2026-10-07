@@ -148,3 +148,38 @@ func TestCheckUnsupportedType(t *testing.T) {
 		t.Fatal("expected error for unsupported health check type")
 	}
 }
+
+func TestCheckFailsWhenEditableRuntimeDependenciesDrifted(t *testing.T) {
+	// DOG-031: `--version` passed while the runtime lacked a dependency its
+	// checkout had since declared; the health check must not stop there.
+	paths := testPaths(t)
+	activateFakeBinary(t, paths, "howlwriter", true)
+	checkout := t.TempDir()
+	if err := os.WriteFile(filepath.Join(checkout, "pyproject.toml"), []byte("[project]\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	runtimeRoot := paths.RuntimeDir("howlwriter")
+	distInfo := filepath.Join(pyruntime.VenvDir(runtimeRoot), "lib", "python3.14", "site-packages", "howlwriter-0.1.0.dist-info")
+	if err := os.MkdirAll(distInfo, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	record := `{"dir_info": {"editable": true}, "url": "file://` + filepath.ToSlash(checkout) + `"}`
+	if err := os.WriteFile(filepath.Join(distInfo, "direct_url.json"), []byte(record), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := pyruntime.RecordSourceDependencies(runtimeRoot, checkout); err != nil {
+		t.Fatal(err)
+	}
+	c := manifest.Component{Name: "howlwriter", HealthCheck: manifest.HealthCheck{Type: manifest.HealthExecVersion}}
+	checker := Checker{Exec: fakeExecer{output: "howlwriter 0.1.0\n"}}
+	if err := checker.Check(context.Background(), c, paths); err != nil {
+		t.Fatalf("in sync: %v", err)
+	}
+
+	if err := os.WriteFile(filepath.Join(checkout, "pyproject.toml"), []byte("[project]\ndependencies = [\"howl-provider-core\"]\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := checker.Check(context.Background(), c, paths); err == nil {
+		t.Fatal("expected drift to fail the health check")
+	}
+}

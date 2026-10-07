@@ -103,6 +103,17 @@ type GithubReleaseSource struct {
 	ChecksumFile    string `toml:"checksum_file" json:"checksum_file"`
 }
 
+// ForProfile returns c as installed under profile: the developer profile
+// swaps in DeveloperInstall where the manifest declares one. Install
+// planning and doctor's repair must agree on this, or `howl doctor --fix`
+// would reinstall a developer's editable checkout as a release artifact.
+func (c Component) ForProfile(profile string) Component {
+	if profile == "developer" && c.DeveloperInstall != nil {
+		c.Install = *c.DeveloperInstall
+	}
+	return c
+}
+
 // GoSourceBuild describes building a Go component from a local checkout.
 type GoSourceBuild struct {
 	Package     string      `toml:"package" json:"package"`

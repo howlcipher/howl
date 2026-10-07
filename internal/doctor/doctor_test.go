@@ -31,10 +31,14 @@ func (f fakeHealth) Check(ctx context.Context, c manifest.Component, paths platf
 	return nil
 }
 
-type fakeInstaller struct{ calls []string }
+type fakeInstaller struct {
+	calls   []string
+	methods []manifest.InstallMethod
+}
 
 func (f *fakeInstaller) Install(ctx context.Context, c manifest.Component, paths platform.Paths) error {
 	f.calls = append(f.calls, c.Name)
+	f.methods = append(f.methods, c.Install.Method)
 	return nil
 }
 
@@ -387,5 +391,43 @@ func writeStaleLock(t *testing.T, path string) {
 	content := "999999999\n2020-01-01T00:00:00Z\n"
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestDoctorRepairsADeveloperInstallFromItsCheckout(t *testing.T) {
+	// DOG-031: doctor checked and repaired the raw manifest component, so
+	// --fix would have replaced a developer's editable checkout with the
+	// release artifact. It must reinstall the way the component was installed.
+	for profile, want := range map[string]manifest.InstallMethod{
+		"developer": manifest.MethodSourceBuild,
+		"standard":  manifest.MethodGithubRelease,
+	} {
+		t.Run(profile, func(t *testing.T) {
+			m := testManifest(t)
+			m.Components[0].DeveloperInstall = &manifest.Install{
+				Method:      manifest.MethodSourceBuild,
+				SourceBuild: &manifest.SourceBuild{CheckoutName: "howlframe"},
+			}
+			st := state.New("stable")
+			st.Profile = profile
+			st.Components["howlframe"] = state.ComponentState{Version: "0.1.1"}
+			paths := testPaths(t)
+			installer := &fakeInstaller{}
+
+			Run(context.Background(), Options{
+				Manifest:  m,
+				State:     st,
+				StatePath: filepath.Join(paths.StateDir(), "state.json"),
+				Paths:     paths,
+				Detector:  fakeDetector{found: map[string]string{"go": "go1.22"}},
+				Health:    fakeHealth{failOn: map[string]bool{"howlframe": true}},
+				Installer: installer,
+				Fix:       true,
+			})
+
+			if len(installer.methods) != 1 || installer.methods[0] != want {
+				t.Fatalf("profile %s: expected reinstall via %s, got %v", profile, want, installer.methods)
+			}
+		})
 	}
 }
