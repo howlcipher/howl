@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-08
+
+The first-run example quotes its verification command: `--verify python3 -m
+unittest` failed with `unrecognized arguments: -m unittest` because HowlPlane
+read `-m` as an orchestrate option (DOG-035, fixed in HowlPlane). Documentation
+only; installer behavior is unchanged.
+
 ## 2026-09-11
 
 Added HowlProof to the ecosystem as a first-class component and recut the hub's
