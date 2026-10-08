@@ -157,8 +157,11 @@ A first run, from an existing Git repository:
 ```bash
 howl agents doctor --repo .
 howl factory prepare --repo . --yes
-howl orchestrate "Add a --version flag" --repo . --verify python3 -m unittest
+howl orchestrate "Add a --version flag" --repo . --verify "python3 -m unittest"
 ```
+
+Quote a verification command that has its own options; unquoted, its flags
+are read as `orchestrate` options (DOG-035).
 
 `orchestrate` prints its progress, ends with a report, and exits 0 only when the
 session is `COMPLETE`. If it stops at `HANDOFF REQUIRED`, the report says why and
