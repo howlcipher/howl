@@ -2,6 +2,11 @@
 
 ## 2026-10-12
 
+Scoped installation now includes transitive component dependencies in manifest
+dependency order. Installing HowlChangeOps on a fresh machine includes HowlFrame;
+shared dependencies appear once, profile selection is preserved, and components
+already at their target versions remain unchanged.
+
 Fix UX-005: developer source installation copies declared runtime sidecar files
 after build steps and before activation. The default ChangeOps manifest declares
 its compiled policy; missing or unsafe artifacts now fail installation.
