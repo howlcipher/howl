@@ -132,6 +132,11 @@ howl channel [stable|beta|dev]
 howl version [--json] [--components|-c]
 ```
 
+`howl install howlchangeops` includes HowlFrame and installs it first.
+Selecting a component includes all of its transitive dependencies once,
+using the requested profile and skipping versions already installed.
+Unrelated components remain outside that scoped installation.
+
 `howl install` and `howl update` always show a plan before touching your
 machine and require `--yes` to run non-interactively. Running `howl
 install` again after a successful install is a safe no-op for anything
