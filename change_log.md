@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-12
+
+Fix UX-005: developer source installation copies declared runtime sidecar files
+after build steps and before activation. The default ChangeOps manifest declares
+its compiled policy; missing or unsafe artifacts now fail installation.
+
 ## 2026-10-08
 
 The first-run example quotes its verification command: `--verify python3 -m

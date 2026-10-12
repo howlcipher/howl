@@ -123,6 +123,7 @@ archs = ["amd64", "arm64"]
       [components.developer_install.source_build.go]
       package = "./adapter"
       build_output = "howlchangeops"
+      sidecar_files = ["howlchangeops.hfbc"]
 
         [[components.developer_install.source_build.go.extra_steps]]
         run_component = "howlframe"

@@ -116,9 +116,10 @@ func (c Component) ForProfile(profile string) Component {
 
 // GoSourceBuild describes building a Go component from a local checkout.
 type GoSourceBuild struct {
-	Package     string      `toml:"package" json:"package"`
-	BuildOutput string      `toml:"build_output" json:"build_output"`
-	ExtraSteps  []BuildStep `toml:"extra_steps,omitempty" json:"extra_steps,omitempty"`
+	Package      string      `toml:"package" json:"package"`
+	BuildOutput  string      `toml:"build_output" json:"build_output"`
+	ExtraSteps   []BuildStep `toml:"extra_steps,omitempty" json:"extra_steps,omitempty"`
+	SidecarFiles []string    `toml:"sidecar_files,omitempty" json:"sidecar_files,omitempty"`
 }
 
 // PythonSourceBuild describes installing a Python component from a local
@@ -326,6 +327,9 @@ func validateInstallStanza(name string, inst Install) error {
 			if sb.Go == nil || strings.TrimSpace(sb.Go.Package) == "" || strings.TrimSpace(sb.Go.BuildOutput) == "" {
 				return fmt.Errorf("manifest validation error: component %q go source_build block is missing required fields", name)
 			}
+			if err := ValidateGoSidecarFiles(sb.Go, name); err != nil {
+				return err
+			}
 		case "python":
 			if sb.Python == nil || strings.TrimSpace(sb.Python.ConsoleScript) == "" {
 				return fmt.Errorf("manifest validation error: component %q python source_build block is missing required fields", name)
@@ -526,4 +530,21 @@ func CompareVersions(a, b string) (int, error) {
 		}
 	}
 	return 0, nil
+}
+
+// ValidateGoSidecarFiles limits installation to regular files in the checkout root.
+// Sidecars cannot replace executables or escape the component release directory.
+func ValidateGoSidecarFiles(goBuild *GoSourceBuild, componentName string) error {
+	seen := make(map[string]bool)
+	for _, name := range goBuild.SidecarFiles {
+		if strings.TrimSpace(name) != name || name == "" || name == "." || name == ".." || strings.ContainsAny(name, `/\:"<>|?*`) || strings.HasSuffix(name, ".") {
+			return fmt.Errorf("invalid sidecar file %q: expected a checkout-root filename", name)
+		}
+		key := strings.ToLower(name)
+		if key == strings.ToLower(componentName) || key == strings.ToLower(componentName+".exe") || key == strings.ToLower(goBuild.BuildOutput) || key == strings.ToLower(goBuild.BuildOutput+".exe") || seen[key] {
+			return fmt.Errorf("invalid sidecar file %q: duplicate or executable collision", name)
+		}
+		seen[key] = true
+	}
+	return nil
 }

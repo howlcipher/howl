@@ -215,3 +215,8 @@ what's behind each status and why.
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
+
+Developer source installations of HowlChangeOps include the compiled policy
+sidecar beside the adapter. Custom Go source manifests can declare required
+`sidecar_files`; see [manifest reference](docs/MANIFEST.md). Installation fails
+before activation when a declared artifact is missing or unsafe.
