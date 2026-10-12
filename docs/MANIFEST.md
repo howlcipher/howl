@@ -126,11 +126,17 @@ language = "go"                   # or "python"
 [components.install.source_build.go]
 package = "./adapter"
 build_output = "howlchangeops"
+sidecar_files = ["howlchangeops.hfbc"]
 
 [[components.install.source_build.go.extra_steps]]
 run_component = "howlframe"       # must already be installed (depends_on enforces this)
 args = ["build", "src/howlchangeops.howl"]
 ```
+
+Declared `sidecar_files` are copied from the checkout root into the release
+directory after extra build steps finish and before activation. Missing files,
+symlinks, directories, path traversal, duplicate filenames and executable
+collisions fail installation. Declare each required runtime artifact explicitly.
 
 or
 
