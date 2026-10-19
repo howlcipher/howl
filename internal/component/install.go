@@ -159,6 +159,9 @@ func (i *Installer) installGithubRelease(ctx context.Context, c manifest.Compone
 
 func (i *Installer) installGoSource(ctx context.Context, c manifest.Component, paths platform.Paths) error {
 	sb := c.Install.SourceBuild
+	if err := manifest.ValidateGoSidecarFiles(sb.Go, c.Name); err != nil {
+		return err
+	}
 	checkoutDir, err := i.locateCheckout(sb.CheckoutName)
 	if err != nil {
 		return err
@@ -188,6 +191,17 @@ func (i *Installer) installGoSource(ctx context.Context, c manifest.Component, p
 		}
 		if _, err := i.Runner.Run(ctx, checkoutDir, runnerBin, step.Args); err != nil {
 			return fmt.Errorf("build step `%s %v` failed for %s: %w", step.RunComponent, step.Args, c.Name, err)
+		}
+	}
+
+	for _, name := range sb.Go.SidecarFiles {
+		source := filepath.Join(checkoutDir, name)
+		info, err := os.Lstat(source)
+		if err != nil || !info.Mode().IsRegular() {
+			return fmt.Errorf("required sidecar %q for %s is missing or not a regular file", name, c.Name)
+		}
+		if err := copyFile(source, filepath.Join(releaseDir, name)); err != nil {
+			return fmt.Errorf("failed to install sidecar %q for %s: %w", name, c.Name, err)
 		}
 	}
 

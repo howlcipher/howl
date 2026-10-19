@@ -485,3 +485,98 @@ func TestInstallGoSourceExtraStepsRunAgainstDependency(t *testing.T) {
 		t.Errorf("unexpected extra step invocation: %+v", extra)
 	}
 }
+
+func TestInstallGoSourceSidecarRequiredBeforeActivation(t *testing.T) {
+	for _, kind := range []string{"regular", "missing", "symlink", "directory", "escape"} {
+		t.Run(kind, func(t *testing.T) {
+			checkout := t.TempDir()
+			paths := testPaths(t)
+			name := "policy.hfbc"
+			source := filepath.Join(checkout, name)
+			switch kind {
+			case "regular":
+				if err := os.WriteFile(source, []byte("built policy"), 0o644); err != nil {
+					t.Fatal(err)
+				}
+			case "symlink":
+				if err := os.Symlink(filepath.Join(t.TempDir(), name), source); err != nil {
+					t.Skip(err)
+				}
+			case "directory":
+				if err := os.Mkdir(source, 0o755); err != nil {
+					t.Fatal(err)
+				}
+			case "escape":
+				name = "../policy.hfbc"
+			}
+			c := manifest.Component{Name: "testapp", Version: "1.0.0", Install: manifest.Install{
+				Method: manifest.MethodSourceBuild, SourceBuild: &manifest.SourceBuild{
+					CheckoutName: "testapp", Language: "go", Go: &manifest.GoSourceBuild{
+						Package: "./adapter", BuildOutput: "testapp", SidecarFiles: []string{name},
+					},
+				},
+			}}
+			inst := &Installer{Runner: &touchingRunner{}, ExplicitCheckoutDirs: map[string]string{"testapp": checkout}}
+			err := inst.Install(context.Background(), c, paths)
+			if kind == "regular" {
+				if err != nil {
+					t.Fatal(err)
+				}
+				data, err := os.ReadFile(filepath.Join(paths.ComponentReleaseDir("testapp", "1.0.0"), name))
+				if err != nil || string(data) != "built policy" {
+					t.Fatalf("missing installed policy: %q %v", data, err)
+				}
+			} else {
+				if err == nil {
+					t.Fatal("unsafe or absent sidecar must fail installation")
+				}
+				if _, err := os.Lstat(paths.ComponentCurrentLink("testapp")); !os.IsNotExist(err) {
+					t.Fatalf("failed install activated: %v", err)
+				}
+			}
+		})
+	}
+}
+
+type sidecarBuildRunner struct{ touchingRunner }
+
+func (r *sidecarBuildRunner) Run(ctx context.Context, dir, name string, args []string) ([]byte, error) {
+	if len(args) > 0 && args[0] == "build-policy" {
+		return nil, os.WriteFile(filepath.Join(dir, "policy.hfbc"), []byte("fresh compiled policy"), 0o644)
+	}
+	return r.touchingRunner.Run(ctx, dir, name, args)
+}
+
+func TestInstallGoSidecarCopiesFreshExtraStepOutput(t *testing.T) {
+	checkout := t.TempDir()
+	if err := os.WriteFile(filepath.Join(checkout, "policy.hfbc"), []byte("stale policy"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	paths := testPaths(t)
+	dep := paths.ComponentReleaseDir("compiler", "1.0.0")
+	if err := os.MkdirAll(dep, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dep, platform.ExeName("compiler")), []byte("compiler"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := ActivateRelease(paths, "compiler", "1.0.0", false); err != nil {
+		t.Fatal(err)
+	}
+	c := manifest.Component{Name: "testapp", Version: "1.0.0", Install: manifest.Install{
+		Method: manifest.MethodSourceBuild, SourceBuild: &manifest.SourceBuild{
+			CheckoutName: "testapp", Language: "go", Go: &manifest.GoSourceBuild{
+				Package: "./adapter", BuildOutput: "testapp", SidecarFiles: []string{"policy.hfbc"},
+				ExtraSteps: []manifest.BuildStep{{RunComponent: "compiler", Args: []string{"build-policy"}}},
+			},
+		},
+	}}
+	inst := &Installer{Runner: &sidecarBuildRunner{}, ExplicitCheckoutDirs: map[string]string{"testapp": checkout}}
+	if err := inst.Install(context.Background(), c, paths); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(paths.ComponentReleaseDir("testapp", "1.0.0"), "policy.hfbc"))
+	if err != nil || string(data) != "fresh compiled policy" {
+		t.Fatalf("expected newly built sidecar, got %q (%v)", data, err)
+	}
+}

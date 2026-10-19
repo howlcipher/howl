@@ -19,6 +19,17 @@ marker records. With a second editable checkout in the runtime, the previous
 lookup took the first in sorted order, which would have reinstalled HowlWriter
 from HowlPlane's checkout.
 
+## 2026-10-12
+
+Scoped installation now includes transitive component dependencies in manifest
+dependency order. Installing HowlChangeOps on a fresh machine includes HowlFrame;
+shared dependencies appear once, profile selection is preserved, and components
+already at their target versions remain unchanged.
+
+Fix UX-005: developer source installation copies declared runtime sidecar files
+after build steps and before activation. The default ChangeOps manifest declares
+its compiled policy; missing or unsafe artifacts now fail installation.
+
 ## 2026-10-08
 
 The first-run example quotes its verification command: `--verify python3 -m

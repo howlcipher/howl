@@ -132,6 +132,11 @@ howl channel [stable|beta|dev]
 howl version [--json] [--components|-c]
 ```
 
+`howl install howlchangeops` includes HowlFrame and installs it first.
+Selecting a component includes all of its transitive dependencies once,
+using the requested profile and skipping versions already installed.
+Unrelated components remain outside that scoped installation.
+
 `howl install` and `howl update` always show a plan before touching your
 machine and require `--yes` to run non-interactively. Running `howl
 install` again after a successful install is a safe no-op for anything
@@ -215,3 +220,8 @@ what's behind each status and why.
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
+
+Developer source installations of HowlChangeOps include the compiled policy
+sidecar beside the adapter. Custom Go source manifests can declare required
+`sidecar_files`; see [manifest reference](docs/MANIFEST.md). Installation fails
+before activation when a declared artifact is missing or unsafe.

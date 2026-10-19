@@ -615,3 +615,23 @@ python_imports = ["engine"]
 		})
 	}
 }
+
+func TestGoSidecarValidation(t *testing.T) {
+	for _, files := range [][]string{{"../policy"}, {"sub/policy"}, {"sub\\policy"}, {"C:policy"}, {""}, {"."}, {".."}, {" policy"}, {"testapp"}, {"TESTAPP.EXE"}, {"testapp.exe."}, {"policy."}, {"policy*"}, {"policy", "POLICY"}} {
+		if err := ValidateGoSidecarFiles(&GoSourceBuild{BuildOutput: "testapp", SidecarFiles: files}, "testapp"); err == nil {
+			t.Errorf("accepted unsafe sidecars %q", files)
+		}
+	}
+	m, _, err := LoadDefault(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	c, ok := m.GetComponent("howlchangeops")
+	if !ok {
+		t.Fatal("missing ChangeOps")
+	}
+	files := c.ForProfile("developer").Install.SourceBuild.Go.SidecarFiles
+	if len(files) != 1 || files[0] != "howlchangeops.hfbc" {
+		t.Fatalf("missing policy declaration: %q", files)
+	}
+}

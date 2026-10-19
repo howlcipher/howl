@@ -91,8 +91,8 @@ type BuildOptions struct {
 	// release artifact); components without a DeveloperInstall are
 	// unaffected -- there is no implicit fallback either way.
 	Profile string
-	// Components restricts planning to specific component names. Empty
-	// means every component in the manifest.
+	// Components selects component names and their transitive dependencies.
+	// Empty means every component in the manifest.
 	Components []string
 	Detector   Detector
 }
@@ -116,6 +116,18 @@ func Build(m *manifest.Manifest, st *state.State, opts BuildOptions) (*Plan, err
 				return nil, fmt.Errorf("unknown component %q", name)
 			}
 			scope[name] = true
+		}
+	}
+
+	// Walk dependents before dependencies so newly included dependencies also
+	// contribute their own prerequisites. Rendering still uses TopoOrder.
+	for i := len(order) - 1; i >= 0; i-- {
+		if !scope[order[i]] {
+			continue
+		}
+		c, _ := m.GetComponent(order[i])
+		for _, dep := range c.DependsOn {
+			scope[dep.Component] = true
 		}
 	}
 
