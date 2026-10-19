@@ -235,6 +235,10 @@ archs = ["amd64", "arm64"]
   component = "howlchangeops"
 
 # ---------------------------------------------------------------------------
+# HowlWriter runs HowlPlane's role dispatcher in its own process, so the
+# engine's package (and its dependencies) is installed into HowlWriter's
+# runtime as well (python_imports). Without it every model step reported
+# that HowlPlane was missing or could not be imported.
 [[components]]
 name = "howlwriter"
 display_name = "HowlWriter"
@@ -244,6 +248,7 @@ version = "0.1.0"
 optional = false
 platforms = ["linux", "darwin", "windows"]
 archs = ["amd64", "arm64"]
+python_imports = ["howlplane-engine"]
 
   [components.install]
   method = "github_release_python_wheel"
@@ -275,6 +280,9 @@ archs = ["amd64", "arm64"]
 
   [[components.depends_on]]
   component = "howlplane"
+
+  [[components.depends_on]]
+  component = "howlplane-engine"
 
   [[components.external_dependencies]]
   name = "python3"

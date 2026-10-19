@@ -235,7 +235,11 @@ func (i *Installer) installPythonSource(ctx context.Context, c manifest.Componen
 	if err := pyruntime.PipInstallEditable(ctx, i.Runner, venvDir, checkoutDir, sb.Python.PackageDir, sb.Python.Extras); err != nil {
 		return fmt.Errorf("failed to install %s into its python runtime: %w", c.Name, err)
 	}
-	if err := pyruntime.RecordSourceDependencies(runtimeRoot, filepath.Join(checkoutDir, sb.Python.PackageDir)); err != nil {
+	importRoots, err := i.installImports(ctx, c, paths, venvDir)
+	if err != nil {
+		return err
+	}
+	if err := pyruntime.RecordSourceDependencies(runtimeRoot, filepath.Join(checkoutDir, sb.Python.PackageDir), importRoots...); err != nil {
 		return fmt.Errorf("failed to record %s's dependency declarations: %w", c.Name, err)
 	}
 
@@ -261,39 +265,8 @@ func (i *Installer) installGithubReleaseWheel(ctx context.Context, c manifest.Co
 	if grw == nil {
 		return fmt.Errorf("component %q has no github_release_python_wheel configuration", c.Name)
 	}
-
-	tag := "v" + c.Version
-	wheelName := strings.NewReplacer(
-		"{version}", tag,
-		"{pep440_version}", c.Version,
-	).Replace(grw.ArtifactPattern)
-
-	base := fmt.Sprintf("%s/%s/releases/download/%s", i.githubBaseURL(), grw.Repository, tag)
-
-	cacheDir := paths.DownloadCacheDir()
-	wheelPath := filepath.Join(cacheDir, wheelName)
-	checksumPath := filepath.Join(cacheDir, c.Name+"-"+tag+"-"+grw.ChecksumFile)
-
-	if err := artifact.DownloadToFile(ctx, i.Downloader, base+"/"+wheelName, wheelPath); err != nil {
-		return fmt.Errorf("failed to download %s: %w", c.Name, err)
-	}
-	if err := artifact.DownloadToFile(ctx, i.Downloader, base+"/"+grw.ChecksumFile, checksumPath); err != nil {
-		return fmt.Errorf("failed to download checksums for %s: %w", c.Name, err)
-	}
-
-	checksumData, err := os.ReadFile(checksumPath)
+	wheelPath, err := i.fetchWheel(ctx, c, paths)
 	if err != nil {
-		return fmt.Errorf("failed to read downloaded checksum file: %w", err)
-	}
-	sums, err := artifact.ParseChecksumFile(checksumData)
-	if err != nil {
-		return err
-	}
-	expected, ok := sums[wheelName]
-	if !ok {
-		return fmt.Errorf("no checksum entry for %s in %s", wheelName, grw.ChecksumFile)
-	}
-	if err := artifact.VerifySHA256(wheelPath, expected); err != nil {
 		return err
 	}
 
@@ -310,6 +283,9 @@ func (i *Installer) installGithubReleaseWheel(ctx context.Context, c manifest.Co
 	if err := pyruntime.PipInstallWheel(ctx, i.Runner, venvDir, wheelPath, grw.Extras); err != nil {
 		return fmt.Errorf("failed to install %s into its python runtime: %w", c.Name, err)
 	}
+	if _, err := i.installImports(ctx, c, paths, venvDir); err != nil {
+		return err
+	}
 
 	releaseDir := paths.ComponentReleaseDir(c.Name, c.Version)
 	if err := os.MkdirAll(releaseDir, 0o755); err != nil {
@@ -321,4 +297,92 @@ func (i *Installer) installGithubReleaseWheel(ctx context.Context, c manifest.Co
 	}
 
 	return ActivateRelease(paths, c.Name, c.Version, !c.Internal)
+}
+
+// fetchWheel downloads c's release wheel into the download cache and
+// verifies it against the release's checksum file before anything installs it.
+func (i *Installer) fetchWheel(ctx context.Context, c manifest.Component, paths platform.Paths) (string, error) {
+	grw := c.Install.GithubReleaseWheel
+	if grw == nil {
+		return "", fmt.Errorf("component %q has no github_release_python_wheel configuration", c.Name)
+	}
+
+	tag := "v" + c.Version
+	wheelName := strings.NewReplacer(
+		"{version}", tag,
+		"{pep440_version}", c.Version,
+	).Replace(grw.ArtifactPattern)
+
+	base := fmt.Sprintf("%s/%s/releases/download/%s", i.githubBaseURL(), grw.Repository, tag)
+
+	cacheDir := paths.DownloadCacheDir()
+	wheelPath := filepath.Join(cacheDir, wheelName)
+	checksumPath := filepath.Join(cacheDir, c.Name+"-"+tag+"-"+grw.ChecksumFile)
+
+	if err := artifact.DownloadToFile(ctx, i.Downloader, base+"/"+wheelName, wheelPath); err != nil {
+		return "", fmt.Errorf("failed to download %s: %w", c.Name, err)
+	}
+	if err := artifact.DownloadToFile(ctx, i.Downloader, base+"/"+grw.ChecksumFile, checksumPath); err != nil {
+		return "", fmt.Errorf("failed to download checksums for %s: %w", c.Name, err)
+	}
+
+	checksumData, err := os.ReadFile(checksumPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read downloaded checksum file: %w", err)
+	}
+	sums, err := artifact.ParseChecksumFile(checksumData)
+	if err != nil {
+		return "", err
+	}
+	expected, ok := sums[wheelName]
+	if !ok {
+		return "", fmt.Errorf("no checksum entry for %s in %s", wheelName, grw.ChecksumFile)
+	}
+	if err := artifact.VerifySHA256(wheelPath, expected); err != nil {
+		return "", err
+	}
+	return wheelPath, nil
+}
+
+// installImports installs the Python package of each component c imports
+// (manifest python_imports, resolved into c.Imports) into c's venv, the
+// same way that component installs itself: a release wheel, verified, or
+// an editable install of its checkout. It returns the package roots of the
+// editable ones so their dependency declarations can be tracked.
+func (i *Installer) installImports(ctx context.Context, c manifest.Component, paths platform.Paths, venvDir string) ([]string, error) {
+	var editableRoots []string
+	for _, imported := range c.Imports {
+		fail := func(err error) ([]string, error) {
+			return nil, fmt.Errorf("failed to install %s (imported by %s) into %s's python runtime: %w", imported.Name, c.Name, c.Name, err)
+		}
+		switch {
+		case imported.Install.Method == manifest.MethodGithubReleaseWheel && imported.Install.GithubReleaseWheel != nil:
+			wheelPath, err := i.fetchWheel(ctx, imported, paths)
+			if err != nil {
+				return fail(err)
+			}
+			if err := pyruntime.PipInstallWheel(ctx, i.Runner, venvDir, wheelPath, imported.Install.GithubReleaseWheel.Extras); err != nil {
+				return fail(err)
+			}
+		case imported.Install.IsPython():
+			sb := imported.Install.SourceBuild
+			checkoutDir, err := i.locateCheckout(sb.CheckoutName)
+			if err != nil {
+				// Reuse the checkout the imported component's own runtime was
+				// installed from, as a repair of that runtime would.
+				previous, ok := pyruntime.InstalledCheckout(paths.RuntimeDir(imported.Name), sb.Python.PackageDir)
+				if !ok {
+					return fail(err)
+				}
+				checkoutDir = previous
+			}
+			if err := pyruntime.PipInstallEditable(ctx, i.Runner, venvDir, checkoutDir, sb.Python.PackageDir, sb.Python.Extras); err != nil {
+				return fail(err)
+			}
+			editableRoots = append(editableRoots, filepath.Join(checkoutDir, sb.Python.PackageDir))
+		default:
+			return fail(fmt.Errorf("%s is not installed as a Python package", imported.Name))
+		}
+	}
+	return editableRoots, nil
 }

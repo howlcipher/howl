@@ -45,6 +45,7 @@ platforms = ["linux", "darwin", "windows"]
 archs = ["amd64", "arm64"]
 
 internal = false                   # true hides it from PATH (an engine another component drives)
+python_imports = []                # Python components whose packages this one imports in-process
 
 [components.install]
 method = "github_release"          # github_release | github_release_python_wheel | source_build
@@ -155,6 +156,31 @@ component in the default manifest uses `github_release` or
 `github_release_python_wheel` under the standard profile; `source_build`
 only remains reachable via each component's `developer_install`.
 
+### `python_imports`
+
+A Python component that imports another component's Python package in its
+own process names it here. HowlWriter does this: it runs HowlPlane's role
+dispatcher in-process, so its runtime needs the `howlplane` package and that
+package's dependencies, not only the `howlplane` binary on PATH.
+
+Each named component's package is installed into this component's venv,
+the way that component installs itself under the active profile:
+
+- `github_release_python_wheel`: its release wheel is downloaded and
+  checksum-verified like any other artifact, then `pip install`ed.
+- `source_build` (developer profile): its checkout is `pip install -e`ed, and
+  its dependency declarations are recorded alongside the component's own, so
+  drift in either is caught by the health check. A repair that cannot locate
+  the checkout reuses the one the imported component's own runtime records.
+
+The health check then imports each named component's `python_import` module
+with this component's interpreter; `--version` alone never loads it. Install,
+update, rollback and `howl doctor --fix` all reinstall the imports with the
+component, and a rollback restores each one at its own recorded version.
+
+Each name must also appear in `depends_on`, and under both profiles both
+components must be Python packages installed by the same method.
+
 ### Health Checks
 
 - `binary_exists`: the activated executable exists and (on non-Windows) is
@@ -174,5 +200,7 @@ method-specific block is complete, the health check type is known and
 carries its own required fields, every `depends_on` target exists in the
 manifest, no dependency is self-referential or part of a cycle
 (`Manifest.TopoOrder`), and every `min_version` compatibility constraint is
-satisfied by the manifest's own declared versions. Compatibility is
+satisfied by the manifest's own declared versions, and every
+`python_imports` entry names a Python component this one depends on that
+installs the same way under each profile. Compatibility is
 re-checked against *installed* versions at runtime by `howl doctor`.

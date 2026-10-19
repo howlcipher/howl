@@ -144,7 +144,7 @@ func Build(m *manifest.Manifest, st *state.State, opts BuildOptions) (*Plan, err
 		}
 		c, _ := m.GetComponent(name)
 
-		effective := c.ForProfile(opts.Profile)
+		effective := m.Resolve(c, opts.Profile)
 
 		cp := ComponentPlan{
 			Name:        c.Name,

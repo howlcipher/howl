@@ -26,6 +26,9 @@ func (f *fakeInstaller) Install(ctx context.Context, c manifest.Component, paths
 		f.methodsByName = map[string]manifest.InstallMethod{}
 	}
 	f.methodsByName[c.Name] = c.Install.Method
+	for _, imported := range c.Imports {
+		f.calls = append(f.calls, fmt.Sprintf("%s imports %s@%s", c.Name, imported.Name, imported.Version))
+	}
 	if f.failOn[c.Name] {
 		return fmt.Errorf("simulated install failure for %s", c.Name)
 	}
@@ -405,5 +408,27 @@ func TestEngineManualRollbackSingleComponent(t *testing.T) {
 	}
 	if st.Components["howlchangeops"].Version != "0.5.0" {
 		t.Errorf("expected howlchangeops untouched by a single-component rollback, got %+v", st.Components["howlchangeops"])
+	}
+}
+
+func TestEngineRollbackRestoresImportedPackagesAtTheirRollbackVersions(t *testing.T) {
+	m, _, err := manifest.LoadDefault(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	st := state.New("stable")
+	st.Components["howlwriter"] = state.ComponentState{Version: "0.1.0"}
+	st.PreviousComponents = map[string]state.ComponentState{
+		"howlwriter":       {Version: "0.0.9"},
+		"howlplane-engine": {Version: "0.0.8"},
+	}
+	paths, statePath := testPaths(t)
+	inst := &fakeInstaller{}
+	if _, err := New(inst, &fakeHealth{}, paths).Rollback(context.Background(), m, st, statePath, "howlwriter"); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	want := []string{"howlwriter@0.0.9", "howlwriter imports howlplane-engine@0.0.8"}
+	if fmt.Sprint(inst.calls) != fmt.Sprint(want) {
+		t.Fatalf("expected %v, got %v", want, inst.calls)
 	}
 }

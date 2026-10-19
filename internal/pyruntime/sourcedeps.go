@@ -36,6 +36,15 @@ var dependencyFiles = []string{"pyproject.toml", "setup.cfg", "setup.py", "requi
 type sourceDeps struct {
 	PackageRoot string            `json:"package_root"`
 	Files       map[string]string `json:"files"`
+	// Imports records the checkouts of other components installed editable
+	// into the same runtime (manifest python_imports), so drift in their
+	// dependencies is caught too.
+	Imports []sourceDeps `json:"imports,omitempty"`
+}
+
+func recordFor(packageRoot string) (sourceDeps, error) {
+	files, err := hashDependencyFiles(packageRoot)
+	return sourceDeps{PackageRoot: packageRoot, Files: files}, err
 }
 
 func hashDependencyFiles(packageRoot string) (map[string]string, error) {
@@ -55,14 +64,22 @@ func hashDependencyFiles(packageRoot string) (map[string]string, error) {
 }
 
 // RecordSourceDependencies writes the marker for an editable install of the
-// project at packageRoot into runtimeRoot. Call it after a successful
-// install.
-func RecordSourceDependencies(runtimeRoot, packageRoot string) error {
-	files, err := hashDependencyFiles(packageRoot)
+// project at packageRoot into runtimeRoot, along with the package roots of
+// any other checkouts installed editable into it (importRoots). Call it
+// after a successful install.
+func RecordSourceDependencies(runtimeRoot, packageRoot string, importRoots ...string) error {
+	record, err := recordFor(packageRoot)
 	if err != nil {
 		return err
 	}
-	data, err := json.MarshalIndent(sourceDeps{PackageRoot: packageRoot, Files: files}, "", "  ")
+	for _, root := range importRoots {
+		imported, err := recordFor(root)
+		if err != nil {
+			return err
+		}
+		record.Imports = append(record.Imports, imported)
+	}
+	data, err := json.MarshalIndent(record, "", "  ")
 	if err != nil {
 		return err
 	}
@@ -124,6 +141,15 @@ func CheckSourceDependencies(runtimeRoot string) error {
 	if err := json.Unmarshal(data, &recorded); err != nil {
 		return fmt.Errorf("%s is unreadable (%v); run `howl doctor --fix` to resync the runtime", SourceDepsMarker, err)
 	}
+	for _, record := range append([]sourceDeps{recorded}, recorded.Imports...) {
+		if err := checkRecord(record); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func checkRecord(recorded sourceDeps) error {
 	current, err := hashDependencyFiles(recorded.PackageRoot)
 	if err != nil {
 		return err
@@ -146,8 +172,19 @@ func CheckSourceDependencies(runtimeRoot string) error {
 // operator re-supplying its location. packageDir is the manifest's package
 // directory within the checkout; ok is false when the runtime has no
 // editable install of such a checkout on disk.
+//
+// The marker names the component's own package root, so it is trusted first:
+// a runtime that also holds other components' editable checkouts (manifest
+// python_imports) must not be reinstalled from one of those.
 func InstalledCheckout(runtimeRoot, packageDir string) (string, bool) {
-	for _, packageRoot := range editableCheckouts(VenvDir(runtimeRoot)) {
+	candidates := editableCheckouts(VenvDir(runtimeRoot))
+	if data, err := os.ReadFile(filepath.Join(runtimeRoot, SourceDepsMarker)); err == nil {
+		var recorded sourceDeps
+		if json.Unmarshal(data, &recorded) == nil && recorded.PackageRoot != "" {
+			candidates = []string{recorded.PackageRoot}
+		}
+	}
+	for _, packageRoot := range candidates {
 		root := filepath.Clean(packageRoot)
 		if rel := filepath.Clean(packageDir); rel != "." && rel != "" {
 			if filepath.Base(root) != filepath.Base(rel) || !strings.HasSuffix(root, string(filepath.Separator)+rel) {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/howlcipher/howl/internal/component"
@@ -181,5 +182,37 @@ func TestCheckFailsWhenEditableRuntimeDependenciesDrifted(t *testing.T) {
 	}
 	if err := checker.Check(context.Background(), c, paths); err == nil {
 		t.Fatal("expected drift to fail the health check")
+	}
+}
+
+// moduleExecer fails `python -c "import <module>"` for one module.
+type moduleExecer struct{ missing string }
+
+func (f moduleExecer) Exec(ctx context.Context, path string, args []string) ([]byte, error) {
+	if len(args) == 2 && args[1] == "import "+f.missing {
+		return nil, fmt.Errorf("ModuleNotFoundError: No module named %q", f.missing)
+	}
+	return []byte("ok\n"), nil
+}
+
+func TestCheckFailsWhenTheRuntimeCannotImportAnImportedComponent(t *testing.T) {
+	// HowlWriter's `--version` passed while its runtime had no HowlPlane, so
+	// every model step failed and `howl doctor` still reported HEALTHY.
+	paths := testPaths(t)
+	activateFakeBinary(t, paths, "howlwriter", true)
+	c := manifest.Component{
+		Name:        "howlwriter",
+		HealthCheck: manifest.HealthCheck{Type: manifest.HealthExecVersion},
+		Imports: []manifest.Component{{
+			Name:        "howlplane-engine",
+			HealthCheck: manifest.HealthCheck{Type: manifest.HealthPythonImport, Module: "howlplane.control_plane"},
+		}},
+	}
+	if err := (Checker{Exec: moduleExecer{missing: "something.else"}}).Check(context.Background(), c, paths); err != nil {
+		t.Fatalf("importable: %v", err)
+	}
+	err := (Checker{Exec: moduleExecer{missing: "howlplane.control_plane"}}).Check(context.Background(), c, paths)
+	if err == nil || !strings.Contains(err.Error(), "cannot import howlplane.control_plane") || !strings.Contains(err.Error(), "howl doctor --fix") {
+		t.Fatalf("expected an actionable import failure, got %v", err)
 	}
 }

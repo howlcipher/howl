@@ -185,6 +185,41 @@ type Component struct {
 	HealthCheck          HealthCheck          `toml:"health_check" json:"health_check"`
 	DependsOn            []Dependency         `toml:"depends_on,omitempty" json:"depends_on,omitempty"`
 	ExternalDependencies []ExternalDependency `toml:"external_dependencies,omitempty" json:"external_dependencies,omitempty"`
+	// PythonImports names components whose Python package this component
+	// imports in its own process (HowlWriter runs HowlPlane's role
+	// dispatcher in-process). Each one's package, and so its dependencies,
+	// is installed into this component's runtime too, as that component is
+	// installed under the active profile. Each must also be a depends_on.
+	PythonImports []string `toml:"python_imports,omitempty" json:"python_imports,omitempty"`
+	// Imports holds the components PythonImports names, as Manifest.Resolve
+	// resolved them for one profile. It is never read from the manifest.
+	Imports []Component `toml:"-" json:"-"`
+}
+
+// Resolve returns c as installed under profile, with the components it
+// imports (PythonImports) resolved for the same profile. Install planning,
+// rollback and doctor's repair all install a component through this, so a
+// runtime always receives the packages it imports.
+func (m *Manifest) Resolve(c Component, profile string) Component {
+	c = c.ForProfile(profile)
+	c.Imports = nil
+	for _, name := range c.PythonImports {
+		if imported, ok := m.GetComponent(name); ok {
+			c.Imports = append(c.Imports, imported.ForProfile(profile))
+		}
+	}
+	return c
+}
+
+// IsPython reports whether inst installs a Python package into a venv.
+func (inst Install) IsPython() bool {
+	switch inst.Method {
+	case MethodGithubReleaseWheel:
+		return inst.GithubReleaseWheel != nil
+	case MethodSourceBuild:
+		return inst.SourceBuild != nil && inst.SourceBuild.Language == "python"
+	}
+	return false
 }
 
 var validPlatforms = map[string]bool{"linux": true, "darwin": true, "windows": true}
@@ -301,6 +336,36 @@ func validateComponent(c Component, all map[string]Component) error {
 		}
 	}
 
+	return validatePythonImports(c, all)
+}
+
+func validatePythonImports(c Component, all map[string]Component) error {
+	for _, name := range c.PythonImports {
+		target, ok := all[name]
+		if !ok {
+			return fmt.Errorf("manifest validation error: component %q imports unknown component %q", c.Name, name)
+		}
+		if name == c.Name {
+			return fmt.Errorf("manifest validation error: component %q cannot import itself", c.Name)
+		}
+		dependsOn := false
+		for _, dep := range c.DependsOn {
+			dependsOn = dependsOn || dep.Component == name
+		}
+		if !dependsOn {
+			return fmt.Errorf("manifest validation error: component %q imports %q but does not depend on it", c.Name, name)
+		}
+		// Under every profile both must be Python packages installed the same
+		// way: otherwise there is no venv to install into, no package to
+		// install, or an editable checkout in a runtime that tracks none.
+		for _, profile := range []string{"standard", "developer"} {
+			own, imported := c.ForProfile(profile).Install, target.ForProfile(profile).Install
+			if !own.IsPython() || !imported.IsPython() || own.Method != imported.Method {
+				return fmt.Errorf("manifest validation error: component %q imports %q, so both must install as Python "+
+					"packages by the same method (%s profile)", c.Name, name, profile)
+			}
+		}
+	}
 	return nil
 }
 
