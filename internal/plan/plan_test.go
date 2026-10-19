@@ -402,6 +402,7 @@ func TestBuildAgainstRealEmbeddedManifest(t *testing.T) {
 			t.Errorf("standard profile: expected %q internal=%v (exposed on PATH=%v)", cp.Name, cp.Component.Internal, wantExposedOnBin[cp.Name])
 		}
 	}
+	requireEngineImport(t, standard, manifest.MethodGithubReleaseWheel)
 
 	developer, err := Build(m, st, BuildOptions{Profile: "developer"})
 	if err != nil {
@@ -412,6 +413,24 @@ func TestBuildAgainstRealEmbeddedManifest(t *testing.T) {
 			t.Errorf("developer profile: expected %q to install via source_build, got %q", cp.Name, cp.Component.Install.Method)
 		}
 	}
+	requireEngineImport(t, developer, manifest.MethodSourceBuild)
+}
+
+// requireEngineImport checks that HowlWriter's plan installs HowlPlane's
+// engine into its runtime the way that profile installs the engine itself.
+func requireEngineImport(t *testing.T, p *Plan, method manifest.InstallMethod) {
+	t.Helper()
+	for _, cp := range p.Components {
+		if cp.Name != "howlwriter" {
+			continue
+		}
+		imports := cp.Component.Imports
+		if len(imports) != 1 || imports[0].Name != "howlplane-engine" || imports[0].Install.Method != method {
+			t.Errorf("%s plan: expected howlwriter to import howlplane-engine via %s, got %+v", p.Profile, method, imports)
+		}
+		return
+	}
+	t.Errorf("%s plan has no howlwriter", p.Profile)
 }
 
 func TestRenderProducesReadablePlan(t *testing.T) {

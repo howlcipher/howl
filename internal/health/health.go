@@ -45,9 +45,29 @@ func (h Checker) Check(ctx context.Context, c manifest.Component, paths platform
 	if err != nil {
 		return err
 	}
+	if err := h.checkImports(ctx, paths, c); err != nil {
+		return err
+	}
 	// `--version` passes even when an editable runtime lacks a dependency
 	// its checkout added later (DOG-031); that drift is checked separately.
 	return pyruntime.CheckSourceDependencies(paths.RuntimeDir(c.Name))
+}
+
+// checkImports imports, with c's own interpreter, the module of each
+// component c imports in-process. `--version` never loads them, so without
+// this a runtime missing HowlPlane passed while every model step failed.
+func (h Checker) checkImports(ctx context.Context, paths platform.Paths, c manifest.Component) error {
+	for _, imported := range c.Imports {
+		if imported.HealthCheck.Type != manifest.HealthPythonImport {
+			continue
+		}
+		venvPython := pyruntime.VenvPython(pyruntime.VenvDir(paths.RuntimeDir(c.Name)))
+		if _, err := h.Exec.Exec(ctx, venvPython, []string{"-c", "import " + imported.HealthCheck.Module}); err != nil {
+			return fmt.Errorf("%s's runtime cannot import %s (from %s), which it uses in-process; "+
+				"run `howl doctor --fix` to reinstall it: %w", c.Name, imported.HealthCheck.Module, imported.Name, err)
+		}
+	}
+	return nil
 }
 
 func checkBinaryExists(paths platform.Paths, name string) error {

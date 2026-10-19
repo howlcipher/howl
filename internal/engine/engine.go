@@ -199,8 +199,12 @@ func (e *Engine) Rollback(ctx context.Context, m *manifest.Manifest, st *state.S
 			continue
 		}
 		c.Version = target.Version
-		if st.Profile == "developer" && c.DeveloperInstall != nil {
-			c.Install = *c.DeveloperInstall
+		c = m.Resolve(c, st.Profile)
+		// Restore imported packages at their own rollback versions, too.
+		for j := range c.Imports {
+			if previous, ok := targets[c.Imports[j].Name]; ok {
+				c.Imports[j].Version = previous.Version
+			}
 		}
 
 		cr := ComponentResult{Name: name, Action: "rollback"}

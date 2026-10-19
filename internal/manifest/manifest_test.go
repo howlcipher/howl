@@ -3,6 +3,7 @@ package manifest
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -513,5 +514,104 @@ func TestParseVersionRejectsGarbage(t *testing.T) {
 		if _, err := ParseVersion(v); err == nil {
 			t.Errorf("expected ParseVersion(%q) to fail", v)
 		}
+	}
+}
+
+// pythonComponentTOML is a component installed as a release wheel, or from
+// its checkout under the developer profile, with extra keys before its tables.
+func pythonComponentTOML(name, extra string) string {
+	return `
+[[components]]
+name = "` + name + `"
+role = "role"
+version = "1.0.0"
+platforms = ["linux"]
+archs = ["amd64"]
+` + extra + `
+  [components.install]
+  method = "github_release_python_wheel"
+    [components.install.github_release_python_wheel]
+    repository = "x/` + name + `"
+    artifact_pattern = "` + name + `-{pep440_version}-py3-none-any.whl"
+    checksum_file = "SHA256SUMS"
+    console_script = "` + name + `"
+    min_python = "3.11.0"
+  [components.developer_install]
+  method = "source_build"
+    [components.developer_install.source_build]
+    checkout_name = "` + name + `"
+    language = "python"
+      [components.developer_install.source_build.python]
+      package_dir = "."
+      console_script = "` + name + `"
+      min_python = "3.11.0"
+  [components.health_check]
+  type = "python_import"
+  module = "` + name + `"
+`
+}
+
+func TestPythonImportsResolveForTheActiveProfile(t *testing.T) {
+	m, err := LoadBytes([]byte(baseManifest(pythonComponentTOML("engine", "") + pythonComponentTOML("writer", `
+python_imports = ["engine"]
+[[components.depends_on]]
+component = "engine"
+`))))
+	if err != nil {
+		t.Fatalf("valid python_imports rejected: %v", err)
+	}
+	writer, _ := m.GetComponent("writer")
+	for profile, want := range map[string]InstallMethod{"standard": MethodGithubReleaseWheel, "developer": MethodSourceBuild} {
+		resolved := m.Resolve(writer, profile)
+		if resolved.Install.Method != want {
+			t.Errorf("%s: writer resolved to %s, want %s", profile, resolved.Install.Method, want)
+		}
+		if len(resolved.Imports) != 1 || resolved.Imports[0].Name != "engine" || resolved.Imports[0].Install.Method != want {
+			t.Errorf("%s: imports resolved to %+v, want engine via %s", profile, resolved.Imports, want)
+		}
+	}
+	engine, _ := m.GetComponent("engine")
+	if got := m.Resolve(engine, "standard").Imports; len(got) != 0 {
+		t.Errorf("a component without python_imports resolved imports %+v", got)
+	}
+}
+
+func TestInvalidPythonImports(t *testing.T) {
+	dependsOnEngine := "[[components.depends_on]]\ncomponent = \"engine\"\n"
+	cases := map[string]struct{ components, want string }{
+		"unknown component": {pythonComponentTOML("writer", `python_imports = ["missing"]`), "imports unknown component"},
+		"itself":            {pythonComponentTOML("writer", `python_imports = ["writer"]`), "cannot import itself"},
+		"without depends_on": {pythonComponentTOML("engine", "") +
+			pythonComponentTOML("writer", `python_imports = ["engine"]`), "does not depend on it"},
+		"a component that is not a Python package": {validComponentTOML("engine", "") +
+			pythonComponentTOML("writer", "python_imports = [\"engine\"]\n"+dependsOnEngine), "same method (standard profile)"},
+		"a different install method": {pythonComponentTOML("engine", "") + `
+[[components]]
+name = "writer"
+role = "role"
+version = "1.0.0"
+platforms = ["linux"]
+archs = ["amd64"]
+python_imports = ["engine"]
+` + dependsOnEngine + `
+  [components.install]
+  method = "source_build"
+    [components.install.source_build]
+    checkout_name = "writer"
+    language = "python"
+      [components.install.source_build.python]
+      package_dir = "."
+      console_script = "writer"
+  [components.health_check]
+  type = "binary_exists"
+`, "same method (standard profile)"},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			_, err := LoadBytes([]byte(baseManifest(tc.components)))
+			if err == nil || !strings.Contains(err.Error(), tc.want) {
+				t.Fatalf("expected a rejection containing %q, got %v", tc.want, err)
+			}
+		})
 	}
 }

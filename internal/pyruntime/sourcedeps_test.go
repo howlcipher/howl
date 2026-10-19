@@ -112,3 +112,58 @@ func TestInstalledCheckoutRecoversTheSourceOfAnEditableRuntime(t *testing.T) {
 		t.Fatal("a non-editable install records no checkout to reuse")
 	}
 }
+
+// addEditable records one more editable install of checkout in runtimeRoot's venv.
+func addEditable(t *testing.T, runtimeRoot, dist, checkout string) {
+	t.Helper()
+	site := filepath.Join(VenvDir(runtimeRoot), "lib", "python3.14", "site-packages")
+	if runtime.GOOS == "windows" {
+		site = filepath.Join(VenvDir(runtimeRoot), "Lib", "site-packages")
+	}
+	distInfo := filepath.Join(site, dist+".dist-info")
+	if err := os.MkdirAll(distInfo, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	record := `{"dir_info": {"editable": true}, "url": "file://` + filepath.ToSlash(checkout) + `"}`
+	writeFile(t, filepath.Join(distInfo, "direct_url.json"), record)
+}
+
+func TestSourceDependenciesTrackImportedCheckouts(t *testing.T) {
+	own, imported := t.TempDir(), t.TempDir()
+	writeFile(t, filepath.Join(own, "pyproject.toml"), "[project]\n")
+	writeFile(t, filepath.Join(imported, "pyproject.toml"), "[project]\ndependencies = [\"PyYAML\"]\n")
+	runtimeRoot := fakeEditableRuntime(t, own, true)
+	addEditable(t, runtimeRoot, "howlplane-0.1.0", imported)
+	if err := RecordSourceDependencies(runtimeRoot, own, imported); err != nil {
+		t.Fatal(err)
+	}
+	if err := CheckSourceDependencies(runtimeRoot); err != nil {
+		t.Fatalf("freshly recorded install: %v", err)
+	}
+
+	writeFile(t, filepath.Join(imported, "pyproject.toml"), "[project]\ndependencies = [\"PyYAML\", \"jsonschema\"]\n")
+	err := CheckSourceDependencies(runtimeRoot)
+	if err == nil || !strings.Contains(err.Error(), imported) || !strings.Contains(err.Error(), "howl doctor --fix") {
+		t.Fatalf("expected drift naming the imported checkout, got %v", err)
+	}
+}
+
+func TestInstalledCheckoutIgnoresImportedCheckoutsThatSortFirst(t *testing.T) {
+	// A runtime that also holds an imported component's editable checkout
+	// must be repaired from its own; "howlplane" sorts before "howlwriter".
+	base := t.TempDir()
+	own, imported := filepath.Join(base, "howlwriter"), filepath.Join(base, "howlplane")
+	for _, dir := range []string{own, imported} {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	runtimeRoot := fakeEditableRuntime(t, own, true)
+	addEditable(t, runtimeRoot, "howlplane-0.1.0", imported)
+	if err := RecordSourceDependencies(runtimeRoot, own, imported); err != nil {
+		t.Fatal(err)
+	}
+	if got, ok := InstalledCheckout(runtimeRoot, "."); !ok || got != filepath.Clean(own) {
+		t.Fatalf("got %q, %v; want the runtime's own checkout %q", got, ok, own)
+	}
+}

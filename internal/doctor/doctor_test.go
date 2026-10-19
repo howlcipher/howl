@@ -34,11 +34,13 @@ func (f fakeHealth) Check(ctx context.Context, c manifest.Component, paths platf
 type fakeInstaller struct {
 	calls   []string
 	methods []manifest.InstallMethod
+	imports [][]manifest.Component
 }
 
 func (f *fakeInstaller) Install(ctx context.Context, c manifest.Component, paths platform.Paths) error {
 	f.calls = append(f.calls, c.Name)
 	f.methods = append(f.methods, c.Install.Method)
+	f.imports = append(f.imports, c.Imports)
 	return nil
 }
 
@@ -427,6 +429,46 @@ func TestDoctorRepairsADeveloperInstallFromItsCheckout(t *testing.T) {
 
 			if len(installer.methods) != 1 || installer.methods[0] != want {
 				t.Fatalf("profile %s: expected reinstall via %s, got %v", profile, want, installer.methods)
+			}
+		})
+	}
+}
+
+func TestDoctorRepairsHowlWriterTogetherWithTheHowlPlaneItImports(t *testing.T) {
+	// HowlWriter's runtime lacked HowlPlane; the repair must reinstall it
+	// with the engine package, as the profile installs the engine itself.
+	m, _, err := manifest.LoadDefault(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	for profile, want := range map[string]manifest.InstallMethod{
+		"developer": manifest.MethodSourceBuild,
+		"standard":  manifest.MethodGithubReleaseWheel,
+	} {
+		t.Run(profile, func(t *testing.T) {
+			st := state.New("stable")
+			st.Profile = profile
+			for _, c := range m.Components {
+				st.Components[c.Name] = state.ComponentState{Version: c.Version}
+			}
+			paths := testPaths(t)
+			installer := &fakeInstaller{}
+			Run(context.Background(), Options{
+				Manifest:  m,
+				State:     st,
+				StatePath: filepath.Join(paths.StateDir(), "state.json"),
+				Paths:     paths,
+				Detector:  fakeDetector{found: map[string]string{"python3": "3.14.0"}},
+				Health:    fakeHealth{failOn: map[string]bool{"howlwriter": true}},
+				Installer: installer,
+				Fix:       true,
+			})
+			if len(installer.calls) != 1 || installer.calls[0] != "howlwriter" {
+				t.Fatalf("expected only howlwriter to be repaired, got %v", installer.calls)
+			}
+			imports := installer.imports[0]
+			if len(imports) != 1 || imports[0].Name != "howlplane-engine" || imports[0].Install.Method != want {
+				t.Fatalf("expected the repair to import howlplane-engine via %s, got %+v", want, imports)
 			}
 		})
 	}

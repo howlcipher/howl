@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-10-19
+
+HowlWriter's runtime now receives HowlPlane. HowlWriter runs HowlPlane's role
+dispatcher in its own process, but Howl installed only the `howlplane` binary,
+so the HowlWriter launcher found no HowlPlane (or, with `HOWLPLANE_ROOT` set,
+lacked jsonschema and HowlPlane's other dependencies) and every model step
+failed while `howl doctor` reported HEALTHY. A component can now declare
+`python_imports`; each named component's package is installed into its runtime
+the way that component installs itself (a verified release wheel, or an
+editable checkout under the developer profile), its dependency declarations are
+tracked for drift, the health check imports it, and rollback restores it at its
+own version. The default manifest declares `python_imports =
+["howlplane-engine"]` for HowlWriter.
+
+A developer runtime's repair now reinstalls from the checkout its dependency
+marker records. With a second editable checkout in the runtime, the previous
+lookup took the first in sorted order, which would have reinstalled HowlWriter
+from HowlPlane's checkout.
+
 ## 2026-10-08
 
 The first-run example quotes its verification command: `--verify python3 -m
