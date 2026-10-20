@@ -56,8 +56,9 @@ See the [Ecosystem page](https://howlcipher.github.io/howl/ecosystem.html) for
 conceptual relationships and maturity. HowlDream exports advisory run artifacts.
 A HowlPlane adapter (`HowlDreamRunner`) and a HowlCreate adapter
 (`candidate_ingestion.develop_candidate`) are merged in their respective repos.
-Each consumer's CI installs the real producer at a pinned commit: HowlDream's CI
-installs HowlCreate, and HowlPlane's CI installs HowlDream. A HowlRelay adapter
+HowlDream's CI installs HowlCreate at a pinned commit; HowlPlane's CI installs
+HowlDream at a pinned commit only when its live tests are enabled
+(`HOWLPLANE_RUN_LIVE_TESTS`). A HowlRelay adapter
 (`HowlDreamCollector`) reads exploration evidence off disk with no package
 dependency on HowlDream; its tests use hand-written envelopes, and HowlRelay's
 CI does not install HowlDream, so that edge is checked only against fixtures.
