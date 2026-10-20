@@ -63,7 +63,20 @@ var (
 	flagRe      = regexp.MustCompile(`^--?[A-Za-z0-9][A-Za-z0-9_-]*$`)
 	exitCodeRe  = regexp.MustCompile(`^[0-9]+$`)
 	envRe       = regexp.MustCompile(`^[A-Z][A-Z0-9_]*$`)
+	// versionRe accepts semver ("0.2.0", "0.2.0-rc1") and PEP 440
+	// ("0.2.0b1", "0.2.0.dev3") release strings; only the leading
+	// major.minor.patch is compared.
+	versionRe = regexp.MustCompile(`^v?([0-9]+\.[0-9]+\.[0-9]+)([-+.a-z][0-9A-Za-z.+-]*)?$`)
 )
+
+// releaseCore returns the major.minor.patch a version string starts with.
+func releaseCore(v string) (string, bool) {
+	m := versionRe.FindStringSubmatch(strings.TrimSpace(v))
+	if m == nil {
+		return "", false
+	}
+	return m[1], true
+}
 
 // Parse decodes and validates a descriptor.
 func Parse(data []byte) (*Descriptor, error) {
@@ -88,8 +101,8 @@ func (d *Descriptor) Validate() error {
 	if !componentRe.MatchString(d.Component) {
 		add("component %q is not a lowercase component name", d.Component)
 	}
-	if _, err := manifest.ParseVersion(d.Version); err != nil {
-		add("version: %v", err)
+	if _, ok := releaseCore(d.Version); !ok {
+		add("version %q is not a major.minor.patch release string", d.Version)
 	}
 	if d.Commands == nil {
 		add("commands is missing")
@@ -140,8 +153,8 @@ func (d *Descriptor) Validate() error {
 			}
 		}
 		if c.MinVersion != "" {
-			if _, err := manifest.ParseVersion(c.MinVersion); err != nil {
-				add("consumes %s: min_version: %v", c.Component, err)
+			if _, ok := releaseCore(c.MinVersion); !ok {
+				add("consumes %s: min_version %q is not a major.minor.patch release string", c.Component, c.MinVersion)
 			}
 		}
 	}
@@ -220,7 +233,9 @@ func check(use Consume, producer *Descriptor, unavailable map[string]string, nam
 
 	var problems []string
 	if use.MinVersion != "" {
-		if c, err := manifest.CompareVersions(producer.Version, use.MinVersion); err == nil && c < 0 {
+		have, _ := releaseCore(producer.Version)
+		want, _ := releaseCore(use.MinVersion)
+		if c, err := manifest.CompareVersions(have, want); err == nil && c < 0 {
 			problems = append(problems, fmt.Sprintf("needs %s >= %s, found %s", name, use.MinVersion, producer.Version))
 		}
 	}

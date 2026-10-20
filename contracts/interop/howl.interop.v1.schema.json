@@ -8,7 +8,7 @@
   "properties": {
     "schema": {"const": "howl.interop/v1"},
     "component": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
-    "version": {"type": "string", "pattern": "^v?[0-9]+\\.[0-9]+\\.[0-9]+([-+].*)?$"},
+    "version": {"type": "string", "pattern": "^v?[0-9]+\\.[0-9]+\\.[0-9]+([-+.a-z][0-9A-Za-z.+-]*)?$", "description": "semver or PEP 440 release string; only major.minor.patch is compared"},
     "commands": {
       "type": "array",
       "items": {"$ref": "#/$defs/command"}

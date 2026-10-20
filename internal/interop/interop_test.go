@@ -53,6 +53,23 @@ func TestParseAcceptsAValidDescriptor(t *testing.T) {
 	}
 }
 
+func TestParseAcceptsSemverAndPEP440Versions(t *testing.T) {
+	for _, v := range []string{"0.2.0", "v1.0.0", "0.2.0-rc1", "0.2.0b1", "0.2.0.dev3", "0.0.0-dev", "1.2.3+build.7"} {
+		doc := `{"schema":"howl.interop/v1","component":"x","version":"` + v + `","commands":[],"exit_codes":{"0":"ok"}}`
+		if _, err := Parse([]byte(doc)); err != nil {
+			t.Errorf("version %q rejected: %v", v, err)
+		}
+	}
+	producer := mustParse(t, strings.Replace(frameDescriptor, `"0.2.0"`, `"0.2.0b1"`, 1))
+	f := Resolve(map[string]*Descriptor{"howlframe": producer, "howlchangeops": consumer(
+		Consume{Component: "howlframe", Command: []string{"run"}, MinVersion: "0.2.0"},
+		Consume{Component: "howlframe", Command: []string{"run"}, MinVersion: "0.2.1"},
+	)}, nil)
+	if f[0].Severity != SeverityOK || f[1].Severity != SeverityFail {
+		t.Fatalf("pre-release comparison: %+v", f)
+	}
+}
+
 func TestParseRejectsMalformedDescriptors(t *testing.T) {
 	cases := map[string]string{
 		"wrong schema":       `{"schema":"howl.interop/v2","component":"x","version":"1.0.0","commands":[],"exit_codes":{"0":"ok"}}`,
