@@ -11,7 +11,7 @@ import (
 )
 
 // Locator finds a component's executable in the documented discovery
-// order: HOWL<NAME>_BIN, the Howl-managed release, PATH, ~/.local/bin.
+// order: HOWL<NAME>_BIN, PATH, the Howl-managed release, ~/.local/bin.
 type Locator struct {
 	Paths    platform.Paths
 	Getenv   func(string) string
@@ -41,13 +41,13 @@ func (l Locator) Locate(name string) (string, bool) {
 			return p, true
 		}
 	}
-	if p, ok := component.CurrentBinaryPath(l.Paths, name); ok && isExecutable(p) {
-		return p, true
-	}
 	if l.LookPath != nil {
 		if p, err := l.LookPath(platform.ExeName(name)); err == nil {
 			return p, true
 		}
+	}
+	if p, ok := component.CurrentBinaryPath(l.Paths, name); ok && isExecutable(p) {
+		return p, true
 	}
 	if l.Home != "" {
 		p := filepath.Join(l.Home, ".local", "bin", platform.ExeName(name))

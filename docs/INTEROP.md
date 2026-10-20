@@ -148,12 +148,14 @@ shape bumps `vN`; adding an optional field does not.
 A consumer locates a producer's executable in this order and stops at the
 first hit:
 
-1. `HOWL<NAME>_BIN` (for example `HOWLCHANGEOPS_BIN`, `HOWLFRAME_BIN`);
-2. the Howl-managed release: `$XDG_DATA_HOME/howl/components/<name>/current`
-   is a symlink to the active `releases/<version>` directory (on platforms
-   without symlinks, a file holding `<version>`), and the executable inside
-   it is named `<name>`;
-3. `PATH`;
+1. `HOWL<NAME>_BIN` (for example `HOWLCHANGEOPS_BIN`, `HOWLFRAME_BIN`); an
+   explicit override that is not an executable is an error, not a reason to
+   look elsewhere;
+2. `PATH`, which is the user's own choice of executable;
+3. the Howl-managed release, for callers whose `PATH` lacks it (services,
+   cron): `$XDG_DATA_HOME/howl/components/<name>/current` is a symlink to the
+   active `releases/<version>` directory (on platforms without symlinks, a file
+   holding `<version>`), and the executable inside it is named `<name>`;
 4. `~/.local/bin/<name>`.
 
 Producers must not depend on the caller's working directory to find their

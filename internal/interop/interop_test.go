@@ -189,16 +189,16 @@ func TestLocatorFollowsTheDocumentedOrder(t *testing.T) {
 	if got, _ := l.Locate("howlframe"); got != localBin {
 		t.Fatalf("~/.local/bin: got %q", got)
 	}
-	pathHit = "/usr/bin/howlframe"
-	if got, _ := l.Locate("howlframe"); got != pathHit {
-		t.Fatalf("PATH: got %q", got)
-	}
 	release := write(filepath.Join(paths.ComponentReleaseDir("howlframe", "0.1.0"), platform.ExeName("howlframe")))
 	if err := os.WriteFile(paths.ComponentCurrentLink("howlframe"), []byte("0.1.0"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	if got, _ := l.Locate("howlframe"); got != release {
 		t.Fatalf("managed release: got %q", got)
+	}
+	pathHit = "/usr/bin/howlframe"
+	if got, _ := l.Locate("howlframe"); got != pathHit {
+		t.Fatalf("PATH should win over the managed release: got %q", got)
 	}
 	env["HOWLFRAME_BIN"] = "/opt/frame"
 	if got, _ := l.Locate("howlframe"); got != "/opt/frame" {
