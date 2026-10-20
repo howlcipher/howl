@@ -1,0 +1,70 @@
+name: Ecosystem interop
+
+# Builds or installs each component from its main branch and resolves every
+# command one component runs of another (docs/INTEROP.md). A missing command,
+# flag, or schema fails; a component that does not yet publish
+# `interop --json` only warns, so this can run before every repository has
+# adopted the contract. Pass `strict` to fail on warnings too.
+
+on:
+  schedule:
+    - cron: '40 4 * * *'
+  workflow_dispatch:
+    inputs:
+      strict:
+        description: Fail on warnings (missing descriptors) as well as failures
+        type: boolean
+        default: false
+  pull_request:
+    paths:
+      - 'internal/interop/**'
+      - 'tools/interop-check/**'
+      - 'contracts/interop/**'
+      - 'docs/INTEROP.md'
+      - '.github/workflows/interop.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  interop:
+    runs-on: ubuntu-latest
+    env:
+      HOWL_FORBID_LOCAL_INFERENCE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build the Go components
+        run: |
+          mkdir -p "$RUNNER_TEMP/bin"
+          for repo in howlframe howlchangeops howlInstinct; do
+            git clone --depth 1 "https://github.com/howlcipher/$repo.git" "$RUNNER_TEMP/src/$repo"
+          done
+          (cd "$RUNNER_TEMP/src/howlframe" && go build -o "$RUNNER_TEMP/bin/howlframe" howlframe.go)
+          (cd "$RUNNER_TEMP/src/howlchangeops/adapter" && go build -o "$RUNNER_TEMP/bin/howlchangeops" .)
+          (cd "$RUNNER_TEMP/src/howlInstinct" && go build -o "$RUNNER_TEMP/bin/howlinstinct" ./cmd/howlinstinct)
+
+      # Each Python component gets its own virtualenv, as `howl install` gives it.
+      - name: Install the Python components
+        run: |
+          for repo in howlplane howlwriter howldream howlcreate howlproof; do
+            python -m venv "$RUNNER_TEMP/venv/$repo"
+            "$RUNNER_TEMP/venv/$repo/bin/pip" install --quiet "git+https://github.com/howlcipher/$repo.git@main"
+            ln -s "$RUNNER_TEMP/venv/$repo/bin/$repo" "$RUNNER_TEMP/bin/$repo"
+          done
+
+      - name: Resolve every edge
+        run: |
+          args=()
+          for c in howlframe howlchangeops howlinstinct howlplane howlwriter howldream howlcreate howlproof; do
+            args+=(--bin "$c=$RUNNER_TEMP/bin/$c")
+          done
+          if [ "${{ inputs.strict }}" = "true" ]; then args+=(--strict); fi
+          go run ./tools/interop-check "${args[@]}" \
+            --components howlframe,howlchangeops,howlplane,howlwriter,howldream,howlcreate,howlproof,howlinstinct

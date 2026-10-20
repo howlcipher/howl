@@ -188,4 +188,6 @@ go run ./tools/interop-check --json     # machine-readable
 go run ./tools/interop-check --bin howlplane=/path/to/howlplane
 ```
 
-It exits 1 when any edge fails.
+It exits 1 when any edge fails. The `Ecosystem interop` workflow
+(`.github/workflows/interop.yml`) runs it nightly against every component's
+`main`; run it with `strict` once every component publishes a descriptor.
