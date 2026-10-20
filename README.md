@@ -65,6 +65,9 @@ In addition to the core runtime components managed by the `howl` CLI installer, 
 - [**HowlBoard**](https://github.com/howlcipher/howlboard) ([Documentation Site](https://howlcipher.github.io/howlboard/)) — Flagship evaluation surface and deterministic task state machine telemetry console.
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#broader-ecosystem-repositories-independent--non-installer-profile) for how these projects interoperate.
+Components call each other through command lines and JSON files under the
+contract in [`docs/INTEROP.md`](docs/INTEROP.md); `howl doctor` checks those
+edges between installed components.
 
 The dedicated [Ecosystem page](https://howlcipher.github.io/howl/ecosystem.html)
 explains component maturity, newcomer paths, experimental companions, and the

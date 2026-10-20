@@ -1,17 +1,22 @@
 // Package doctor implements installer-owned diagnostics and repair:
 // environment support, required/optional dependency availability, managed
 // runtime health, installer state integrity, installation lock staleness,
-// and per-installed-component health checks. It never diagnoses or
+// per-installed-component health checks, and whether installed components
+// still offer the commands they run of each other (docs/INTEROP.md). It never diagnoses or
 // repairs anything outside what Howl itself owns.
 package doctor
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
+	"github.com/howlcipher/howl/internal/component"
 	"github.com/howlcipher/howl/internal/engine"
+	"github.com/howlcipher/howl/internal/interop"
 	"github.com/howlcipher/howl/internal/manifest"
 	"github.com/howlcipher/howl/internal/plan"
 	"github.com/howlcipher/howl/internal/platform"
@@ -67,6 +72,7 @@ type Options struct {
 	Detector  plan.Detector
 	Health    engine.HealthChecker
 	Installer engine.Installer // only required when Fix is set
+	Interop   interop.Runner   // nil skips the interop checks
 	Now       func() time.Time
 }
 
@@ -87,6 +93,7 @@ func Run(ctx context.Context, opts Options) *DiagnosticReport {
 	report.Checks = append(report.Checks, checkLock(opts, now)...)
 	report.Checks = append(report.Checks, checkInterruptedOperation(opts, now)...)
 	report.Checks = append(report.Checks, checkComponentHealth(ctx, opts)...)
+	report.Checks = append(report.Checks, checkInterop(ctx, opts)...)
 
 	report.Summary = computeSummary(report.Checks, opts.Strict)
 	return report
@@ -360,6 +367,71 @@ func checkComponentHealth(ctx context.Context, opts Options) []CheckResult {
 				cr.Fixed = true
 				cr.Message = "was unhealthy, reinstalled and now passes health check"
 			}
+		}
+		checks = append(checks, cr)
+	}
+	return checks
+}
+
+// checkInterop reads each installed component's interop descriptor and
+// checks every command one component runs of another against what the
+// installed producer actually offers. It only reads descriptors; it never
+// runs the described commands.
+func checkInterop(ctx context.Context, opts Options) []CheckResult {
+	if opts.Manifest == nil || opts.State == nil || opts.Interop == nil {
+		return nil
+	}
+	var checks []CheckResult
+	descs := map[string]*interop.Descriptor{"howl": interop.Self()}
+	unavailable := map[string]string{}
+	for _, c := range opts.Manifest.Components {
+		if _, installed := opts.State.Components[c.Name]; !installed || c.Internal {
+			continue
+		}
+		bin, ok := component.CurrentBinaryPath(opts.Paths, c.Name)
+		if !ok {
+			continue
+		}
+		cr := CheckResult{Category: "Interop", Name: c.Name + " descriptor"}
+		d, err := interop.Describe(ctx, opts.Interop, bin)
+		var none *interop.ErrNoDescriptor
+		switch {
+		case errors.As(err, &none):
+			unavailable[c.Name] = c.Name + " " + none.Reason
+			cr.Status = StatusWarn
+			cr.Message = none.Reason + "; its edges cannot be checked until it is updated"
+		case err != nil:
+			unavailable[c.Name] = c.Name + " published an invalid descriptor"
+			cr.Status = StatusFail
+			cr.Message = "invalid interop descriptor"
+			cr.Details = err.Error()
+		case d.Component != c.Name:
+			unavailable[c.Name] = c.Name + " published a descriptor for " + d.Component
+			cr.Status = StatusFail
+			cr.Message = fmt.Sprintf("descriptor names component %q, installed as %q", d.Component, c.Name)
+		default:
+			descs[c.Name] = d
+			cr.Status = StatusPass
+			cr.Message = fmt.Sprintf("%s %s: %d commands, runs %d of other components'", d.Component, d.Version, len(d.Commands), len(d.Consumes))
+		}
+		checks = append(checks, cr)
+	}
+
+	for _, f := range interop.Resolve(descs, unavailable) {
+		cr := CheckResult{
+			Category: "Interop",
+			Name:     f.Consumer + " -> " + strings.TrimSpace(f.Producer+" "+strings.Join(f.Command, " ")),
+			Message:  f.Message,
+		}
+		switch f.Severity {
+		case interop.SeveritySkip:
+			continue
+		case interop.SeverityOK:
+			cr.Status = StatusPass
+		case interop.SeverityWarn:
+			cr.Status = StatusWarn
+		default:
+			cr.Status = StatusFail
 		}
 		checks = append(checks, cr)
 	}

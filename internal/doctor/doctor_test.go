@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -471,5 +472,100 @@ func TestDoctorRepairsHowlWriterTogetherWithTheHowlPlaneItImports(t *testing.T) 
 				t.Fatalf("expected the repair to import howlplane-engine via %s, got %+v", want, imports)
 			}
 		})
+	}
+}
+
+type fakeInterop struct{ out map[string]string }
+
+func (f fakeInterop) Describe(_ context.Context, bin string) ([]byte, error) {
+	out, ok := f.out[filepath.Base(bin)]
+	if !ok {
+		return nil, fmt.Errorf("exit status 2")
+	}
+	return []byte(out), nil
+}
+
+func activate(t *testing.T, paths platform.Paths, name, version string) {
+	t.Helper()
+	dir := paths.ComponentReleaseDir(name, version)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, platform.ExeName(name)), []byte(""), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(paths.ComponentCurrentLink(name), []byte(version), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func interopChecks(report *DiagnosticReport) map[string]CheckResult {
+	out := map[string]CheckResult{}
+	for _, c := range report.Checks {
+		if c.Category == "Interop" {
+			out[c.Name] = c
+		}
+	}
+	return out
+}
+
+func TestDoctorChecksInteropEdgesBetweenInstalledComponents(t *testing.T) {
+	m := testManifest(t)
+	st := state.New("stable")
+	st.Components["howlframe"] = state.ComponentState{Version: "0.1.1"}
+	st.Components["howlchangeops"] = state.ComponentState{Version: "0.1.0"}
+	paths := testPaths(t)
+	activate(t, paths, "howlframe", "0.1.1")
+	activate(t, paths, "howlchangeops", "0.1.0")
+
+	frame := `{"schema":"howl.interop/v1","component":"howlframe","version":"0.1.1",
+	  "commands":[{"path":["run"],"flags":["-allow-caps"],"json":false},
+	    {"path":["check"],"flags":[],"json":false},{"path":["build"],"flags":["-o"],"json":false}],"exit_codes":{"0":"ok"}}`
+	changeops := func(flag string) string {
+		return `{"schema":"howl.interop/v1","component":"howlchangeops","version":"0.1.0","commands":[],
+		  "exit_codes":{"0":"ok"},"consumes":[{"component":"howlframe","command":["run"],"flags":["` + flag + `"]}]}`
+	}
+	run := func(out map[string]string) *DiagnosticReport {
+		return Run(context.Background(), Options{
+			Manifest: m, State: st, StatePath: filepath.Join(paths.StateDir(), "state.json"), Paths: paths,
+			Detector: fakeDetector{found: map[string]string{"go": "go1.22"}}, Health: fakeHealth{},
+			Interop: fakeInterop{out: out},
+		})
+	}
+
+	report := run(map[string]string{"howlframe": frame, "howlchangeops": changeops("--allow-caps")})
+	checks := interopChecks(report)
+	if c := checks["howlchangeops -> howlframe run"]; c.Status != StatusPass {
+		t.Fatalf("matching edge: %+v (all: %+v)", c, checks)
+	}
+	if report.Summary != HealthHealthy {
+		t.Fatalf("expected HEALTHY, got %s: %+v", report.Summary, report.Checks)
+	}
+
+	report = run(map[string]string{"howlframe": frame, "howlchangeops": changeops("--deadline")})
+	if c := interopChecks(report)["howlchangeops -> howlframe run"]; c.Status != StatusFail || !strings.Contains(c.Message, "--deadline") {
+		t.Fatalf("missing flag must fail and name the flag: %+v", c)
+	}
+	if report.Summary != HealthFailed {
+		t.Fatalf("expected FAILED, got %s", report.Summary)
+	}
+
+	// A release that predates the interop command only warns.
+	report = run(map[string]string{"howlchangeops": changeops("--allow-caps")})
+	checks = interopChecks(report)
+	if c := checks["howlframe descriptor"]; c.Status != StatusWarn {
+		t.Fatalf("missing descriptor should warn: %+v", c)
+	}
+	if c := checks["howlchangeops -> howlframe run"]; c.Status != StatusWarn {
+		t.Fatalf("unverifiable edge should warn: %+v", c)
+	}
+	if report.Summary != HealthHealthyWithWarnings {
+		t.Fatalf("expected HEALTHY WITH WARNINGS, got %s", report.Summary)
+	}
+
+	// A descriptor for the wrong component is a failure, not a match.
+	report = run(map[string]string{"howlframe": strings.Replace(frame, `"component":"howlframe"`, `"component":"howlnotes"`, 1)})
+	if c := interopChecks(report)["howlframe descriptor"]; c.Status != StatusFail {
+		t.Fatalf("misnamed descriptor should fail: %+v", c)
 	}
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/howlcipher/howl/internal/component"
 	"github.com/howlcipher/howl/internal/doctor"
 	"github.com/howlcipher/howl/internal/health"
+	"github.com/howlcipher/howl/internal/interop"
 	"github.com/howlcipher/howl/internal/plan"
 	"github.com/howlcipher/howl/internal/pyruntime"
 	"github.com/spf13/cobra"
@@ -24,7 +25,8 @@ func newDoctorCommand() *cobra.Command {
 		Long: `Diagnose installer-owned concerns: platform support, required and optional
 dependency availability, managed runtime health, installer state
 integrity, installation lock staleness, and per-installed-component
-health checks. With --fix, apply deterministic repairs (recreate missing
+health checks, and whether installed components still offer the commands
+they run of each other (docs/INTEROP.md). With --fix, apply deterministic repairs (recreate missing
 Howl-owned directories, clear a confirmed-stale lock, clear an
 interrupted-operation marker, reinstall a component that fails its
 health check).`,
@@ -51,6 +53,7 @@ health check).`,
 				Detector:  plan.ExecDetector{},
 				Health:    health.Checker{Exec: health.OSExecer{}},
 				Installer: installer,
+				Interop:   interop.ExecRunner{},
 			}
 
 			report := doctor.Run(context.Background(), opts)
