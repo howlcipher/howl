@@ -1,7 +1,7 @@
 # Howl Interop Contract
 
 Howl ecosystem components talk to each other through **command-line
-processes and JSON files**: one component runs another's executable with an
+processes and JSON files** for their public interoperability boundary: one component runs another's executable with an
 argument list (never a shell string), reads its JSON output and exit status,
 and hands larger artifacts over as JSON files on disk. There is no shared
 daemon, HTTP API, or message bus between components, and this contract does
@@ -17,10 +17,10 @@ together. The machine-readable schemas live in
 
 | Option | For | Against |
 | :--- | :--- | :--- |
-| **CLI + JSON (chosen)** | Works offline and without a daemon; every component already has a CLI; owner-only gates (a terminal prompt, `--owner-confirmed`) keep working; a process boundary isolates crashes and dependencies. | Process start-up cost; the contract must be written down, which this page does. |
+| **CLI + JSON (chosen)** | Works offline and without a daemon; every component already has a CLI; cooperative confirmation prompts keep working (they do not authenticate owner identity against same-user processes); a process boundary isolates crashes and dependencies. | Process start-up cost; the contract must be written down, which this page does. |
 | MCP servers | Agents could call components as tools. | A second surface to secure; owner-confirmation rules would have to be re-implemented per server. Can be generated later from the descriptors below. |
 | Local HTTP services | Rich request/response. | Needs daemons, ports, authentication and lifecycle management; SCOPE.md forbids a server in the installer. |
-| In-process imports | No serialization. | Couples dependency trees and release cadence. HowlWriter → HowlPlane is the one existing case and is declared in the manifest (`python_imports`). |
+| In-process imports | No serialization. | Couples dependency trees and release cadence. Existing cases are HowlWriter → HowlPlane (manifest `python_imports`) and optional HowlPlane → HowlDream (`dream-api` extra, pinned API revision; see HowlPlane `documentation/HOWLDREAM_API.md`). CLI descriptors describe process calls, not these Python APIs. |
 
 ## 1. The interop descriptor
 
@@ -213,5 +213,24 @@ go run ./tools/interop-check --bin howlplane=/path/to/howlplane
 ```
 
 It exits 1 when any edge fails. The `Ecosystem interop` workflow
-(`.github/workflows/interop.yml`) runs it nightly against every component's
-`main` and fails on a missing descriptor as well as a broken edge.
+(`.github/workflows/interop.yml`) runs it nightly against these ten components' current default branches (Python installs use `main`): HowlFrame,
+HowlChangeOps, HowlInstinct, HowlPlane, HowlWriter, HowlDream, HowlCreate,
+HowlProof, HowlForge and HowlRelay. It fails on a missing descriptor as well as a broken edge.
+
+The workflow also runs `scripts/test_interop_runtime.py` against the real built
+Howl CLI and installed HowlPlane. It verifies public CLI forwarding, structured
+empty-session inspection, missing-session failure propagation, and repeated
+read-only inspection without repository mutation. This bounded smoke test does
+not establish live model execution, protected approval, checkpoint recovery, or
+complete workflow readiness. Other ecosystem repositories are outside this CI
+job's declared scope.
+
+Version checks support three-part SemVer (including numeric and lexical
+prerelease identifiers) and three-part PEP 440 a/b/rc, post and dev releases.
+Epochs and shortened tuples are rejected. Ambiguous final `+metadata` versions
+follow SemVer build semantics; local ordering applies to explicitly marked PEP
+versions. Mixed nonfinal dialects with no defined common ordering fail closed.
+Descriptor discovery limits stdout to 1 MiB, stderr to 64 KiB, execution to 15
+seconds by default and pipe cleanup to 100 ms. POSIX process groups and Windows
+kill-on-close jobs terminate ordinary descendants. This is lifecycle management,
+not an operating-system sandbox against deliberately escaping processes.

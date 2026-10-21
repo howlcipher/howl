@@ -228,3 +228,5 @@ Developer source installations of HowlChangeOps include the compiled policy
 sidecar beside the adapter. Custom Go source manifests can declare required
 `sidecar_files`; see [manifest reference](docs/MANIFEST.md). Installation fails
 before activation when a declared artifact is missing or unsafe.
+
+Mission007 tightens descriptor process/output bounds, prerelease comparison and executable override consistency. Strict interoperability CI covers its explicit ten-component scope and executes public Howl-to-Plane behavior checks. See docs/INTEROP.md.

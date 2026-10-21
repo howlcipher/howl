@@ -103,3 +103,7 @@ and outside the default installer manifest; installer behavior is unchanged.
 
 Live link verification found HowlBot Pages unavailable (HTTP 404). Its ecosystem
 card now links to the repository and explicitly records site unavailability.
+
+## Mission007 remediation
+
+F6/F7/F11/F14: bounded descriptor subprocess groups/jobs and output, fail-closed supported SemVer/PEP440 precedence, one resolver for forwarding/checks, Forge/Relay CI scope and real forwarding smoke checks. F15 import exception documented.

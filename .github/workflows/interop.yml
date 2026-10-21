@@ -1,6 +1,6 @@
 name: Ecosystem interop
 
-# Builds or installs each component from its main branch and resolves every
+# Builds or installs the ten components explicitly listed below from their default main branches and resolves every
 # command one component runs of another (docs/INTEROP.md). A missing command,
 # flag, or schema fails, and so does a component that publishes no
 # `interop --json` descriptor (every component in the check now does).
@@ -43,17 +43,19 @@ jobs:
       - name: Build the Go components
         run: |
           mkdir -p "$RUNNER_TEMP/bin"
-          for repo in howlframe howlchangeops howlInstinct; do
+          for repo in howlframe howlchangeops howlInstinct howlforge; do
             git clone --depth 1 "https://github.com/howlcipher/$repo.git" "$RUNNER_TEMP/src/$repo"
           done
           (cd "$RUNNER_TEMP/src/howlframe" && go build -o "$RUNNER_TEMP/bin/howlframe" howlframe.go)
           (cd "$RUNNER_TEMP/src/howlchangeops/adapter" && go build -o "$RUNNER_TEMP/bin/howlchangeops" .)
           (cd "$RUNNER_TEMP/src/howlInstinct" && go build -o "$RUNNER_TEMP/bin/howlinstinct" ./cmd/howlinstinct)
+          (cd "$RUNNER_TEMP/src/howlforge" && go build -o "$RUNNER_TEMP/bin/howlforge" ./cmd/howlforge)
+          go build -o "$RUNNER_TEMP/bin/howl" ./cmd/howl
 
       # Each Python component gets its own virtualenv, as `howl install` gives it.
       - name: Install the Python components
         run: |
-          for repo in howlplane howlwriter howldream howlcreate howlproof; do
+          for repo in howlplane howlwriter howldream howlcreate howlproof howlrelay; do
             python -m venv "$RUNNER_TEMP/venv/$repo"
             "$RUNNER_TEMP/venv/$repo/bin/pip" install --quiet "git+https://github.com/howlcipher/$repo.git@main"
             ln -s "$RUNNER_TEMP/venv/$repo/bin/$repo" "$RUNNER_TEMP/bin/$repo"
@@ -62,10 +64,15 @@ jobs:
       - name: Resolve every edge
         run: |
           args=()
-          for c in howlframe howlchangeops howlinstinct howlplane howlwriter howldream howlcreate howlproof; do
+          for c in howlframe howlchangeops howlinstinct howlplane howlwriter howldream howlcreate howlproof howlforge howlrelay; do
             args+=(--bin "$c=$RUNNER_TEMP/bin/$c")
           done
           # Scheduled and pull-request runs have no inputs: strict by default.
           if [ "${{ inputs.strict }}" != "false" ]; then args+=(--strict); fi
           go run ./tools/interop-check "${args[@]}" \
-            --components howlframe,howlchangeops,howlplane,howlwriter,howldream,howlcreate,howlproof,howlinstinct
+            --components howlframe,howlchangeops,howlplane,howlwriter,howldream,howlcreate,howlproof,howlinstinct,howlforge,howlrelay
+
+      - name: Exercise real public forwarding and failure behavior
+        env:
+          HOWLPLANE_BIN: ${{ runner.temp }}/bin/howlplane
+        run: python3 scripts/test_interop_runtime.py --howl "$RUNNER_TEMP/bin/howl"
