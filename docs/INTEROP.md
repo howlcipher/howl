@@ -20,7 +20,7 @@ together. The machine-readable schemas live in
 | **CLI + JSON (chosen)** | Works offline and without a daemon; every component already has a CLI; cooperative confirmation prompts keep working (they do not authenticate owner identity against same-user processes); a process boundary isolates crashes and dependencies. | Process start-up cost; the contract must be written down, which this page does. |
 | MCP servers | Agents could call components as tools. | A second surface to secure; owner-confirmation rules would have to be re-implemented per server. Can be generated later from the descriptors below. |
 | Local HTTP services | Rich request/response. | Needs daemons, ports, authentication and lifecycle management; SCOPE.md forbids a server in the installer. |
-| In-process imports | No serialization. | Couples dependency trees and release cadence. Existing cases are HowlWriter → HowlPlane (manifest `python_imports`) and optional HowlPlane → HowlDream (`dream-api` extra, pinned API revision; see HowlPlane `documentation/HOWLDREAM_API.md`). CLI descriptors describe process calls, not these Python APIs. |
+| In-process imports | No serialization. | Couples dependency trees and release cadence. Verified cases include HowlWriter → HowlPlane (manifest `python_imports`) and optional HowlPlane → HowlDream (`dream-api` extra, pinned API revision; see HowlPlane `documentation/HOWLDREAM_API.md`). Plane also optionally imports Create for advisory scaffold promotion; its combined-environment assessment-schema failure remains open. CLI descriptors describe process calls, not these Python APIs. |
 
 ## 1. The interop descriptor
 
