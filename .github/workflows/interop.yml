@@ -1,6 +1,6 @@
 name: Ecosystem interop
 
-# Builds or installs the ten components explicitly listed below from their default main branches and resolves every
+# Builds the listed main revisions and strictly checks nine descriptor producers; Forge has no descriptor. Resolves every
 # command one component runs of another (docs/INTEROP.md). A missing command,
 # flag, or schema fails, and so does a component that publishes no
 # `interop --json` descriptor (every component in the check now does).
