@@ -169,7 +169,31 @@ A consumer that validates a producer's JSON vendors the schema file and a
 branch**. CI compares the vendored copy with that commit so drift is caught
 when it happens, not when an edge breaks.
 
-## 7. Checking the edges
+## 7. Handoff documents
+
+Three handoff formats exist, one per layer. Use the one for your layer; do
+not add a fourth.
+
+| Format | Layer | Producer | Reader |
+| :--- | :--- | :--- | :--- |
+| `howlforge.checkpoint/v1` (a bundle directory with `checkpoint.json`) | One task passing between AI workers: what is done, what remains, the last verified commit, whether it is safe to resume | HowlForge (`howlforge handoff validate <dir>`) | HowlRelay (`worker_checkpoint` evidence and next action) |
+| `howlfutureworks.handoff/v1` | Work passing between organizational positions | HowlFutureWorks | people and positions |
+| `ai.handoff/v1` | Superseded by `howlforge.checkpoint/v1`; kept so existing HowlPlane examples validate | none | none |
+
+Field correspondence:
+
+| Meaning | `howlforge.checkpoint/v1` | `howlfutureworks.handoff/v1` | `ai.handoff/v1` |
+| :--- | :--- | :--- | :--- |
+| Work identifier | `task_id` | `work_item_id` | `run_id` |
+| Who hands off | `worker.role`, `runtime_identity` | `from`, `from_employee_id` | none |
+| Who receives | the next matched worker | `to`, `to_employee_id` | none |
+| Done | `completed` | `summary` | `work_completed` |
+| Remaining | `remaining` | `next_action` | `remaining_work`, `recommended_next` |
+| Changed files | `changed_files` | `authoritative_pointers` | `files_modified` |
+| Commit | `last_verified_commit` | none | `starting_commit` |
+| Why it stopped | `handoff_reason` | `blockers` | `failure_or_interruption_reason` |
+
+## 8. Checking the edges
 
 `howl doctor` runs `interop --json` for each installed component and
 reports, under **Interop**:
