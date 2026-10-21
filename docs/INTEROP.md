@@ -190,4 +190,4 @@ go run ./tools/interop-check --bin howlplane=/path/to/howlplane
 
 It exits 1 when any edge fails. The `Ecosystem interop` workflow
 (`.github/workflows/interop.yml`) runs it nightly against every component's
-`main`; run it with `strict` once every component publishes a descriptor.
+`main` and fails on a missing descriptor as well as a broken edge.
