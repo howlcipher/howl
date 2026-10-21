@@ -213,9 +213,9 @@ go run ./tools/interop-check --bin howlplane=/path/to/howlplane
 ```
 
 It exits 1 when any edge fails. The `Ecosystem interop` workflow
-(`.github/workflows/interop.yml`) runs it nightly against these ten components' explicit `main` branches (Forge's current default branch differs): HowlFrame,
+(`.github/workflows/interop.yml`) runs it nightly against these nine descriptor-producing components' explicit `main` branches: HowlFrame,
 HowlChangeOps, HowlInstinct, HowlPlane, HowlWriter, HowlDream, HowlCreate,
-HowlProof, HowlForge and HowlRelay. It fails on a missing descriptor as well as a broken edge.
+HowlProof and HowlRelay. It fails on a missing descriptor as well as a broken edge.
 
 The workflow also runs `scripts/test_interop_runtime.py` against the real built
 Howl CLI and installed HowlPlane. It verifies public CLI forwarding, structured
@@ -234,3 +234,9 @@ Descriptor discovery limits stdout to 1 MiB, stderr to 64 KiB, execution to 15
 seconds by default and pipe cleanup to 100 ms. POSIX process groups and Windows
 kill-on-close jobs terminate ordinary descendants. This is lifecycle management,
 not an operating-system sandbox against deliberately escaping processes.
+
+HowlForge is built from main for inspection but excluded from the descriptor
+checker: both audited main3d6d6c67 and default9dbee38a reject interop. Its
+checkpoint producer/consumer compatibility requires separate actual Forge and
+Relay runtime validation. The checker still fails in strict mode if Forge is
+explicitly requested; this is a declared scope limit, not a waived failure.

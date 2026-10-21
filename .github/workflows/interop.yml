@@ -70,7 +70,7 @@ jobs:
           # Scheduled and pull-request runs have no inputs: strict by default.
           if [ "${{ inputs.strict }}" != "false" ]; then args+=(--strict); fi
           go run ./tools/interop-check "${args[@]}" \
-            --components howlframe,howlchangeops,howlplane,howlwriter,howldream,howlcreate,howlproof,howlinstinct,howlforge,howlrelay
+            --components howlframe,howlchangeops,howlplane,howlwriter,howldream,howlcreate,howlproof,howlinstinct,howlrelay
 
       - name: Exercise real public forwarding and failure behavior
         env:

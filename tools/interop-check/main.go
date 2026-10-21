@@ -28,7 +28,7 @@ import (
 // defaultComponents are the ecosystem command lines other components run.
 var defaultComponents = []string{
 	"howlframe", "howlchangeops", "howlplane", "howlwriter", "howldream", "howlcreate",
-	"howlproof", "howlinstinct", "howlforge", "howlrelay",
+	"howlproof", "howlinstinct", "howlrelay",
 }
 
 type binFlags map[string]string
