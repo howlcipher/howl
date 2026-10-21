@@ -213,7 +213,7 @@ go run ./tools/interop-check --bin howlplane=/path/to/howlplane
 ```
 
 It exits 1 when any edge fails. The `Ecosystem interop` workflow
-(`.github/workflows/interop.yml`) runs it nightly against these ten components' current default branches (Python installs use `main`): HowlFrame,
+(`.github/workflows/interop.yml`) runs it nightly against these ten components' explicit `main` branches (Forge's current default branch differs): HowlFrame,
 HowlChangeOps, HowlInstinct, HowlPlane, HowlWriter, HowlDream, HowlCreate,
 HowlProof, HowlForge and HowlRelay. It fails on a missing descriptor as well as a broken edge.
 
