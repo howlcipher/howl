@@ -2,9 +2,9 @@ name: Ecosystem interop
 
 # Builds or installs each component from its main branch and resolves every
 # command one component runs of another (docs/INTEROP.md). A missing command,
-# flag, or schema fails; a component that does not yet publish
-# `interop --json` only warns, so this can run before every repository has
-# adopted the contract. Pass `strict` to fail on warnings too.
+# flag, or schema fails, and so does a component that publishes no
+# `interop --json` descriptor (every component in the check now does).
+# Dispatch with strict=false to see a report without failing on warnings.
 
 on:
   schedule:
@@ -14,7 +14,7 @@ on:
       strict:
         description: Fail on warnings (missing descriptors) as well as failures
         type: boolean
-        default: false
+        default: true
   pull_request:
     paths:
       - 'internal/interop/**'
@@ -65,6 +65,7 @@ jobs:
           for c in howlframe howlchangeops howlinstinct howlplane howlwriter howldream howlcreate howlproof; do
             args+=(--bin "$c=$RUNNER_TEMP/bin/$c")
           done
-          if [ "${{ inputs.strict }}" = "true" ]; then args+=(--strict); fi
+          # Scheduled and pull-request runs have no inputs: strict by default.
+          if [ "${{ inputs.strict }}" != "false" ]; then args+=(--strict); fi
           go run ./tools/interop-check "${args[@]}" \
             --components howlframe,howlchangeops,howlplane,howlwriter,howldream,howlcreate,howlproof,howlinstinct
