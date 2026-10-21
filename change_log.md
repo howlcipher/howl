@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-10-21 (0.2.0)
+
+The default ecosystem is 0.2.0: HowlChangeOps 0.2.0 (machine-readable results,
+owner-confirmed approvals, XDG configuration) with HowlFrame 0.1.0, HowlPlane
+0.1.0 and HowlWriter 0.1.0. HowlPlane now declares that it needs HowlChangeOps
+0.2.0 or later. Every component installs from a published, checksummed release;
+the manifest comment no longer says tags are missing. Verified by installing
+into an empty home and running `howl doctor`: all components healthy, every
+interop edge with a descriptor on both sides matches, and HowlFrame 0.1.0's
+edges warn until a HowlFrame release publishes `interop --json`.
+
 ## 2026-10-20
 
 Components now have a written contract for calling each other
