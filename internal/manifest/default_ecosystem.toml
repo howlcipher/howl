@@ -15,43 +15,30 @@
 # planning never looks at it, so there is no code path by which a missing
 # or broken release artifact can silently fall back to building from source.
 #
-# The release pipelines these entries assume (release.yml/.goreleaser.yaml
-# in each component's own repository) exist and have been verified locally
-# (build, checksum, install-into-a-scratch-venv-or-extracted-archive,
-# `--version`/health check), but no git tag has actually been cut for any
-# of howlchangeops, howlplane, or howlwriter yet -- that is explicit,
-# separate, user-approved follow-up work per repository. Until a real tag
-# exists, `howl install` against this manifest will fail closed with a 404
-# downloading the artifact, exactly as it should: no hidden source-build
-# fallback exists to mask a release that hasn't been cut yet.
+# Every component below has a published GitHub Release with checksummed
+# assets (verified 2026-10-21 by installing this manifest into an empty
+# home): howlframe v0.1.0, howlchangeops v0.2.0, howlplane v0.1.0 (Go
+# binary and the howlplane-engine wheel), howlwriter v0.1.0.
 #
 # Component versions below:
-#   - howlframe:        latest *published GitHub Release* (v0.1.0) with real
-#                        assets + SHA256SUMS. A v0.1.1 git tag exists
-#                        upstream but has no corresponding GitHub Release or
-#                        artifacts (verified against the live GitHub API),
-#                        so it is not used here.
-#   - howlchangeops:     0.1.0 -- the version its new --version flag and
-#                        release.yml are built against; no tag cut yet.
-#   - howlplane:         0.1.0 -- resets from this manifest's previous
-#                        nominal "2.0.0" (which tracked the standalone
-#                        ai_installer's own tag scheme, a different
-#                        artifact, not a released "howlplane" binary).
-#                        This is the first version any howlplane/ai binary
-#                        or howlplane-engine wheel has ever been released
-#                        as; no tag cut yet.
-#   - howlplane-engine:  0.1.0, matching pyproject.toml's [project] version
-#                        for the wheel built from src/control_plane. Not a
+#   - howlframe:        v0.1.0, the latest published release. HowlChangeOps
+#                        0.2.0 accepts any 0.1.x reporting HFBC format 1.
+#   - howlchangeops:     0.2.0 -- --json result envelopes, owner-confirmed
+#                        approvals, XDG configuration. HowlPlane's bounded
+#                        executor needs it (min_version below).
+#   - howlplane:         0.1.0 -- the first release of the howlplane binary
+#                        under this name (earlier v1.x/v2.0 tags were the
+#                        standalone ai_installer, a different artifact).
+#   - howlplane-engine:  0.1.0, the wheel built from the same tag. Not a
 #                        component end users invoke directly (internal =
-#                        true); howlplane depends on it and delegates every
-#                        non-"project" subcommand to it once both are
-#                        installed.
-#   - howlwriter:        0.1.0, matching pyproject.toml; no tag cut yet.
+#                        true); howlplane delegates every non-"project"
+#                        subcommand to it.
+#   - howlwriter:        0.1.0.
 schema_version = 1
 
 [ecosystem]
 name = "Howl"
-version = "0.1.0"
+version = "0.2.0"
 channel = "stable"
 description = "Mathematical rigor, capability boundaries, adversarial verification, and cryptographic human authority for AI-assisted engineering."
 
@@ -100,7 +87,7 @@ name = "howlchangeops"
 display_name = "HowlChangeOps"
 role = "Authority boundary and release controller"
 repository = "https://github.com/howlcipher/howlchangeops"
-version = "0.1.0"
+version = "0.2.0"
 optional = false
 platforms = ["linux", "darwin", "windows"]
 archs = ["amd64", "arm64"]
@@ -187,6 +174,7 @@ archs = ["amd64", "arm64"]
 
   [[components.depends_on]]
   component = "howlchangeops"
+  min_version = "0.2.0"
 
   [[components.external_dependencies]]
   name = "python3"
@@ -233,6 +221,7 @@ archs = ["amd64", "arm64"]
 
   [[components.depends_on]]
   component = "howlchangeops"
+  min_version = "0.2.0"
 
 # ---------------------------------------------------------------------------
 # HowlWriter runs HowlPlane's role dispatcher in its own process, so the
