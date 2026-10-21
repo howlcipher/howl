@@ -2,11 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 
-	"github.com/howlcipher/howl/internal/platform"
+	"github.com/howlcipher/howl/internal/interop"
 	"github.com/spf13/cobra"
 )
 
@@ -32,18 +31,13 @@ func newHowlPlaneForward(use, short string, path ...string) *cobra.Command {
 }
 
 func forwardToHowlPlane(command *cobra.Command, path, args []string) error {
-	binary, err := exec.LookPath("howlplane")
+	locator, err := interop.DefaultLocator()
 	if err != nil {
-		paths, pathErr := platform.DefaultPaths()
-		if pathErr != nil {
-			return pathErr
-		}
-		candidate := paths.ComponentBinLink("howlplane")
-		if info, statErr := os.Stat(candidate); statErr == nil && info.Mode().IsRegular() && info.Mode()&0111 != 0 {
-			binary = candidate
-		} else {
-			return fmt.Errorf("HowlPlane is not installed; install it with `howl install howlplane`")
-		}
+		return err
+	}
+	binary, found := locator.Locate("howlplane")
+	if !found {
+		return fmt.Errorf("HowlPlane is not installed or HOWLPLANE_BIN is invalid; install it with `howl install howlplane`")
 	}
 	binary, err = filepath.Abs(binary)
 	if err != nil {
