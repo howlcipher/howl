@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/pelletier/go-toml/v2"
@@ -549,52 +548,6 @@ func LoadDefault(startDir string) (*Manifest, string, error) {
 		return nil, "<embedded>", fmt.Errorf("failed to load embedded manifest: %w", err)
 	}
 	return m, "<embedded>", nil
-}
-
-// ParseVersion parses a loose semver string ("v1.2.3", "1.2.3", "1.2.3-rc1")
-// into its numeric major/minor/patch components.
-func ParseVersion(v string) ([3]int, error) {
-	var out [3]int
-	trimmed := strings.TrimPrefix(strings.TrimSpace(v), "v")
-	if trimmed == "" {
-		return out, fmt.Errorf("empty version string")
-	}
-	core, _, _ := strings.Cut(trimmed, "-")
-	core, _, _ = strings.Cut(core, "+")
-	parts := strings.Split(core, ".")
-	if len(parts) != 3 {
-		return out, fmt.Errorf("expected major.minor.patch, got %q", v)
-	}
-	for i, p := range parts {
-		n, err := strconv.Atoi(p)
-		if err != nil || n < 0 {
-			return out, fmt.Errorf("invalid numeric component %q in version %q", p, v)
-		}
-		out[i] = n
-	}
-	return out, nil
-}
-
-// CompareVersions returns -1, 0, or 1 as a is less than, equal to, or
-// greater than b.
-func CompareVersions(a, b string) (int, error) {
-	av, err := ParseVersion(a)
-	if err != nil {
-		return 0, err
-	}
-	bv, err := ParseVersion(b)
-	if err != nil {
-		return 0, err
-	}
-	for i := 0; i < 3; i++ {
-		if av[i] != bv[i] {
-			if av[i] < bv[i] {
-				return -1, nil
-			}
-			return 1, nil
-		}
-	}
-	return 0, nil
 }
 
 // ValidateGoSidecarFiles limits installation to regular files in the checkout root.

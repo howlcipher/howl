@@ -11,11 +11,14 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"os/exec"
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/howlcipher/howl/internal/manifest"
@@ -63,19 +66,11 @@ var (
 	flagRe      = regexp.MustCompile(`^--?[A-Za-z0-9][A-Za-z0-9_-]*$`)
 	exitCodeRe  = regexp.MustCompile(`^[0-9]+$`)
 	envRe       = regexp.MustCompile(`^[A-Z][A-Z0-9_]*$`)
-	// versionRe accepts semver ("0.2.0", "0.2.0-rc1") and PEP 440
-	// ("0.2.0b1", "0.2.0.dev3") release strings; only the leading
-	// major.minor.patch is compared.
-	versionRe = regexp.MustCompile(`^v?([0-9]+\.[0-9]+\.[0-9]+)([-+.a-z][0-9A-Za-z.+-]*)?$`)
 )
 
-// releaseCore returns the major.minor.patch a version string starts with.
 func releaseCore(v string) (string, bool) {
-	m := versionRe.FindStringSubmatch(strings.TrimSpace(v))
-	if m == nil {
-		return "", false
-	}
-	return m[1], true
+	_, err := manifest.ParseVersion(v)
+	return v, err == nil
 }
 
 // Parse decodes and validates a descriptor.
@@ -233,9 +228,9 @@ func check(use Consume, producer *Descriptor, unavailable map[string]string, nam
 
 	var problems []string
 	if use.MinVersion != "" {
-		have, _ := releaseCore(producer.Version)
-		want, _ := releaseCore(use.MinVersion)
-		if c, err := manifest.CompareVersions(have, want); err == nil && c < 0 {
+		if c, err := manifest.CompareVersions(producer.Version, use.MinVersion); err != nil {
+			problems = append(problems, "cannot compare required component versions")
+		} else if c < 0 {
 			problems = append(problems, fmt.Sprintf("needs %s >= %s, found %s", name, use.MinVersion, producer.Version))
 		}
 	}
@@ -296,23 +291,57 @@ func (r ExecRunner) Describe(ctx context.Context, binPath string) ([]byte, error
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, binPath, "interop", "--json")
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	out, err := cmd.Output()
+	cmd.WaitDelay = 100 * time.Millisecond
+	started, cleanup, err := configureProcessTree(cmd)
 	if err != nil {
-		// The last stderr line carries the reason (argparse and cobra both
-		// print usage first and the error last).
-		lines := strings.Split(strings.TrimSpace(stderr.String()), "\n")
-		msg := strings.TrimSpace(lines[len(lines)-1])
-		if len(msg) > 200 {
-			msg = msg[:200] + "..."
-		}
-		if msg != "" {
-			return nil, fmt.Errorf("%w: %s", err, msg)
-		}
 		return nil, err
 	}
+	defer cleanup()
+	stdout := &boundedOutput{limit: 1 << 20, cancel: cancel}
+	stderr := &boundedOutput{limit: 64 << 10, cancel: cancel}
+	cmd.Stdout, cmd.Stderr = stdout, stderr
+	err = cmd.Start()
+	if err != nil {
+		return nil, err
+	}
+	if err = started(); err != nil {
+		cleanup()
+		_ = cmd.Process.Kill()
+		_ = cmd.Wait()
+		return nil, err
+	}
+	err = cmd.Wait()
+	if stdout.overflow || stderr.overflow {
+		return nil, errors.New("descriptor output exceeds limit")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("descriptor command failed: %w", err)
+	}
+	out := stdout.data
+
 	return out, nil
+}
+
+// boundedOutput never stores more than its limit, including when a child writes
+// stdout and stderr concurrently. Overflow cancels the entire discovery group.
+type boundedOutput struct {
+	mu       sync.Mutex
+	data     []byte
+	limit    int
+	overflow bool
+	cancel   context.CancelFunc
+}
+
+func (b *boundedOutput) Write(p []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	if len(p) > b.limit-len(b.data) {
+		b.overflow = true
+		b.cancel()
+		return 0, io.ErrShortBuffer
+	}
+	b.data = append(b.data, p...)
+	return len(p), nil
 }
 
 // ErrNoDescriptor reports output that is not a descriptor at all, as from
