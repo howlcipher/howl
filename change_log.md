@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-10-20
+
+Components now have a written contract for calling each other
+(`docs/INTEROP.md`, schemas in `contracts/interop/`). Each component publishes
+`<component> interop --json`: the commands and flags it offers, the schemas it
+emits, its exit codes, and the commands of other components it runs. Command
+results use a `howl.result/v1` envelope whose `status` field consumers branch
+on, so exit codes stay as each component documents them.
+
+`howl doctor` gains an Interop section. It reads each installed component's
+descriptor and fails when a component runs a command, flag, or schema that the
+installed producer no longer offers; a release without a descriptor only warns.
+`go run ./tools/interop-check` runs the same resolution over a developer
+workspace.
+
+The HowlPlane engine's minimum Python is now 3.11, matching its
+`pyproject.toml`; the manifest said 3.9. The stale HowlDream adapter notes in
+`docs/ARCHITECTURE.md` are corrected.
+
 ## 2026-10-19
 
 HowlWriter's runtime now receives HowlPlane. HowlWriter runs HowlPlane's role

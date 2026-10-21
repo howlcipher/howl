@@ -166,7 +166,7 @@ archs = ["amd64", "arm64"]
     checksum_file = "howlplane-engine-SHA256SUMS"
     console_script = "howlplane"
     extras = []
-    min_python = "3.9.0"
+    min_python = "3.11.0"
 
   [components.developer_install]
   method = "source_build"
@@ -179,7 +179,7 @@ archs = ["amd64", "arm64"]
       package_dir = "."
       extras = []
       console_script = "howlplane"
-      min_python = "3.9.0"
+      min_python = "3.11.0"
 
   [components.health_check]
   type = "python_import"
@@ -192,7 +192,7 @@ archs = ["amd64", "arm64"]
   name = "python3"
   required = true
   capability = "python-runtime"
-  min_version = "3.9.0"
+  min_version = "3.11.0"
 
 # ---------------------------------------------------------------------------
 [[components]]

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "howl.interop/v1",
+  "title": "Howl interop descriptor",
+  "description": "What a Howl component's command line offers other components and which other components' commands it runs. Printed by `<component> interop --json`. See docs/INTEROP.md.",
+  "type": "object",
+  "required": ["schema", "component", "version", "commands", "exit_codes"],
+  "properties": {
+    "schema": {"const": "howl.interop/v1"},
+    "component": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+    "version": {"type": "string", "pattern": "^v?[0-9]+\\.[0-9]+\\.[0-9]+([-+.a-z][0-9A-Za-z.+-]*)?$", "description": "semver or PEP 440 release string; only major.minor.patch is compared"},
+    "commands": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/command"}
+    },
+    "exit_codes": {
+      "type": "object",
+      "propertyNames": {"pattern": "^[0-9]+$"},
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "env": {"type": "array", "items": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$"}},
+    "consumes": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/consume"}
+    }
+  },
+  "$defs": {
+    "schemaId": {"type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+/v[0-9]+$"},
+    "flag": {"type": "string", "pattern": "^--?[A-Za-z0-9][A-Za-z0-9_-]*$"},
+    "path": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "command": {
+      "type": "object",
+      "required": ["path", "flags", "json"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"},
+        "flags": {"type": "array", "items": {"$ref": "#/$defs/flag"}},
+        "json": {"type": "boolean"},
+        "emits": {"type": "array", "items": {"$ref": "#/$defs/schemaId"}},
+        "accepts": {"type": "array", "items": {"$ref": "#/$defs/schemaId"}}
+      }
+    },
+    "consume": {
+      "type": "object",
+      "required": ["component", "command"],
+      "properties": {
+        "component": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+        "command": {"$ref": "#/$defs/path"},
+        "flags": {"type": "array", "items": {"$ref": "#/$defs/flag"}},
+        "schemas": {"type": "array", "items": {"$ref": "#/$defs/schemaId"}},
+        "min_version": {"type": "string"}
+      }
+    }
+  }
+}
