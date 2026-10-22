@@ -103,3 +103,9 @@ and outside the default installer manifest; installer behavior is unchanged.
 
 Live link verification found HowlBot Pages unavailable (HTTP 404). Its ecosystem
 card now links to the repository and explicitly records site unavailability.
+
+## Mission007 remediation
+
+F6/F7/F11/F14: bounded descriptor subprocess groups/jobs and output, fail-closed supported SemVer/PEP440 precedence, one resolver for forwarding/checks, Relay descriptor CI scope and explicit Forge descriptor exclusion and real forwarding smoke checks. F15 import exception documented.
+
+The strict CI builds explicit main revisions, including Forge: both audited main and default currently lack an interop descriptor; the strict nine-descriptor scope excludes Forge explicitly. The original expanded CI failure is preserved; branch selection is not a claim about default-branch runtime equivalence.

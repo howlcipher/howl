@@ -65,3 +65,14 @@ jobs:
 
       - name: Run SEO & Metadata Validation Suite
         run: python3 scripts/test_seo.py
+
+  windows-runtime:
+    name: Windows descriptor process lifecycle
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+      - run: go test ./internal/interop -run 'TestDescriptor(DescendantDeadline|OutputBound)' -count=1
+      - run: go build ./...

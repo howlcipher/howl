@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/howlcipher/howl/internal/component"
@@ -38,7 +39,7 @@ func EnvVar(name string) string {
 func (l Locator) Locate(name string) (string, bool) {
 	if l.Getenv != nil {
 		if p := strings.TrimSpace(l.Getenv(EnvVar(name))); p != "" {
-			return p, true
+			return p, isExecutable(p)
 		}
 	}
 	if l.LookPath != nil {
@@ -60,5 +61,5 @@ func (l Locator) Locate(name string) (string, bool) {
 
 func isExecutable(path string) bool {
 	info, err := os.Stat(path)
-	return err == nil && !info.IsDir()
+	return err == nil && info.Mode().IsRegular() && (runtime.GOOS == "windows" || info.Mode().Perm()&0111 != 0)
 }

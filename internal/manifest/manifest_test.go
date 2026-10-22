@@ -496,7 +496,7 @@ func TestCompareVersions(t *testing.T) {
 		{"1.0.0", "1.0.1", -1},
 		{"1.1.0", "1.0.9", 1},
 		{"v2.0.0", "1.9.9", 1},
-		{"1.0.0-rc1", "1.0.0", 0},
+		{"1.0.0-rc1", "1.0.0", -1},
 	}
 	for _, tc := range cases {
 		got, err := CompareVersions(tc.a, tc.b)

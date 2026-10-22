@@ -100,3 +100,32 @@ func TestForwardReportsMissingHowlPlane(t *testing.T) {
 		t.Fatalf("expected install hint, got %v", err)
 	}
 }
+
+func TestForwardHonorsExplicitBinaryOverride(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	t.Setenv("XDG_DATA_HOME", t.TempDir())
+	binary := filepath.Join(t.TempDir(), "selected-plane")
+	if err := os.WriteFile(binary, []byte("#!/bin/sh\nprintf 'args:%s\\n' \"$*\"\n"), 0700); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("HOWLPLANE_BIN", binary)
+	t.Setenv("PATH", t.TempDir())
+	command := NewRootCommand()
+	var out bytes.Buffer
+	command.SetOut(&out)
+	command.SetErr(&out)
+	command.SetArgs([]string{"orchestrate", "inspect"})
+	_ = command.Execute()
+	if !strings.Contains(out.String(), "orchestrate") {
+		t.Fatalf("explicit override was not executed: %s", out.String())
+	}
+}
+
+func TestForwardInvalidOverrideDoesNotFallBack(t *testing.T) {
+	t.Setenv("HOWLPLANE_BIN", filepath.Join(t.TempDir(), "missing"))
+	out, err := runForwarded(t, "orchestrate", "inspect")
+	if err == nil || strings.Contains(out, "args:") {
+		t.Fatalf("invalid override fell back: %q %v", out, err)
+	}
+}

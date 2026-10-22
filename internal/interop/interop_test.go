@@ -65,7 +65,7 @@ func TestParseAcceptsSemverAndPEP440Versions(t *testing.T) {
 		Consume{Component: "howlframe", Command: []string{"run"}, MinVersion: "0.2.0"},
 		Consume{Component: "howlframe", Command: []string{"run"}, MinVersion: "0.2.1"},
 	)}, nil)
-	if f[0].Severity != SeverityOK || f[1].Severity != SeverityFail {
+	if f[0].Severity != SeverityFail || f[1].Severity != SeverityFail {
 		t.Fatalf("pre-release comparison: %+v", f)
 	}
 }
@@ -200,8 +200,8 @@ func TestLocatorFollowsTheDocumentedOrder(t *testing.T) {
 	if got, _ := l.Locate("howlframe"); got != pathHit {
 		t.Fatalf("PATH should win over the managed release: got %q", got)
 	}
-	env["HOWLFRAME_BIN"] = "/opt/frame"
-	if got, _ := l.Locate("howlframe"); got != "/opt/frame" {
+	env["HOWLFRAME_BIN"] = write(filepath.Join(root, "override-frame"))
+	if got, _ := l.Locate("howlframe"); got != env["HOWLFRAME_BIN"] {
 		t.Fatalf("env override: got %q", got)
 	}
 	if EnvVar("howlplane-engine") != "HOWLPLANE_ENGINE_BIN" {
