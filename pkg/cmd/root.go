@@ -46,6 +46,7 @@ failed upgrades, and uninstalls cleanly.`,
 	rootCmd.AddCommand(newUninstallCommand())
 	rootCmd.AddCommand(newChannelCommand())
 	rootCmd.AddCommand(newOrchestrateCommand())
+	rootCmd.AddCommand(newCreativeCommand())
 	rootCmd.AddCommand(newAgentsCommand())
 	rootCmd.AddCommand(newFactoryCommand())
 
