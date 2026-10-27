@@ -31,7 +31,7 @@ verifies installation health, repairs installer-owned problems, rolls back
 failed upgrades, and uninstalls cleanly.`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
-		Version:        version.Version,
+		Version:       version.Version,
 	}
 	rootCmd.SetVersionTemplate("howl version {{.Version}}\n")
 
