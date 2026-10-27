@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/howlcipher/howl/internal/version"
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +31,9 @@ verifies installation health, repairs installer-owned problems, rolls back
 failed upgrades, and uninstalls cleanly.`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
+		Version:       version.Version,
 	}
+	rootCmd.SetVersionTemplate("howl version {{.Version}}\n")
 
 	rootCmd.PersistentFlags().BoolVar(&globalOpts.JSON, "json", false, "Output results in JSON format")
 	rootCmd.PersistentFlags().BoolVarP(&globalOpts.Verbose, "verbose", "v", false, "Enable verbose output")

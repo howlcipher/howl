@@ -46,3 +46,21 @@ func TestVersionJSONCommand(t *testing.T) {
 		t.Errorf("expected version %s, got %s", version.Version, info.Version)
 	}
 }
+
+func TestVersionFlag(t *testing.T) {
+	rootCmd := NewRootCommand()
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetArgs([]string{"--version"})
+
+	err := rootCmd.Execute()
+	if err != nil {
+		t.Fatalf("--version flag failed: %v", err)
+	}
+
+	out := buf.String()
+	expected := "howl version " + version.Version + "\n"
+	if out != expected {
+		t.Errorf("expected --version output %q, got %q", expected, out)
+	}
+}
