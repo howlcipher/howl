@@ -210,9 +210,13 @@ that can be found with the discovery order above:
 go run ./tools/interop-check            # human-readable
 go run ./tools/interop-check --json     # machine-readable
 go run ./tools/interop-check --bin howlplane=/path/to/howlplane
+go run ./tools/interop-check --components howlframe,howlplane --require-descriptors howlframe
 ```
 
-It exits 1 when any edge fails. The `Ecosystem interop` workflow
+It exits 1 when any edge fails. A gate can use `--require-descriptors` to require
+valid descriptors from named components in its selected scope. An absent
+executable or unavailable descriptor then fails the check. Other missing
+components retain their skip status. Strict CI requires its full selected scope. The `Ecosystem interop` workflow
 (`.github/workflows/interop.yml`) runs it nightly against these nine descriptor-producing components' explicit `main` branches: HowlFrame,
 HowlChangeOps, HowlInstinct, HowlPlane, HowlWriter, HowlDream, HowlCreate,
 HowlProof and HowlRelay. It fails on a missing descriptor as well as a broken edge.
