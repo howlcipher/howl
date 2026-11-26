@@ -32,14 +32,15 @@
       "repository": "https://github.com/howlcipher/howl",
       "role": "lifecycle and discovery",
       "maturity": "released CLI",
-      "descriptor_status": "Verified",
+      "descriptor_status": "Not applicable",
       "source_anchor": "internal/interop/interop.go",
       "workflows": [
         ".github/workflows/ci.yml",
         ".github/workflows/decode-pages.yml",
         ".github/workflows/interop.yml",
         ".github/workflows/release.yml"
-      ]
+      ],
+      "descriptor_scope": "Howl uses an internal self descriptor for edge resolution and exposes no public interop subcommand."
     },
     {
       "name": "howl-cubs-dogfood",
@@ -1132,6 +1133,18 @@
       "check": "interop-check --strict --components howlframe --json in an isolated executable lookup environment",
       "result": "exit 0; descriptor status skip and failed false",
       "limit": "Current strict mode treats warnings as fatal and leaves absent optional components skippable."
+    },
+    "required_producer_gate": {
+      "integrated_revision": "de16179d39816b3a9e04b9aa50fac3f79ce44637",
+      "pull_request": "https://github.com/howlcipher/howl/pull/32",
+      "result": "Go race regression and four hosted PR checks passed. Pinned smoke test passed nine descriptors and 29 edges. Isolated absence returned exit 1 with fail for required and skip for optional.",
+      "limit": "The hosted job still builds its existing upstream branch inputs."
+    },
+    "independent_descriptor_schema_check": {
+      "scope": "The nine public producers in the pinned descriptor matrix",
+      "check": "Validate CLI JSON using the canonical Draft 2020-12 schema and Python jsonschema",
+      "result": "All nine passed",
+      "limit": "This checks document shape independently of Go edge resolution. It does not establish authority or runtime behavior."
     }
   },
   "gaps": [
@@ -1147,9 +1160,9 @@
       "owner": "howl",
       "finding": "Strict mode permits missing-component skips",
       "evidence": "strict_absence_baseline",
-      "next": "Require presence of explicitly declared producer components in the pinned pilot, preserving default optional discovery behavior.",
       "id": "M1-REQUIRED-PRODUCERS",
-      "status": "Pending M0 acceptance"
+      "status": "Completed",
+      "resolution": "required_producer_gate"
     },
     {
       "priority": 1,
