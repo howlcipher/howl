@@ -94,7 +94,12 @@
       "source_anchor": "src/howlalign/core/discovery.py",
       "workflows": [
         ".github/workflows/ci.yml"
-      ]
+      ],
+      "surface_review": {
+        "source": "src/howlalign/cli.py",
+        "observation": "Click command surface includes apply and restore; configuration writes need their own authority and consent model",
+        "runtime_verified": false
+      }
     },
     {
       "name": "howlboard",
@@ -115,7 +120,12 @@
       "source_anchor": "backend/server.howl",
       "workflows": [
         ".github/workflows/ci.yml"
-      ]
+      ],
+      "surface_review": {
+        "source": "backend/server.howl",
+        "observation": "/api/missions and /api/factory/status; operational HTTP routes carry both read and mutation surfaces",
+        "runtime_verified": false
+      }
     },
     {
       "name": "howlbot",
@@ -132,7 +142,12 @@
       "maturity": "source application",
       "descriptor_status": "Unknown",
       "source_anchor": "src/howlbot.howl",
-      "workflows": []
+      "workflows": [],
+      "surface_review": {
+        "source": "src/howlbot.howl",
+        "observation": "HowlFrame Discord operations app; runtime and application policy are component-specific",
+        "runtime_verified": false
+      }
     },
     {
       "name": "howlchangeops",
@@ -285,7 +300,12 @@
       "source_anchor": "adr/0006-howlplane-first-execution.md",
       "workflows": [
         ".github/workflows/validate.yml"
-      ]
+      ],
+      "surface_review": {
+        "source": "routing/execution-substrate.yaml",
+        "observation": "Organizational routing policy selects an execution substrate and preserves approval and authority boundaries",
+        "runtime_verified": false
+      }
     },
     {
       "name": "howlInstinct",
@@ -326,7 +346,12 @@
       "source_anchor": "app/backend.howl",
       "workflows": [
         ".github/workflows/ci.yml"
-      ]
+      ],
+      "surface_review": {
+        "source": "app/backend.howl",
+        "observation": "/api/health and local notes CRUD; reference app with an application API",
+        "runtime_verified": false
+      }
     },
     {
       "name": "howlplane",
@@ -415,7 +440,12 @@
       "workflows": [
         ".github/workflows/ci.yml",
         ".github/workflows/pages.yml"
-      ]
+      ],
+      "surface_review": {
+        "source": "package.json",
+        "observation": "JavaScript website editor and rendering build surface; no ecosystem CLI requirement established",
+        "runtime_verified": false
+      }
     },
     {
       "name": "HowlShield",
@@ -432,7 +462,12 @@
       "maturity": "research",
       "descriptor_status": "Not applicable",
       "source_anchor": "docs/evidence/m0.md",
-      "workflows": []
+      "workflows": [],
+      "surface_review": {
+        "source": "docs/evidence/m0.md",
+        "observation": "Default tree is research and evidence only; no executable public operation assumed",
+        "runtime_verified": false
+      }
     },
     {
       "name": "howlspeaker",
@@ -452,7 +487,12 @@
       "workflows": [
         ".github/workflows/ci.yml",
         ".github/workflows/pages.yml"
-      ]
+      ],
+      "surface_review": {
+        "source": "src/howlspeaker/cli.py",
+        "observation": "Default revision exposes config and voice command families; newer checkout commands are excluded from default-branch claims",
+        "runtime_verified": false
+      }
     },
     {
       "name": "howlwriter",
@@ -1083,6 +1123,15 @@
       "fixed_result": "Forge validated the corrected example. Pinned Relay included the checkpoint observation and an advisory next action.",
       "limit": "This run proves the version correction for the example. Full validator/schema parity was outside the test.",
       "integrated_revision": "c2ee71140490219424210d63ce08f793b162012f"
+    },
+    "strict_absence_baseline": {
+      "scope": [
+        "howl"
+      ],
+      "revision": "c8165a092eaf0e3e98d2ee3fe12908038f648980",
+      "check": "interop-check --strict --components howlframe --json in an isolated executable lookup environment",
+      "result": "exit 0; descriptor status skip and failed false",
+      "limit": "Current strict mode treats warnings as fatal and leaves absent optional components skippable."
     }
   },
   "gaps": [
@@ -1097,8 +1146,10 @@
       "priority": 1,
       "owner": "howl",
       "finding": "Strict mode permits missing-component skips",
-      "evidence": "tools/interop-check/main.go",
-      "next": "After M0, require explicit producer presence in the pinned pilot and test missing-binary behavior"
+      "evidence": "strict_absence_baseline",
+      "next": "Require presence of explicitly declared producer components in the pinned pilot, preserving default optional discovery behavior.",
+      "id": "M1-REQUIRED-PRODUCERS",
+      "status": "Pending M0 acceptance"
     },
     {
       "priority": 1,
@@ -1121,6 +1172,15 @@
       "evidence": "forge_relay_checkpoint",
       "next": "Retain full Go validator and schema parity as a separate conformance audit.",
       "status": "Completed"
+    },
+    {
+      "id": "M3-FORGE-PUBLICATION",
+      "owner": "howlforge",
+      "priority": 2,
+      "status": "Blocked",
+      "finding": "Default branch triggers Pages but only main is authorized by the environment.",
+      "evidence": "https://github.com/howlcipher/howlforge/issues/9",
+      "next": "Confirm publication branch ownership before aligning triggers and verifying public retrieval."
     }
   ],
   "security_assessment": [
