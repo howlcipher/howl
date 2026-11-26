@@ -45,7 +45,7 @@ for the manifest schema.
 
 ## Ecosystem Hub & Architecture
 
-The [interoperability audit](audits/interop/README.md) tracks pinned baseline evidence, installed-tool findings, checkpoint compatibility and adoption milestones.
+The [interoperability audit](audits/interop/README.md) tracks pinned baseline evidence, installed-tool findings, checkpoint compatibility, publication blockers and adoption milestones.
 
 The Howl ecosystem is unified by an overarching architectural topology and interactive documentation hub hosted at [**howlcipher.github.io/howl**](https://howlcipher.github.io/howl/).
 
