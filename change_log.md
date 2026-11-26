@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-Strict interoperability CI now explicitly requires valid descriptors from its selected producers. Developer discovery continues to skip absent optional components.
+Strict interoperability CI now explicitly requires valid descriptors from its selected producers. Developer discovery continues to skip absent optional components. The audit records the integrated gate and the separate schema validation of pinned producers.
 
 Added the first interoperability audit checkpoint with a pinned public repository inventory, baseline verification, threat assessment and milestone ledger. The pinned compatibility check passed for nine descriptor producers and 29 declared CLI edges. Recorded installed launcher failures and corrected the Plane/Create compatibility note. Recorded the reproduced Forge/Relay checkpoint mismatch and verified correction. Expanded source coverage and recorded the missing-producer CLI baseline and Forge publication blocker.
 
