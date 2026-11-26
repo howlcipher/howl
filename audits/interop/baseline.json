@@ -630,8 +630,8 @@
       "consumer": "howlrelay",
       "producer": "howlforge",
       "transport": "checkpoint files",
-      "status": "Implemented but unverified",
-      "evidence": "docs/INTEROP.md handoff definitions"
+      "status": "Verified",
+      "evidence": "forge_relay_checkpoint"
     }
   ],
   "evidence": {
@@ -1070,6 +1070,19 @@
         768,
         1440
       ]
+    },
+    "forge_relay_checkpoint": {
+      "scope": [
+        "howlforge",
+        "howlrelay"
+      ],
+      "issue": "https://github.com/howlcipher/howlforge/issues/7",
+      "pull_request": "https://github.com/howlcipher/howlforge/pull/8",
+      "baseline_result": "Forge accepted the published example. Relay omitted it because the nested verification object lacked schema_version.",
+      "fixed_head": "f238b5163c340e6f3a0bd25965c698552c1d2f58",
+      "fixed_result": "Forge validated the corrected example. Pinned Relay included the checkpoint observation and an advisory next action.",
+      "limit": "This run proves the version correction for the example. Full validator/schema parity was outside the test.",
+      "integrated_revision": "c2ee71140490219424210d63ce08f793b162012f"
     }
   },
   "gaps": [
@@ -1104,9 +1117,10 @@
     {
       "priority": 2,
       "owner": "howlforge",
-      "finding": "Default branch and interop CI branch differ; checkpoint integration is unverified",
-      "evidence": "repository inventory and docs/INTEROP.md",
-      "next": "Run the existing checkpoint path with exact Forge and Relay revisions"
+      "finding": "Forge accepts a published checkpoint example that Relay rejects due to missing nested verification schema_version",
+      "evidence": "forge_relay_checkpoint",
+      "next": "Retain full Go validator and schema parity as a separate conformance audit.",
+      "status": "Completed"
     }
   ],
   "security_assessment": [
