@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+Added the first interoperability audit checkpoint with a pinned public repository inventory, baseline verification, threat assessment and milestone ledger. The pinned compatibility check passed for nine descriptor producers and 29 declared CLI edges. Recorded installed launcher failures and corrected the Plane/Create compatibility note.
+
 ## 2026-10-21 (0.2.0)
 
 The default ecosystem is 0.2.0: HowlChangeOps 0.2.0 (machine-readable results,
