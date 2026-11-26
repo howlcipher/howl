@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-Added the first interoperability audit checkpoint with a pinned public repository inventory, baseline verification, threat assessment and milestone ledger.
+Added the first interoperability audit checkpoint with a pinned public repository inventory, baseline verification, threat assessment and milestone ledger. The pinned compatibility check passed for nine descriptor producers and 29 declared CLI edges.
 
 ## 2026-10-21 (0.2.0)
 

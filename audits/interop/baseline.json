@@ -147,7 +147,7 @@
       "repository": "https://github.com/howlcipher/howlchangeops",
       "role": "policy decisions and change authority",
       "maturity": "released CLI",
-      "descriptor_status": "Implemented but unverified",
+      "descriptor_status": "Verified",
       "source_anchor": "adapter/interop.go",
       "workflows": [
         ".github/workflows/ci.yml",
@@ -184,7 +184,7 @@
       "repository": "https://github.com/howlcipher/howlcreate",
       "role": "concept development and scaffolding",
       "maturity": "released CLI",
-      "descriptor_status": "Implemented but unverified",
+      "descriptor_status": "Verified",
       "source_anchor": "src/howlcreate/interop_descriptor.py",
       "workflows": [
         ".github/workflows/ci.yml"
@@ -203,7 +203,7 @@
       "repository": "https://github.com/howlcipher/howldream",
       "role": "speculation and exploration",
       "maturity": "released CLI",
-      "descriptor_status": "Implemented but unverified",
+      "descriptor_status": "Verified",
       "source_anchor": "src/howldream/interop_descriptor.py",
       "workflows": [
         ".github/workflows/ci.yml",
@@ -300,7 +300,7 @@
       "repository": "https://github.com/howlcipher/howlInstinct",
       "role": "semantic decisions",
       "maturity": "source CLI",
-      "descriptor_status": "Implemented but unverified",
+      "descriptor_status": "Verified",
       "source_anchor": "pkg/cli/interop.go",
       "workflows": [
         ".github/workflows/codeql.yml",
@@ -391,7 +391,7 @@
       "repository": "https://github.com/howlcipher/howlrelay",
       "role": "durable coordination and handoffs",
       "maturity": "released CLI",
-      "descriptor_status": "Implemented but unverified",
+      "descriptor_status": "Verified",
       "source_anchor": "src/howlrelay/interop_descriptor.py",
       "workflows": [
         ".github/workflows/ci.yml"
@@ -467,7 +467,7 @@
       "repository": "https://github.com/howlcipher/howlwriter",
       "role": "writing and publishing preparation",
       "maturity": "released CLI",
-      "descriptor_status": "Implemented but unverified",
+      "descriptor_status": "Verified",
       "source_anchor": "src/howlwriter/cli/commands/interop.py",
       "workflows": [
         ".github/workflows/ci.yml",
@@ -546,6 +546,27 @@
       "producer": "howlframe",
       "kind": "build",
       "evidence": "scripts/install_howlframe.sh"
+    },
+    {
+      "consumer": "howlwriter",
+      "producer": "howl-provider-core",
+      "kind": "Python install",
+      "evidence": "pyproject.toml",
+      "observed_producer_revision": "c426b99c2196f28ca903dc89406810b173e3c96e"
+    },
+    {
+      "consumer": "howldream",
+      "producer": "howl-provider-core",
+      "kind": "Python install",
+      "evidence": "pyproject.toml",
+      "observed_producer_revision": "c426b99c2196f28ca903dc89406810b173e3c96e"
+    },
+    {
+      "consumer": "howlcreate",
+      "producer": "howl-provider-core",
+      "kind": "Python install",
+      "evidence": "pyproject.toml",
+      "observed_producer_revision": "c426b99c2196f28ca903dc89406810b173e3c96e"
     }
   ],
   "integration_edges": [
@@ -594,9 +615,9 @@
     {
       "consumer": "howlplane",
       "producer": "howlcreate",
-      "transport": "CLI JSON or optional Python API",
-      "status": "Partially implemented",
-      "evidence": "docs/INTEROP.md documents a historical combined-environment failure; current reproduction pending"
+      "transport": "optional Python API",
+      "status": "Verified",
+      "evidence": "plane_create_assessment"
     },
     {
       "consumer": "howlplane",
@@ -710,7 +731,315 @@
         "result": "child could not start after changing working directory",
         "resolved_by": "proof_plane_bridge"
       }
-    ]
+    ],
+    "pinned_descriptor_matrix": {
+      "check": "Interop checker with explicit binaries built or installed from the inventory default revisions",
+      "result": "pass",
+      "exit_code": 0,
+      "descriptors": [
+        {
+          "component": "howlframe",
+          "status": "ok",
+          "version": "0.3.0"
+        },
+        {
+          "component": "howlchangeops",
+          "status": "ok",
+          "version": "0.2.2"
+        },
+        {
+          "component": "howlplane",
+          "status": "ok",
+          "version": "0.1.1"
+        },
+        {
+          "component": "howlwriter",
+          "status": "ok",
+          "version": "0.1.1"
+        },
+        {
+          "component": "howldream",
+          "status": "ok",
+          "version": "0.4.5"
+        },
+        {
+          "component": "howlcreate",
+          "status": "ok",
+          "version": "0.2.1"
+        },
+        {
+          "component": "howlproof",
+          "status": "ok",
+          "version": "0.2.0b1"
+        },
+        {
+          "component": "howlinstinct",
+          "status": "ok",
+          "version": "0.0.0-dev"
+        },
+        {
+          "component": "howlrelay",
+          "status": "ok",
+          "version": "0.1.1"
+        }
+      ],
+      "declared_cli_edges": [
+        {
+          "consumer": "howl",
+          "producer": "howlplane",
+          "command": [
+            "orchestrate"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howl",
+          "producer": "howlplane",
+          "command": [
+            "agents",
+            "doctor"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howl",
+          "producer": "howlplane",
+          "command": [
+            "factory",
+            "prepare"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howl",
+          "producer": "howlframe",
+          "command": [
+            "check"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howl",
+          "producer": "howlframe",
+          "command": [
+            "build"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlchangeops",
+          "producer": "howlframe",
+          "command": [],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlchangeops",
+          "producer": "howlframe",
+          "command": [
+            "run"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlchangeops",
+          "command": [
+            "evaluate"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlchangeops",
+          "command": [
+            "approve"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlchangeops",
+          "command": [
+            "execute"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlframe",
+          "command": [
+            "run"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlframe",
+          "command": [
+            "build"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlframe",
+          "command": [],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlinstinct",
+          "command": [
+            "decide"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howldream",
+          "command": [
+            "explore"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howldream",
+          "command": [
+            "export"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howldream",
+          "command": [
+            "cluster"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlcreate",
+          "command": [
+            "develop"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlcreate",
+          "command": [
+            "scaffold"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlcreate",
+          "command": [
+            "materialize"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlwriter",
+          "command": [],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlwriter",
+          "command": [
+            "writer"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlwriter",
+          "command": [
+            "project",
+            "draft"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlwriter",
+          "command": [
+            "humanize"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlwriter",
+          "command": [
+            "lint"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlwriter",
+          "command": [
+            "native",
+            "request"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlplane",
+          "producer": "howlwriter",
+          "command": [
+            "native",
+            "write"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlproof",
+          "producer": "howlplane",
+          "command": [
+            "reconcile"
+          ],
+          "severity": "ok"
+        },
+        {
+          "consumer": "howlrelay",
+          "producer": "howlframe",
+          "command": [],
+          "severity": "ok"
+        }
+      ],
+      "limit": "Metadata compatibility, without performing the declared operations. Python transitive dependencies were resolved for these isolated builds."
+    },
+    "plane_create_assessment": {
+      "scope": [
+        "howlplane",
+        "howlframe",
+        "howldream",
+        "howlcreate"
+      ],
+      "check": "Combined-environment test_howldream_integration.py::test_end_to_end_exploration_howlframe_howlcreate_pipeline plus a nonempty result assertion against the same deterministic workflow",
+      "result": "pass",
+      "candidates": 2,
+      "assessments": 2,
+      "development_results": 1,
+      "execution_authority": "NONE",
+      "limit": "Deterministic test provider and in-process scaffold. No live inference or executable authority tested."
+    },
+    "pages_local_checks": {
+      "check": "scripts/test_seo.py and scripts/test_ecosystem.py",
+      "result": "pass",
+      "browser_widths_px": [
+        375,
+        768,
+        1440
+      ]
+    }
   },
   "gaps": [
     {
