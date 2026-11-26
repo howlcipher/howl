@@ -67,10 +67,13 @@ jobs:
           for c in howlframe howlchangeops howlinstinct howlplane howlwriter howldream howlcreate howlproof howlforge howlrelay; do
             args+=(--bin "$c=$RUNNER_TEMP/bin/$c")
           done
+          components=howlframe,howlchangeops,howlplane,howlwriter,howldream,howlcreate,howlproof,howlinstinct,howlrelay
           # Scheduled and pull-request runs have no inputs: strict by default.
-          if [ "${{ inputs.strict }}" != "false" ]; then args+=(--strict); fi
+          if [ "${{ inputs.strict }}" != "false" ]; then
+            args+=(--strict --require-descriptors "$components")
+          fi
           go run ./tools/interop-check "${args[@]}" \
-            --components howlframe,howlchangeops,howlplane,howlwriter,howldream,howlcreate,howlproof,howlinstinct,howlrelay
+            --components "$components"
 
       - name: Exercise real public forwarding and failure behavior
         env:

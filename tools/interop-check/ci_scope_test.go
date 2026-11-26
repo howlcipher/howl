@@ -13,9 +13,13 @@ func TestStrictCIScopeMatchesDefaultComponents(t *testing.T) {
 		t.Fatal(err)
 	}
 	text := string(data)
-	match := regexp.MustCompile(`--components ([a-z,]+)`).FindStringSubmatch(text)
+	match := regexp.MustCompile(`(?m)^ +components=([a-z,]+)$`).FindStringSubmatch(text)
 	if len(match) != 2 {
 		t.Fatal("workflow missing explicit component scope")
+	}
+	if !strings.Contains(text, `--strict --require-descriptors "$components"`) ||
+		!strings.Contains(text, `--components "$components"`) {
+		t.Fatal("strict workflow must require every selected descriptor")
 	}
 	selected := map[string]bool{}
 	for _, name := range strings.Split(match[1], ",") {

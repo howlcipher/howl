@@ -4,7 +4,7 @@
 // `howl` subcommand: `howl doctor` runs the same check over installed
 // components.
 //
-//	go run ./tools/interop-check [--json] [--strict] [--bin name=path ...] [--components a,b]
+//	go run ./tools/interop-check [--json] [--strict] [--bin name=path ...] [--components a,b] [--require-descriptors a]
 //
 // It exits 1 when any edge fails (or, with --strict, when any edge or
 // descriptor only warns).
@@ -68,18 +68,35 @@ func run(args []string, stdout, stderr io.Writer) int {
 	asJSON := fs.Bool("json", false, "print a machine-readable report")
 	strict := fs.Bool("strict", false, "treat warnings (missing descriptors, unverifiable edges) as failures")
 	components := fs.String("components", strings.Join(defaultComponents, ","), "comma-separated components to look for")
+	required := fs.String("require-descriptors", "", "comma-separated selected components that must provide valid descriptors")
 	bins := binFlags{}
 	fs.Var(bins, "bin", "name=path: use this executable for a component (repeatable)")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}
 
+	names := strings.Split(*components, ",")
+	requiredNames := map[string]bool{}
+	if *required != "" {
+		selected := map[string]bool{}
+		for _, name := range names {
+			selected[strings.TrimSpace(name)] = true
+		}
+		for _, name := range strings.Split(*required, ",") {
+			name = strings.TrimSpace(name)
+			if name == "" || !selected[name] {
+				fmt.Fprintf(stderr, "interop-check: required component %q is not selected by --components\n", name)
+				return 2
+			}
+			requiredNames[name] = true
+		}
+	}
 	locator, err := interop.DefaultLocator()
 	if err != nil {
 		fmt.Fprintln(stderr, "interop-check:", err)
 		return 2
 	}
-	rep := check(context.Background(), strings.Split(*components, ","), bins, locator.Locate, interop.ExecRunner{}, *strict)
+	rep := check(context.Background(), names, bins, locator.Locate, interop.ExecRunner{}, *strict, requiredNames)
 	if *asJSON {
 		enc := json.NewEncoder(stdout)
 		enc.SetIndent("", "  ")
@@ -93,7 +110,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 	return 0
 }
 
-func check(ctx context.Context, names []string, bins map[string]string, locate func(string) (string, bool), runner interop.Runner, strict bool) report {
+func check(ctx context.Context, names []string, bins map[string]string, locate func(string) (string, bool), runner interop.Runner, strict bool, required map[string]bool) report {
 	rep := report{Schema: "howl.interop_check/v1"}
 	descs := map[string]*interop.Descriptor{"howl": interop.Self()}
 	unavailable := map[string]string{}
@@ -109,6 +126,9 @@ func check(ctx context.Context, names []string, bins map[string]string, locate f
 		dr := descriptorReport{Component: name, Path: path}
 		if !ok {
 			dr.Status, dr.Message = string(interop.SeveritySkip), "not found"
+			if required[name] {
+				dr.Status, dr.Message = string(interop.SeverityFail), "required component executable not found"
+			}
 			rep.Descriptors = append(rep.Descriptors, dr)
 			continue
 		}
@@ -118,6 +138,9 @@ func check(ctx context.Context, names []string, bins map[string]string, locate f
 		case errors.As(err, &none):
 			unavailable[name] = name + " " + none.Reason
 			dr.Status, dr.Message = string(interop.SeverityWarn), none.Reason
+			if required[name] {
+				dr.Status = string(interop.SeverityFail)
+			}
 		case err != nil:
 			unavailable[name] = name + " published an invalid descriptor"
 			dr.Status, dr.Message = string(interop.SeverityFail), err.Error()
