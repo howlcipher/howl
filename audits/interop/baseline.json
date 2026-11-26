@@ -706,7 +706,38 @@
       "skipped": [
         "howldream",
         "howlproof"
-      ]
+      ],
+      "follow_up": {
+        "howlframe": {
+          "reported_version": "0.1.0",
+          "embedded_revision": "41d56cecd9e8f936cf9da35240331ab7da0244cd",
+          "observed": "Howl-managed release directory"
+        },
+        "howlchangeops": {
+          "reported_version": "0.1.0",
+          "embedded_revision": "4b0cbce3e471ae85d7b24fd2ff1a8930bdf68d61",
+          "observed": "Howl-managed release directory, older than the current manifest"
+        },
+        "howlInstinct": {
+          "reported_version": "0.0.0-dev",
+          "embedded_revision": "cb211db310873d754482542578c5656afc8eca68"
+        },
+        "howlcreate": {
+          "observed": "checkout virtualenv launcher",
+          "descriptor_failure": "installed provider core cannot export redact"
+        },
+        "howlrelay": {
+          "observed": "checkout virtualenv launcher",
+          "descriptor_failure": "jsonschema is missing"
+        },
+        "howldream": {
+          "observed": "local-bin entry is not executable"
+        },
+        "howlproof": {
+          "observed": "local-bin entry is not executable"
+        },
+        "limit": "Embedded Go revisions identify builds. Release asset identity still requires checksum comparison."
+      }
     },
     "pages_http": {
       "scope": "public HTTP retrieval",
