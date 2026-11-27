@@ -24,6 +24,14 @@ The machine-readable inventory records additional source observations for Board,
 
 Forge publication is blocked by an existing environment rule that permits `main` only. Its default branch also triggers the workflow and is refused. Track the branch ownership decision and subsequent public HTTP smoke test under [Forge issue #9](https://github.com/howlcipher/howlforge/issues/9).
 
+## Correlated pilot rehearsal
+
+The pinned Plane runner invoked Frame against a temporary project. The frame audit reported `WARN` and Plane recorded `MATCH`. A five-instruction budget produced `BUDGET_EXCEEDED` under the same task ID. A separate lookup with Frame absent returned `HOWLFRAME_UNAVAILABLE`.
+
+To reproduce, pass the pinned Frame executable to Plane through `HOWLFRAME_BIN`, call `HowlFrameAuditRunner.run_audit` with a temporary `EvidenceLedger` and a fixed task ID, and copy the outcome fields and task ID into a fresh artifact directory. Initialize Proof with `--profile secrets.scan --require-check secrets.scan` and use the same task ID as its artifact name. Evaluate the directory, then hand the generated bundle to `howlproof plane` with the pinned Plane executable. Check the input tree digest remains stable, reconciliation is advisory and the Proof run ID matches the ingestion record. Copy the bundle and alter its result file to reproduce the integrity refusal outside the original evidence directory.
+
+Proof returned `PROVEN` for the declared credential-pattern scan. Plane reconciled the original evidence as `ADVISORY`, and Proof rejected the altered bundle before invoking Plane. This is one real correlated rehearsal. Correlation was supplied by the rehearsal, and the run did not test protected execution or demonstrate complete pilot conformance.
+
 ## Architecture direction for review
 
 | Approach | Advantages | Costs and limits |
@@ -54,7 +62,7 @@ Public discovery is read-only metadata. Authorized local calls retain producer p
 | --- | --- | --- |
 | M0 Audit and baseline | In progress | Complete source-level coverage, including private sources in restricted evidence, reproduce unresolved dependency edges, review direction and baseline independently |
 | M1 Contracts | Pending M0 | Document justified optional extensions and verify both old and new producers and consumers using canonical schemas |
-| M2 Pilot | Existing legs verified | Run one pinned Frame, Plane and Proof workflow with shared correlation, blocked and unavailable outcomes, and unauthorized operation rejection |
+| M2 Pilot | Correlated rehearsal verified | Add a reproducible gate, verify unauthorized operation rejection, and distinguish native correlation from caller-supplied IDs |
 | M3 Discovery and AI | Pending threat model review | Generate, validate and deploy the minimal Pages surface, include accessible copy and offline text, and retrieve it over public HTTP |
 | M4 Reuse | Pending pilot | Fix a demonstrated repeated adapter or discovery problem and exercise its real consumers |
 | M5 Observability | Pending pilot | Use existing records to produce one correlated failure, remediation and verification trail |

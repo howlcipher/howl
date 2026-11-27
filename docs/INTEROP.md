@@ -17,14 +17,14 @@ together. The machine-readable schemas live in
 
 | Option | For | Against |
 | :--- | :--- | :--- |
-| **CLI + JSON (chosen)** | Works offline and without a daemon; every component already has a CLI; cooperative confirmation prompts keep working (they do not authenticate owner identity against same-user processes); a process boundary isolates crashes and dependencies. | Process start-up cost; the contract must be written down, which this page does. |
+| **CLI + JSON (chosen)** | Works offline and without a daemon; the installation and orchestration components already use CLIs; cooperative confirmation prompts keep working (they do not authenticate owner identity against same-user processes); a process boundary isolates crashes and dependencies. | Process start-up cost; the contract must be written down, which this page does. |
 | MCP servers | Agents could call components as tools. | A second surface to secure; owner-confirmation rules would have to be re-implemented per server. Can be generated later from the descriptors below. |
 | Local HTTP services | Rich request/response. | Needs daemons, ports, authentication and lifecycle management; SCOPE.md forbids a server in the installer. |
 | In-process imports | No serialization. | Couples dependency trees and release cadence. Verified cases include HowlWriter → HowlPlane (manifest `python_imports`) and optional HowlPlane → HowlDream (`dream-api` extra, pinned API revision; see HowlPlane `documentation/HOWLDREAM_API.md`). Plane also optionally imports Create for advisory scaffold promotion; the [pinned combined-environment baseline](../audits/interop/README.md) produced a Create scaffold with advisory authority after Plane corrected the assessment contract. CLI descriptors describe process calls, not these Python APIs. |
 
 ## 1. The interop descriptor
 
-Every component that another component calls publishes a descriptor:
+CLI producers that conform to this descriptor contract publish:
 
 ```bash
 <component> interop --json
