@@ -1145,6 +1145,37 @@
       "check": "Validate CLI JSON using the canonical Draft 2020-12 schema and Python jsonschema",
       "result": "All nine passed",
       "limit": "This checks document shape independently of Go edge resolution. It does not establish authority or runtime behavior."
+    },
+    "three_component_rehearsal": {
+      "scope": [
+        "howlframe",
+        "howlplane",
+        "howlproof"
+      ],
+      "revisions": {
+        "howlframe": "e64256e5059df32bef82ef42f9814750f3a06fad",
+        "howlplane": "f68968140edad49a4dc82386a2d5837347928247",
+        "howlproof": "a050d1d2a1480fa65e3ea282583ae6ba07de1996"
+      },
+      "task_id": "HOWL-INTEROP-REHEARSAL",
+      "outcomes": {
+        "plane_frame_status": "MATCH",
+        "frame_audit_status": "WARN",
+        "budget_exhausted": "BUDGET_EXCEEDED",
+        "missing_frame": "HOWLFRAME_UNAVAILABLE",
+        "proof_scan": "PROVEN",
+        "proof_plane_status": "RECONCILED",
+        "proof_plane_authority": "ADVISORY",
+        "altered_bundle_exit_code": 2
+      },
+      "correlation": "The rehearsal supplied one task ID to the Plane ledger and Proof artifact; Proof and Plane ingestion shared the Proof run ID.",
+      "limit": "The reduced audit output was assembled by the rehearsal. Proof checked credential patterns and bundle integrity. No live inference, protected operation or general authorization was exercised."
+    },
+    "independent_documentation_claim_collection": {
+      "revision": "c76c4f50e0b478a39119a3369788b1c20074198f",
+      "check": "HowlProof docs.claims.absolutes across audit README, interop and scope",
+      "result": "14 candidate absolute claims collected; the CLI coverage statement was scoped during follow-up review.",
+      "limit": "The evaluator identifies claims for review. It does not decide whether they are true or accept M0."
     }
   },
   "gaps": [
